@@ -1,0 +1,289 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Data Explorer - BI Tools{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="page-header mb-4">
+        <h1 class="h3">Data Explorer</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('bi_tools.index') }}">BI Tools</a></li>
+                <li class="breadcrumb-item active">Data Explorer</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <!-- Data Source Selection -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Data Sources</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <button class="list-group-item list-group-item-action active" onclick="loadDataSource('risks')">
+                            <i class="fas fa-exclamation-triangle"></i> Risks
+                            <span class="badge bg-secondary float-end">1,234</span>
+                        </button>
+                        <button class="list-group-item list-group-item-action" onclick="loadDataSource('controls')">
+                            <i class="fas fa-shield-alt"></i> Controls
+                            <span class="badge bg-secondary float-end">567</span>
+                        </button>
+                        <button class="list-group-item list-group-item-action" onclick="loadDataSource('incidents')">
+                            <i class="fas fa-bell"></i> Incidents
+                            <span class="badge bg-secondary float-end">89</span>
+                        </button>
+                        <button class="list-group-item list-group-item-action" onclick="loadDataSource('assessments')">
+                            <i class="fas fa-clipboard-check"></i> Assessments
+                            <span class="badge bg-secondary float-end">456</span>
+                        </button>
+                        <button class="list-group-item list-group-item-action" onclick="loadDataSource('kri')">
+                            <i class="fas fa-tachometer-alt"></i> KRI
+                            <span class="badge bg-secondary float-end">234</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <select class="form-select form-select-sm">
+                            <option>All Departments</option>
+                            <option>IT</option>
+                            <option>Finance</option>
+                            <option>Operations</option>
+                            <option>HR</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date Range</label>
+                        <select class="form-select form-select-sm">
+                            <option>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>Last 6 Months</option>
+                            <option>Last Year</option>
+                            <option>All Time</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select form-select-sm">
+                            <option>All Status</option>
+                            <option>Active</option>
+                            <option>Inactive</option>
+                            <option>Pending</option>
+                            <option>Closed</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-sm btn-primary w-100">Apply Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Grid -->
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Risk Data</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="exportData('csv')">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="exportData('excel')">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="exportData('pdf')">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" class="form-check-input">
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Risk Name</th>
+                                    <th>Category</th>
+                                    <th>Impact</th>
+                                    <th>Likelihood</th>
+                                    <th>Rating</th>
+                                    <th>Status</th>
+                                    <th>Owner</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox" class="form-check-input"></td>
+                                    <td>R-001</td>
+                                    <td>Data Breach Risk</td>
+                                    <td>Cybersecurity</td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td><span class="badge bg-success">Mitigated</span></td>
+                                    <td>John Doe</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('R-001')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="form-check-input"></td>
+                                    <td>R-002</td>
+                                    <td>Regulatory Compliance</td>
+                                    <td>Compliance</td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td><span class="badge bg-warning">Active</span></td>
+                                    <td>Jane Smith</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('R-002')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" class="form-check-input"></td>
+                                    <td>R-003</td>
+                                    <td>Market Volatility</td>
+                                    <td>Financial</td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                    <td><span class="badge bg-info">Monitoring</span></td>
+                                    <td>Mike Johnson</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('R-003')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Data Visualization -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Risk Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="riskChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Status Overview</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="statusChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize charts
+document.addEventListener('DOMContentLoaded', function() {
+    // Risk Distribution Chart
+    const riskCtx = document.getElementById('riskChart').getContext('2d');
+    new Chart(riskCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['High', 'Medium', 'Low'],
+            datasets: [{
+                data: [30, 45, 25],
+                backgroundColor: ['#dc3545', '#ffc107', '#28a745']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Status Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Active', 'Mitigated', 'Monitoring', 'Closed'],
+            datasets: [{
+                label: 'Count',
+                data: [45, 30, 20, 15],
+                backgroundColor: '#0d6efd'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+
+function loadDataSource(source) {
+    // Update active state
+    document.querySelectorAll('.list-group-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.target.closest('.list-group-item').classList.add('active');
+    
+    // Load new data
+    console.log('Loading data source:', source);
+}
+
+function exportData(format) {
+    alert(`Exporting data as ${format.toUpperCase()}...`);
+}
+
+function viewDetails(id) {
+    alert(`Viewing details for ${id}`);
+}
+</script>
+{% endblock %}

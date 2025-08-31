@@ -1,0 +1,828 @@
+{% extends "layouts/base.html" %}
+{% block title %}KRI Dashboard - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    /* Professional KRI Dashboard Styles - Consistent with NAPSA ERM */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+    }
+    
+    /* Statistics Cards */
+    .stats-card {
+        background: white;
+        border: none;
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .stats-card:hover::before {
+        opacity: 1;
+    }
+    
+    .stats-card.primary::before {
+        background: var(--primary-gradient);
+    }
+    
+    .stats-card.success::before {
+        background: var(--success-gradient);
+    }
+    
+    .stats-card.warning::before {
+        background: var(--warning-gradient);
+    }
+    
+    .stats-card.danger::before {
+        background: var(--danger-gradient);
+    }
+    
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+    
+    .stats-card.primary .stats-icon {
+        background: var(--primary-gradient);
+    }
+    
+    .stats-card.success .stats-icon {
+        background: var(--success-gradient);
+    }
+    
+    .stats-card.warning .stats-icon {
+        background: var(--warning-gradient);
+    }
+    
+    .stats-card.danger .stats-icon {
+        background: var(--danger-gradient);
+    }
+    
+    .stats-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    .stats-label {
+        font-size: 14px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    /* Monitoring Table */
+    .monitoring-table {
+        background: white;
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+    }
+    
+    .monitoring-table .table {
+        margin-bottom: 0;
+    }
+    
+    .monitoring-table thead {
+        background: #f8fafc;
+    }
+    
+    .monitoring-table th {
+        border-top: none;
+        border-bottom: 2px solid #e5e7eb;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        padding: 15px;
+    }
+    
+    .monitoring-table td {
+        padding: 15px;
+        vertical-align: middle;
+        border-color: #e5e7eb;
+    }
+    
+    /* Button Styles - Consistent with other pages */
+    .btn-primary, .btn-secondary {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover, .btn-secondary:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    
+    .btn-outline-primary {
+        background: white !important;
+        border: 2px solid var(--sidebar-color) !important;
+        color: var(--sidebar-color) !important;
+    }
+    
+    .btn-outline-primary:hover {
+        background: var(--sidebar-color) !important;
+        color: white !important;
+    }
+    
+    /* Action buttons in table */
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 6px;
+    }
+    
+    .btn-action {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+    }
+    
+    .btn-action:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Action Buttons -->
+    <div class="mb-4">
+        <button class="btn btn-primary" onclick="addNewKRI()">
+            <i class="fas fa-plus me-2"></i>Add KRI
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="refreshKRIs()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+    </div>
+
+    <!-- KRI Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card primary">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stats-label">Total KRIs</p>
+                            <h2 class="stats-number" id="totalKRIs">0</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card success">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stats-label">Within Threshold</p>
+                            <h2 class="stats-number" id="greenKRIs">0</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stats-label">Warning</p>
+                            <h2 class="stats-number" id="amberKRIs">0</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card danger">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="stats-label">Breached</p>
+                            <h2 class="stats-number" id="redKRIs">0</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Alerts -->
+    <div class="card mb-4" id="alertsCard" style="display: none;">
+        <div class="card-header bg-danger text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-bell"></i> Active Alerts
+            </h5>
+        </div>
+        <div class="card-body">
+            <div id="activeAlerts">
+                <!-- Alerts will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- KRI Monitoring Grid -->
+    <div class="monitoring-table">
+        <div class="p-3 border-bottom bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">KRI Monitoring Status</h5>
+                <span class="badge bg-info">Last Updated: <span id="lastUpdate">-</span></span>
+            </div>
+        </div>
+        <div class="p-0">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>KRI Name</th>
+                            <th>Category</th>
+                            <th>Current Value</th>
+                            <th>Threshold</th>
+                            <th>Status</th>
+                            <th>Trend</th>
+                            <th>Associated Risk</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kriTableBody">
+                        <!-- KRI rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- KRI Detail Modal -->
+    <div class="modal fade" id="kriDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">KRI Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- KRI Chart -->
+                            <canvas id="kriChart" height="100"></canvas>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- KRI Details -->
+                            <h6>Indicator Information</h6>
+                            <dl class="row">
+                                <dt class="col-sm-5">Name:</dt>
+                                <dd class="col-sm-7" id="kriName">-</dd>
+                                
+                                <dt class="col-sm-5">Category:</dt>
+                                <dd class="col-sm-7" id="kriCategory">-</dd>
+                                
+                                <dt class="col-sm-5">Frequency:</dt>
+                                <dd class="col-sm-7" id="kriFrequency">-</dd>
+                                
+                                <dt class="col-sm-5">Owner:</dt>
+                                <dd class="col-sm-7" id="kriOwner">-</dd>
+                            </dl>
+                            
+                            <h6 class="mt-3">Thresholds</h6>
+                            <dl class="row">
+                                <dt class="col-sm-5">Green (≤):</dt>
+                                <dd class="col-sm-7" id="kriGreen">-</dd>
+                                
+                                <dt class="col-sm-5">Amber (≤):</dt>
+                                <dd class="col-sm-7" id="kriAmber">-</dd>
+                                
+                                <dt class="col-sm-5">Red (>):</dt>
+                                <dd class="col-sm-7" id="kriRed">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <!-- Historical Values -->
+                    <div class="mt-4">
+                        <h6>Recent Values</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kriHistory">
+                                <!-- History will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="updateKRIValue()">
+                        Update Value
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.green {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.amber {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.red {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.trend-icon {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.trend-icon.up {
+    color: #ef4444;
+}
+
+.trend-icon.down {
+    color: #22c55e;
+}
+
+.trend-icon.stable {
+    color: #3b82f6;
+}
+
+.status-green {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-amber {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-red {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-critical {
+    background-color: #721c24;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.trend-up {
+    color: #dc3545;
+}
+
+.trend-down {
+    color: #28a745;
+}
+
+.trend-stable {
+    color: #6c757d;
+}
+
+.alert-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #dc3545;
+    background-color: #f8d7da;
+    border-radius: 4px;
+}
+
+.kri-value-bar {
+    position: relative;
+    height: 30px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.kri-value-fill {
+    position: absolute;
+    height: 100%;
+    background-color: #007bff;
+    transition: width 0.3s ease;
+}
+
+.kri-threshold-marker {
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background-color: #000;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let kriData = [];
+let selectedKRI = null;
+let kriChart = null;
+let autoRefreshInterval = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadKRIData();
+    startAutoRefresh();
+});
+
+function startAutoRefresh() {
+    // Auto-refresh every 30 seconds
+    autoRefreshInterval = setInterval(() => {
+        loadKRIData(true);
+    }, 30000);
+}
+
+function loadKRIData(silent = false) {
+    fetch('/kri/api/dashboard-data')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                kriData = data.data.kris || [];
+                updateDashboard(data.data);
+                if (!silent) {
+                    showNotification('KRI data loaded successfully', 'success');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading KRI data:', error);
+            // Use sample data for demonstration
+            generateSampleKRIData();
+            updateDashboard({
+                summary: {
+                    total_kris: kriData.length,
+                    breached_kris: 3,
+                    critical_kris: 1
+                },
+                kris: kriData
+            });
+        });
+}
+
+function generateSampleKRIData() {
+    kriData = [
+        {
+            id: '1',
+            name: 'System Uptime',
+            category: 'Operational',
+            current_value: 99.95,
+            threshold_green: 99.9,
+            threshold_amber: 99.0,
+            threshold_red: 95.0,
+            status: 'green',
+            trend: 'stable',
+            risk_title: 'System Downtime Risk',
+            frequency: 'Daily',
+            last_updated: new Date().toISOString()
+        },
+        {
+            id: '2',
+            name: 'Failed Login Attempts',
+            category: 'Security',
+            current_value: 45,
+            threshold_green: 10,
+            threshold_amber: 50,
+            threshold_red: 100,
+            status: 'amber',
+            trend: 'up',
+            risk_title: 'Cyber Security Risk',
+            frequency: 'Hourly',
+            last_updated: new Date().toISOString()
+        },
+        {
+            id: '3',
+            name: 'Payment Processing Time',
+            category: 'Operational',
+            current_value: 8.5,
+            threshold_green: 2,
+            threshold_amber: 4,
+            threshold_red: 8,
+            status: 'red',
+            trend: 'up',
+            risk_title: 'Benefits Processing Delay',
+            frequency: 'Daily',
+            last_updated: new Date().toISOString()
+        },
+        {
+            id: '4',
+            name: 'Compliance Score',
+            category: 'Compliance',
+            current_value: 92,
+            threshold_green: 90,
+            threshold_amber: 75,
+            threshold_red: 60,
+            status: 'green',
+            trend: 'stable',
+            risk_title: 'Regulatory Non-Compliance',
+            frequency: 'Monthly',
+            last_updated: new Date().toISOString()
+        }
+    ];
+}
+
+function updateDashboard(data) {
+    // Update summary cards
+    document.getElementById('totalKRIs').textContent = data.summary?.total_kris || kriData.length;
+    
+    const statusCounts = countByStatus();
+    document.getElementById('greenKRIs').textContent = statusCounts.green;
+    document.getElementById('amberKRIs').textContent = statusCounts.amber;
+    document.getElementById('redKRIs').textContent = statusCounts.red + statusCounts.critical;
+    
+    // Update last update time
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+    
+    // Update alerts
+    updateAlerts();
+    
+    // Update KRI table
+    updateKRITable();
+}
+
+function countByStatus() {
+    const counts = { green: 0, amber: 0, red: 0, critical: 0 };
+    kriData.forEach(kri => {
+        counts[kri.status] = (counts[kri.status] || 0) + 1;
+    });
+    return counts;
+}
+
+function updateAlerts() {
+    const alerts = kriData.filter(kri => kri.status === 'red' || kri.status === 'critical');
+    const alertsCard = document.getElementById('alertsCard');
+    const alertsContainer = document.getElementById('activeAlerts');
+    
+    if (alerts.length > 0) {
+        alertsCard.style.display = 'block';
+        alertsContainer.innerHTML = alerts.map(kri => `
+            <div class="alert-item">
+                <strong>${kri.name}</strong> - ${kri.status.toUpperCase()} 
+                <span class="float-end">Value: ${kri.current_value} (Threshold: ${kri.threshold_red})</span>
+                <br>
+                <small>Associated Risk: ${kri.risk_title}</small>
+            </div>
+        `).join('');
+    } else {
+        alertsCard.style.display = 'none';
+    }
+}
+
+function updateKRITable() {
+    const tbody = document.getElementById('kriTableBody');
+    tbody.innerHTML = kriData.map(kri => `
+        <tr onclick="showKRIDetails('${kri.id}')" style="cursor: pointer;">
+            <td><strong>${kri.name}</strong></td>
+            <td>${kri.category}</td>
+            <td>${kri.current_value}</td>
+            <td>
+                <span class="text-success">${kri.threshold_green}</span> /
+                <span class="text-warning">${kri.threshold_amber}</span> /
+                <span class="text-danger">${kri.threshold_red}</span>
+            </td>
+            <td>
+                <span class="status-badge status-${kri.status}">${kri.status}</span>
+            </td>
+            <td>
+                ${getTrendIcon(kri.trend)}
+            </td>
+            <td>${kri.risk_title || '-'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); updateKRIValue('${kri.id}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function getTrendIcon(trend) {
+    if (trend === 'up') {
+        return '<i class="fas fa-arrow-up trend-up"></i>';
+    } else if (trend === 'down') {
+        return '<i class="fas fa-arrow-down trend-down"></i>';
+    } else {
+        return '<i class="fas fa-minus trend-stable"></i>';
+    }
+}
+
+function showKRIDetails(kriId) {
+    selectedKRI = kriData.find(k => k.id === kriId);
+    if (!selectedKRI) return;
+    
+    // Update modal content
+    document.getElementById('kriName').textContent = selectedKRI.name;
+    document.getElementById('kriCategory').textContent = selectedKRI.category;
+    document.getElementById('kriFrequency').textContent = selectedKRI.frequency;
+    document.getElementById('kriOwner').textContent = selectedKRI.owner || 'Not assigned';
+    
+    document.getElementById('kriGreen').textContent = selectedKRI.threshold_green;
+    document.getElementById('kriAmber').textContent = selectedKRI.threshold_amber;
+    document.getElementById('kriRed').textContent = selectedKRI.threshold_red;
+    
+    // Create/update chart
+    createKRIChart(selectedKRI);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('kriDetailModal'));
+    modal.show();
+}
+
+function createKRIChart(kri) {
+    const ctx = document.getElementById('kriChart').getContext('2d');
+    
+    if (kriChart) {
+        kriChart.destroy();
+    }
+    
+    // Generate sample historical data
+    const labels = [];
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString());
+        data.push(kri.current_value + (Math.random() - 0.5) * 10);
+    }
+    data[data.length - 1] = kri.current_value;
+    
+    kriChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: kri.name,
+                data: data,
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                annotation: {
+                    annotations: {
+                        greenLine: {
+                            type: 'line',
+                            yMin: kri.threshold_green,
+                            yMax: kri.threshold_green,
+                            borderColor: 'green',
+                            borderWidth: 2,
+                            borderDash: [5, 5]
+                        },
+                        amberLine: {
+                            type: 'line',
+                            yMin: kri.threshold_amber,
+                            yMax: kri.threshold_amber,
+                            borderColor: 'orange',
+                            borderWidth: 2,
+                            borderDash: [5, 5]
+                        },
+                        redLine: {
+                            type: 'line',
+                            yMin: kri.threshold_red,
+                            yMax: kri.threshold_red,
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            borderDash: [5, 5]
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateKRIValue(kriId) {
+    const kri = kriId ? kriData.find(k => k.id === kriId) : selectedKRI;
+    if (!kri) return;
+    
+    const newValue = prompt(`Enter new value for ${kri.name}:`, kri.current_value);
+    if (newValue === null) return;
+    
+    // Send update to server
+    fetch(`/kri/api/update/${kri.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: parseFloat(newValue) })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('KRI value updated successfully', 'success');
+            loadKRIData();
+        }
+    })
+    .catch(error => {
+        console.error('Error updating KRI:', error);
+        showNotification('Failed to update KRI value', 'error');
+    });
+}
+
+function addNewKRI() {
+    window.location.href = '/kri/new';
+}
+
+function refreshKRIs() {
+    loadKRIData();
+}
+
+function showNotification(message, type) {
+    // Simple notification (can be replaced with a toast library)
+    console.log(`${type}: ${message}`);
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+});
+</script>
+{% endblock %}

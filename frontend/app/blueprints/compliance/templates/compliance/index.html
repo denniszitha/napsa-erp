@@ -1,0 +1,1288 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Compliance Management - NAPSA ERM System{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+        --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .btn-primary, .btn-secondary, .btn-outline-primary, .btn-outline-secondary,
+    .btn-primary-theme {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover, .btn-secondary:hover, .btn-outline-primary:hover, 
+    .btn-outline-secondary:hover, .btn-primary-theme:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    /* Compliance Specific Styles */
+    .compliance-header {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+    
+    .compliance-score-card {
+        text-align: center;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .compliance-score-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-1);
+    }
+    
+    .compliance-score {
+        font-size: 3rem;
+        font-weight: bold;
+        margin: 1rem 0;
+    }
+    
+    .score-high { color: #28a745; }
+    .score-medium { color: #ffc107; }
+    .score-low { color: #dc3545; }
+    
+    .compliance-gauge {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .gauge-circle {
+        stroke-width: 10;
+        fill: none;
+        stroke-linecap: round;
+    }
+    
+    .gauge-bg {
+        stroke: #e9ecef;
+    }
+    
+    .gauge-fill {
+        stroke: #28a745;
+        stroke-dasharray: 314;
+        stroke-dashoffset: 314;
+        transform: rotate(-90deg);
+        transform-origin: center;
+        transition: stroke-dashoffset 1s ease-in-out;
+    }
+    
+    .framework-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--sidebar-color);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .framework-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .framework-card.iso27001 { border-left-color: #007bff; }
+    .framework-card.pci_dss { border-left-color: #dc3545; }
+    .framework-card.gdpr { border-left-color: #28a745; }
+    .framework-card.nist { border-left-color: #ffc107; }
+    .framework-card.cobit { border-left-color: #17a2b8; }
+    .framework-card.sox { border-left-color: #6610f2; }
+    .framework-card.basel_iii { border-left-color: #e83e8c; }
+    .framework-card.local_regulations { border-left-color: #fd7e14; }
+    
+    .compliance-table {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    
+    .compliance-status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+    
+    .compliance-status-badge.compliant { background: #d4edda; color: #155724; }
+    .compliance-status-badge.partial { background: #fff3cd; color: #856404; }
+    .compliance-status-badge.non-compliant { background: #f8d7da; color: #721c24; }
+    .compliance-status-badge.not-assessed { background: #e2e3e5; color: #6c757d; }
+    
+    .risk-level-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+    
+    .risk-level-badge.critical { background: #721c24; color: white; }
+    .risk-level-badge.high { background: #dc3545; color: white; }
+    .risk-level-badge.medium { background: #ffc107; color: #000; }
+    .risk-level-badge.low { background: #28a745; color: white; }
+    
+    .evidence-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 0.5rem;
+    }
+    
+    .evidence-item {
+        padding: 0.5rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .evidence-item:last-child {
+        border-bottom: none;
+    }
+    
+    .assessment-wizard {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .assessment-step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+    
+    .assessment-step::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        right: -50%;
+        width: 100%;
+        height: 2px;
+        background: #dee2e6;
+        z-index: -1;
+    }
+    
+    .assessment-step:last-child::after {
+        display: none;
+    }
+    
+    .assessment-step.completed::after {
+        background: #28a745;
+    }
+    
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        font-weight: bold;
+    }
+    
+    .assessment-step.active .step-icon {
+        border-color: var(--sidebar-color);
+        color: var(--sidebar-color);
+    }
+    
+    .assessment-step.completed .step-icon {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+    
+    .compliance-matrix {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .matrix-cell {
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    
+    .matrix-cell:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .remediation-timeline {
+        position: relative;
+        padding-left: 40px;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -30px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+    
+    .timeline-item::after {
+        content: '';
+        position: absolute;
+        left: -35px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #6c757d;
+        border: 2px solid white;
+    }
+    
+    .timeline-item.completed::after {
+        background: #28a745;
+    }
+    
+    /* All text black */
+    .compliance-table th, .compliance-table td, .compliance-header h2, .compliance-header p, label {
+        color: #000000 !important;
+    }
+    
+    /* Loading Spinner */
+    .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 300px;
+    }
+    
+    /* Modal Styles */
+    .modal-header {
+        background: var(--gradient-1);
+        color: white;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+    
+    /* Chart Container */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 1rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card:nth-child(1)::before {
+        background: var(--gradient-1);
+    }
+
+    .stat-card:nth-child(2)::before {
+        background: var(--gradient-2);
+    }
+
+    .stat-card:nth-child(3)::before {
+        background: var(--gradient-3);
+    }
+
+    .stat-card:nth-child(4)::before {
+        background: var(--gradient-4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Action Buttons -->
+    <div class="mb-4">
+        <button class="btn btn-primary" onclick="openComplianceModal()">
+            <i class="fas fa-plus me-2"></i>New Compliance Check
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="generateReport()">
+            <i class="fas fa-file-pdf me-1"></i>Generate Report
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="refreshCompliance()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="viewAuditSchedule()">
+            <i class="fas fa-calendar-alt me-1"></i>Audit Schedule
+        </button>
+    </div>
+
+    <!-- Compliance Header -->
+    <div class="compliance-header">
+        <div class="mb-3">
+        
+        <!-- Filters -->
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-select" id="frameworkFilter" onchange="loadComplianceChecks()">
+                    <option value="">All Frameworks</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="statusFilter" onchange="loadComplianceChecks()">
+                    <option value="">All Statuses</option>
+                    <option value="compliant">Compliant</option>
+                    <option value="partial">Partially Compliant</option>
+                    <option value="non-compliant">Non-Compliant</option>
+                    <option value="not-assessed">Not Assessed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="categoryFilter" onchange="loadComplianceChecks()">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="riskLevelFilter" onchange="loadComplianceChecks()">
+                    <option value="">All Risk Levels</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search..." onkeyup="searchCompliance()">
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-outline-secondary" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compliance Dashboard -->
+    <div class="row mb-4">
+        <!-- Overall Compliance Score -->
+        <div class="col-md-3">
+            <div class="stat-card compliance-score-card">
+                <h5 class="text-muted">Overall Compliance</h5>
+                <div class="compliance-score score-high" id="overallScore">85%</div>
+                <svg class="compliance-gauge" viewBox="0 0 120 120">
+                    <circle class="gauge-circle gauge-bg" cx="60" cy="60" r="50"></circle>
+                    <circle class="gauge-circle gauge-fill" cx="60" cy="60" r="50" id="gaugeCircle"></circle>
+                </svg>
+                <small class="text-muted">Last assessed: Today</small>
+            </div>
+        </div>
+        
+        <!-- Compliance by Status -->
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Compliance Status</h5>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>Compliant</span>
+                            <strong class="text-success" id="compliantCount">0</strong>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar bg-success" id="compliantBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>Partial</span>
+                            <strong class="text-warning" id="partialCount">0</strong>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar bg-warning" id="partialBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>Non-Compliant</span>
+                            <strong class="text-danger" id="nonCompliantCount">0</strong>
+                        </div>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar bg-danger" id="nonCompliantBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Critical Gaps -->
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-muted">Critical Gaps</h5>
+                    <h2 class="text-danger mb-0" id="criticalGaps">0</h2>
+                    <small class="text-muted">Requiring immediate attention</small>
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-primary" onclick="viewGaps()">View Gaps</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Next Audit -->
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-muted">Next Audit</h5>
+                    <h4 class="text-primary mb-1" id="nextAuditDate">15 Days</h4>
+                    <small class="text-muted">ISO 27001 Surveillance</small>
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-primary" onclick="viewAuditSchedule()">Schedule</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Framework Compliance Overview -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Framework Compliance Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div id="frameworksList">
+                        <!-- Framework cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compliance Checks Table -->
+    <div class="compliance-table">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 10%">Check ID</th>
+                        <th style="width: 15%">Framework</th>
+                        <th style="width: 20%">Requirement</th>
+                        <th style="width: 10%">Category</th>
+                        <th style="width: 10%">Status</th>
+                        <th style="width: 8%">Risk</th>
+                        <th style="width: 10%">Last Assessed</th>
+                        <th style="width: 10%">Evidence</th>
+                        <th style="width: 7%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="complianceTableBody">
+                    <tr>
+                        <td colspan="9" class="text-center">
+                            <div class="spinner-container">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center p-3 border-top">
+            <div>
+                Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> of <span id="totalChecksCount">0</span> checks
+            </div>
+            <nav>
+                <ul class="pagination mb-0" id="pagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Compliance Check Modal -->
+<div class="modal fade" id="complianceModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="complianceModalTitle">Create Compliance Check</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="complianceForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Framework *</label>
+                            <select class="form-select" id="checkFramework" required onchange="loadFrameworkRequirements()">
+                                <option value="">Select framework...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category *</label>
+                            <select class="form-select" id="checkCategory" required>
+                                <option value="">Select category...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Requirement *</label>
+                            <textarea class="form-control" id="checkRequirement" rows="2" required placeholder="Describe the compliance requirement..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Control Reference</label>
+                            <input type="text" class="form-control" id="controlReference" placeholder="e.g., A.5.1.1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Risk Level *</label>
+                            <select class="form-select" id="riskLevel" required>
+                                <option value="">Select risk level...</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Responsible Person *</label>
+                            <input type="text" class="form-control" id="responsiblePerson" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Due Date *</label>
+                            <input type="date" class="form-control" id="dueDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Implementation Details</label>
+                            <textarea class="form-control" id="implementationDetails" rows="3" placeholder="Describe how this requirement is or will be implemented..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary-theme" onclick="saveComplianceCheck()">Save Check</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assessment Modal -->
+<div class="modal fade" id="assessmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Compliance Assessment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Assessment Wizard -->
+                <div class="assessment-wizard">
+                    <div class="assessment-step active" id="step1">
+                        <div class="step-icon">1</div>
+                        <small>Review</small>
+                    </div>
+                    <div class="assessment-step" id="step2">
+                        <div class="step-icon">2</div>
+                        <small>Assess</small>
+                    </div>
+                    <div class="assessment-step" id="step3">
+                        <div class="step-icon">3</div>
+                        <small>Evidence</small>
+                    </div>
+                    <div class="assessment-step" id="step4">
+                        <div class="step-icon">4</div>
+                        <small>Complete</small>
+                    </div>
+                </div>
+                
+                <form id="assessmentForm">
+                    <div class="assessment-content" id="assessmentContent">
+                        <!-- Assessment content will be loaded dynamically -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="previousStep()" id="prevBtn" style="display: none;">Previous</button>
+                <button type="button" class="btn btn-primary" onclick="nextStep()" id="nextBtn">Next</button>
+                <button type="button" class="btn btn-success" onclick="completeAssessment()" id="completeBtn" style="display: none;">Complete Assessment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Evidence Modal -->
+<div class="modal fade" id="evidenceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Evidence</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="evidenceForm">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Evidence Type *</label>
+                        <select class="form-select" id="evidenceType" required>
+                            <option value="">Select type...</option>
+                            <option value="document">Document</option>
+                            <option value="screenshot">Screenshot</option>
+                            <option value="log">System Log</option>
+                            <option value="report">Report</option>
+                            <option value="certificate">Certificate</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-control" id="evidenceDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">File</label>
+                        <input type="file" class="form-control" id="evidenceFile">
+                        <small class="text-muted">Max file size: 10MB</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="uploadEvidence()">Upload Evidence</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remediation Modal -->
+<div class="modal fade" id="remediationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Remediation Plan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="remediationForm">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Remediation Actions *</label>
+                            <textarea class="form-control" id="remediationActions" rows="3" required placeholder="Describe the actions to achieve compliance..."></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Priority *</label>
+                            <select class="form-select" id="remediationPriority" required>
+                                <option value="">Select priority...</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Target Date *</label>
+                            <input type="date" class="form-control" id="remediationTargetDate" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Assigned To *</label>
+                            <input type="text" class="form-control" id="remediationAssignee" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Estimated Cost</label>
+                            <input type="number" class="form-control" id="remediationCost" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Resources Required</label>
+                            <input type="text" class="form-control" id="remediationResources" placeholder="e.g., IT team, consultants, tools">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="createRemediation()">Create Remediation Plan</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let complianceChecks = [];
+let currentEditingCheck = null;
+let currentAssessmentCheck = null;
+let currentAssessmentStep = 1;
+let frameworks = [];
+
+// Initialize on page load
+$(document).ready(function() {
+    loadComplianceChecks();
+    loadFrameworks();
+    loadCategories();
+    loadDashboard();
+    updateComplianceGauge(85);
+});
+
+// Load compliance checks
+function loadComplianceChecks() {
+    const params = {
+        framework: $('#frameworkFilter').val(),
+        status: $('#statusFilter').val(),
+        category: $('#categoryFilter').val(),
+        risk_level: $('#riskLevelFilter').val(),
+        search: $('#searchInput').val()
+    };
+    
+    $('#complianceTableBody').html(`
+        <tr>
+            <td colspan="9" class="text-center">
+                <div class="spinner-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    `);
+    
+    fetch('/compliance/api/checks?' + new URLSearchParams(params))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                complianceChecks = data.data.items;
+                displayComplianceChecks(complianceChecks);
+                updateStatistics();
+            }
+        })
+        .catch(error => console.error('Error loading compliance checks:', error));
+}
+
+// Display compliance checks in table
+function displayComplianceChecks(checks) {
+    const tbody = $('#complianceTableBody');
+    tbody.empty();
+    
+    if (checks.length === 0) {
+        tbody.html(`
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">
+                    <i class="fas fa-clipboard-check fa-3x mb-3"></i>
+                    <p>No compliance checks found</p>
+                    <button class="btn btn-primary-theme" onclick="openComplianceModal()">
+                        <i class="fas fa-plus me-1"></i>Create First Check
+                    </button>
+                </td>
+            </tr>
+        `);
+        return;
+    }
+    
+    checks.forEach(check => {
+        const row = `
+            <tr>
+                <td>${check.check_id || check.id.substr(0,8)}</td>
+                <td>${getFrameworkLabel(check.framework)}</td>
+                <td>
+                    <div>${check.requirement.substring(0, 50)}...</div>
+                    <small class="text-muted">${check.control_reference || ''}</small>
+                </td>
+                <td>${check.category}</td>
+                <td><span class="compliance-status-badge ${check.status}">${formatStatus(check.status)}</span></td>
+                <td><span class="risk-level-badge ${check.risk_level}">${check.risk_level.toUpperCase()}</span></td>
+                <td>${check.last_assessed ? formatDate(check.last_assessed) : 'Never'}</td>
+                <td>
+                    ${check.evidence_count ? 
+                        `<span class="badge bg-success">${check.evidence_count} files</span>` : 
+                        '<span class="badge bg-secondary">No evidence</span>'}
+                </td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="assessCompliance('${check.id}')">
+                                <i class="fas fa-check-circle me-2"></i>Assess</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="openEvidenceModal('${check.id}')">
+                                <i class="fas fa-paperclip me-2"></i>Add Evidence</a></li>
+                            ${check.status === 'non-compliant' ? 
+                                `<li><a class="dropdown-item" href="#" onclick="openRemediationModal('${check.id}')">
+                                    <i class="fas fa-tools me-2"></i>Remediate</a></li>` : ''}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="editCheck('${check.id}')">
+                                <i class="fas fa-edit me-2"></i>Edit</a></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="deleteCheck('${check.id}')">
+                                <i class="fas fa-trash me-2"></i>Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        `;
+        tbody.append(row);
+    });
+    
+    // Update pagination
+    $('#showingStart').text(1);
+    $('#showingEnd').text(checks.length);
+    $('#totalChecksCount').text(checks.length);
+}
+
+// Load frameworks
+function loadFrameworks() {
+    fetch('/compliance/api/frameworks')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                frameworks = data.data;
+                const frameworkSelect = $('#checkFramework');
+                const filterSelect = $('#frameworkFilter');
+                const frameworksList = $('#frameworksList');
+                
+                frameworkSelect.empty().append('<option value="">Select framework...</option>');
+                filterSelect.empty().append('<option value="">All Frameworks</option>');
+                frameworksList.empty();
+                
+                frameworks.forEach(framework => {
+                    frameworkSelect.append(`<option value="${framework.value}">${framework.label}</option>`);
+                    filterSelect.append(`<option value="${framework.value}">${framework.label}</option>`);
+                    
+                    // Add framework card
+                    const card = `
+                        <div class="framework-card ${framework.value}" onclick="filterByFramework('${framework.value}')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">${framework.label}</h6>
+                                    <small class="text-muted">${framework.description}</small>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="mb-0">0%</h4>
+                                    <small class="text-muted">Compliance</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    frameworksList.append(card);
+                });
+            }
+        });
+}
+
+// Load categories
+function loadCategories() {
+    fetch('/compliance/api/requirement-categories')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const categorySelect = $('#checkCategory');
+                const filterSelect = $('#categoryFilter');
+                
+                categorySelect.empty().append('<option value="">Select category...</option>');
+                filterSelect.empty().append('<option value="">All Categories</option>');
+                
+                data.data.forEach(category => {
+                    categorySelect.append(`<option value="${category}">${category}</option>`);
+                    filterSelect.append(`<option value="${category}">${category}</option>`);
+                });
+            }
+        });
+}
+
+// Load dashboard data
+function loadDashboard() {
+    fetch('/compliance/api/compliance-dashboard')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const dashboard = data.data;
+                
+                // Update overall score
+                $('#overallScore').text(dashboard.overall_compliance + '%');
+                updateComplianceGauge(dashboard.overall_compliance);
+                
+                // Update status counts
+                $('#compliantCount').text(dashboard.compliant_count);
+                $('#partialCount').text(dashboard.partial_count);
+                $('#nonCompliantCount').text(dashboard.non_compliant_count);
+                
+                // Update progress bars
+                const total = dashboard.total_checks || 1;
+                $('#compliantBar').css('width', (dashboard.compliant_count / total * 100) + '%');
+                $('#partialBar').css('width', (dashboard.partial_count / total * 100) + '%');
+                $('#nonCompliantBar').css('width', (dashboard.non_compliant_count / total * 100) + '%');
+                
+                // Update critical gaps
+                $('#criticalGaps').text(dashboard.critical_gaps);
+            }
+        });
+}
+
+// Update compliance gauge
+function updateComplianceGauge(percentage) {
+    const circumference = 2 * Math.PI * 50;
+    const offset = circumference - (percentage / 100) * circumference;
+    $('#gaugeCircle').css('stroke-dashoffset', offset);
+    
+    // Update color based on percentage
+    let color = '#28a745';
+    if (percentage < 60) color = '#dc3545';
+    else if (percentage < 80) color = '#ffc107';
+    
+    $('#gaugeCircle').css('stroke', color);
+    $('#overallScore').removeClass('score-high score-medium score-low');
+    
+    if (percentage >= 80) $('#overallScore').addClass('score-high');
+    else if (percentage >= 60) $('#overallScore').addClass('score-medium');
+    else $('#overallScore').addClass('score-low');
+}
+
+// Open compliance modal
+function openComplianceModal() {
+    currentEditingCheck = null;
+    $('#complianceModalTitle').text('Create Compliance Check');
+    $('#complianceForm')[0].reset();
+    $('#complianceModal').modal('show');
+}
+
+// Save compliance check
+function saveComplianceCheck() {
+    const formData = {
+        framework: $('#checkFramework').val(),
+        category: $('#checkCategory').val(),
+        requirement: $('#checkRequirement').val(),
+        control_reference: $('#controlReference').val(),
+        risk_level: $('#riskLevel').val(),
+        responsible_person: $('#responsiblePerson').val(),
+        due_date: $('#dueDate').val(),
+        implementation_details: $('#implementationDetails').val()
+    };
+    
+    const url = currentEditingCheck ? 
+        `/compliance/api/checks/${currentEditingCheck.id}/update` : 
+        '/compliance/api/checks/create';
+    const method = currentEditingCheck ? 'PUT' : 'POST';
+    
+    fetch(url, {
+        method: method,
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#complianceModal').modal('hide');
+            loadComplianceChecks();
+            showSuccess('Compliance check saved successfully');
+        }
+    });
+}
+
+// Assess compliance
+function assessCompliance(checkId) {
+    currentAssessmentCheck = complianceChecks.find(c => c.id === checkId);
+    if (!currentAssessmentCheck) return;
+    
+    currentAssessmentStep = 1;
+    updateAssessmentWizard();
+    $('#assessmentModal').modal('show');
+}
+
+// Assessment wizard navigation
+function updateAssessmentWizard() {
+    // Update step indicators
+    $('.assessment-step').removeClass('active completed');
+    for (let i = 1; i < currentAssessmentStep; i++) {
+        $(`#step${i}`).addClass('completed');
+    }
+    $(`#step${currentAssessmentStep}`).addClass('active');
+    
+    // Show/hide navigation buttons
+    $('#prevBtn').toggle(currentAssessmentStep > 1);
+    $('#nextBtn').toggle(currentAssessmentStep < 4);
+    $('#completeBtn').toggle(currentAssessmentStep === 4);
+    
+    // Load step content
+    loadAssessmentStepContent();
+}
+
+function loadAssessmentStepContent() {
+    let content = '';
+    
+    switch(currentAssessmentStep) {
+        case 1: // Review
+            content = `
+                <h6>Review Requirement</h6>
+                <div class="mb-3">
+                    <strong>Framework:</strong> ${getFrameworkLabel(currentAssessmentCheck.framework)}<br>
+                    <strong>Category:</strong> ${currentAssessmentCheck.category}<br>
+                    <strong>Requirement:</strong> ${currentAssessmentCheck.requirement}
+                </div>
+                <div class="mb-3">
+                    <strong>Current Status:</strong> 
+                    <span class="compliance-status-badge ${currentAssessmentCheck.status}">${formatStatus(currentAssessmentCheck.status)}</span>
+                </div>
+            `;
+            break;
+            
+        case 2: // Assess
+            content = `
+                <h6>Compliance Assessment</h6>
+                <div class="form-group mb-3">
+                    <label class="form-label">Compliance Status *</label>
+                    <select class="form-select" id="assessmentStatus">
+                        <option value="compliant">Compliant</option>
+                        <option value="partial">Partially Compliant</option>
+                        <option value="non-compliant">Non-Compliant</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Assessment Notes</label>
+                    <textarea class="form-control" id="assessmentNotes" rows="4"></textarea>
+                </div>
+            `;
+            break;
+            
+        case 3: // Evidence
+            content = `
+                <h6>Supporting Evidence</h6>
+                <div class="evidence-list mb-3">
+                    ${currentAssessmentCheck.evidence && currentAssessmentCheck.evidence.length > 0 ? 
+                        currentAssessmentCheck.evidence.map(e => `
+                            <div class="evidence-item">
+                                <span><i class="fas fa-file me-2"></i>${e.description}</span>
+                                <small class="text-muted">${formatDate(e.uploaded_date)}</small>
+                            </div>
+                        `).join('') : 
+                        '<p class="text-muted text-center">No evidence uploaded</p>'}
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openEvidenceModal('${currentAssessmentCheck.id}')">
+                    <i class="fas fa-plus me-1"></i>Add Evidence
+                </button>
+            `;
+            break;
+            
+        case 4: // Complete
+            content = `
+                <h6>Complete Assessment</h6>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Review your assessment before completing.
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Assessor Name</label>
+                    <input type="text" class="form-control" id="assessorName" value="Admin User">
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Assessment Date</label>
+                    <input type="date" class="form-control" id="assessmentDate" value="${new Date().toISOString().split('T')[0]}">
+                </div>
+            `;
+            break;
+    }
+    
+    $('#assessmentContent').html(content);
+}
+
+function nextStep() {
+    if (currentAssessmentStep < 4) {
+        currentAssessmentStep++;
+        updateAssessmentWizard();
+    }
+}
+
+function previousStep() {
+    if (currentAssessmentStep > 1) {
+        currentAssessmentStep--;
+        updateAssessmentWizard();
+    }
+}
+
+function completeAssessment() {
+    const assessmentData = {
+        status: $('#assessmentStatus').val() || currentAssessmentCheck.status,
+        notes: $('#assessmentNotes').val(),
+        assessor: $('#assessorName').val(),
+        assessment_date: $('#assessmentDate').val()
+    };
+    
+    fetch(`/compliance/api/checks/${currentAssessmentCheck.id}/assess`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(assessmentData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#assessmentModal').modal('hide');
+            loadComplianceChecks();
+            loadDashboard();
+            showSuccess('Assessment completed successfully');
+        }
+    });
+}
+
+// Helper functions
+function getFrameworkLabel(value) {
+    const framework = frameworks.find(f => f.value === value);
+    return framework ? framework.label : value;
+}
+
+function formatStatus(status) {
+    const statusMap = {
+        'compliant': 'Compliant',
+        'partial': 'Partially Compliant',
+        'non-compliant': 'Non-Compliant',
+        'not-assessed': 'Not Assessed'
+    };
+    return statusMap[status] || status;
+}
+
+function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString();
+}
+
+function searchCompliance() {
+    loadComplianceChecks();
+}
+
+function resetFilters() {
+    $('#frameworkFilter').val('');
+    $('#statusFilter').val('');
+    $('#categoryFilter').val('');
+    $('#riskLevelFilter').val('');
+    $('#searchInput').val('');
+    loadComplianceChecks();
+}
+
+function refreshCompliance() {
+    loadComplianceChecks();
+    loadDashboard();
+}
+
+function showSuccess(message) {
+    console.log('Success:', message);
+}
+
+function showError(message) {
+    console.error('Error:', message);
+}
+
+// Additional functions
+function generateReport() {
+    console.log('Generating compliance report...');
+    // Implementation for report generation
+}
+
+function viewGaps() {
+    // Filter to show only critical gaps
+    $('#statusFilter').val('non-compliant');
+    $('#riskLevelFilter').val('critical');
+    loadComplianceChecks();
+}
+
+function viewAuditSchedule() {
+    console.log('Opening audit schedule...');
+    // Implementation for audit schedule
+}
+
+// Additional functions for modals
+function openEvidenceModal(checkId) {
+    // Implementation for evidence modal
+    $('#evidenceModal').modal('show');
+}
+
+function openRemediationModal(checkId) {
+    // Implementation for remediation modal
+    $('#remediationModal').modal('show');
+}
+
+function deleteCheck(checkId) {
+    if (!confirm('Are you sure you want to delete this compliance check?')) return;
+    
+    fetch(`/compliance/api/checks/${checkId}/delete`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadComplianceChecks();
+            showSuccess('Compliance check deleted successfully');
+        }
+    });
+}
+</script>
+{% endblock %}

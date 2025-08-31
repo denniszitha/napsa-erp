@@ -1,0 +1,289 @@
+<!-- Control Mapping Modal -->
+<div class="modal fade" id="controlMappingModal" tabindex="-1" aria-labelledby="controlMappingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="controlMappingModalLabel">
+                    <i class="fas fa-shield-alt me-2"></i>Manage Controls for Risk
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <h6 class="text-muted">Risk: <span id="riskTitleDisplay" class="text-primary"></span></h6>
+                    </div>
+                </div>
+                
+                <!-- Tabs for mapped and available controls -->
+                <ul class="nav nav-tabs mb-3" id="controlTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="mapped-tab" data-bs-toggle="tab" data-bs-target="#mapped" type="button" role="tab">
+                            Mapped Controls <span class="badge bg-primary ms-1" id="mappedCount">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="available-tab" data-bs-toggle="tab" data-bs-target="#available" type="button" role="tab">
+                            Available Controls
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="controlTabContent">
+                    <!-- Mapped Controls Tab -->
+                    <div class="tab-pane fade show active" id="mapped" role="tabpanel">
+                        <div id="mappedControlsList" class="list-group">
+                            <!-- Mapped controls will be loaded here -->
+                        </div>
+                        <div id="noMappedControls" class="text-center text-muted py-4" style="display: none;">
+                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                            <p>No controls mapped to this risk yet</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Available Controls Tab -->
+                    <div class="tab-pane fade" id="available" role="tabpanel">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="controlSearch" placeholder="Search controls...">
+                        </div>
+                        <div id="availableControlsList" class="list-group" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Available controls will be loaded here -->
+                        </div>
+                        <div id="noAvailableControls" class="text-center text-muted py-4" style="display: none;">
+                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                            <p>No controls available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentRiskId = null;
+let allControls = [];
+let mappedControlIds = [];
+
+function openControlMapping(riskId, riskTitle) {
+    currentRiskId = riskId;
+    $('#riskTitleDisplay').text(riskTitle);
+    
+    // Load mapped controls
+    loadMappedControls();
+    
+    // Load all available controls
+    loadAvailableControls();
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('controlMappingModal'));
+    modal.show();
+}
+
+function loadMappedControls() {
+    $.ajax({
+        url: `/controls/api/risk/${currentRiskId}`,
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.data) {
+                mappedControlIds = response.data.map(c => c.id);
+                displayMappedControls(response.data);
+                $('#mappedCount').text(response.data.length);
+            }
+        },
+        error: function() {
+            toastr.error('Failed to load mapped controls');
+        }
+    });
+}
+
+function loadAvailableControls() {
+    $.ajax({
+        url: '/controls/api/list',
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.data && response.data.items) {
+                allControls = response.data.items;
+                displayAvailableControls();
+            }
+        },
+        error: function() {
+            toastr.error('Failed to load available controls');
+        }
+    });
+}
+
+function displayMappedControls(controls) {
+    const container = $('#mappedControlsList');
+    container.empty();
+    
+    if (controls.length === 0) {
+        $('#noMappedControls').show();
+        container.hide();
+    } else {
+        $('#noMappedControls').hide();
+        container.show();
+        
+        controls.forEach(control => {
+            const item = $(`
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${control.name}</h6>
+                            <p class="mb-1 small text-muted">${control.description || 'No description'}</p>
+                            <div>
+                                <span class="badge bg-info me-1">${control.type || 'Unknown Type'}</span>
+                                ${control.effectiveness_rating ? 
+                                    `<span class="badge bg-success">Effectiveness: ${control.effectiveness_rating}%</span>` : ''}
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="unmapControl('${control.id}', '${control.name}')">
+                            <i class="fas fa-unlink"></i> Unmap
+                        </button>
+                    </div>
+                </div>
+            `);
+            container.append(item);
+        });
+    }
+}
+
+function displayAvailableControls() {
+    const container = $('#availableControlsList');
+    container.empty();
+    
+    // Filter out already mapped controls
+    const availableControls = allControls.filter(c => !mappedControlIds.includes(c.id));
+    
+    if (availableControls.length === 0) {
+        $('#noAvailableControls').show();
+        container.hide();
+    } else {
+        $('#noAvailableControls').hide();
+        container.show();
+        
+        availableControls.forEach(control => {
+            const item = $(`
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${control.name}</h6>
+                            <p class="mb-1 small text-muted">${control.description || 'No description'}</p>
+                            <div>
+                                <span class="badge bg-info me-1">${control.type || 'Unknown Type'}</span>
+                                ${control.effectiveness_rating ? 
+                                    `<span class="badge bg-success">Effectiveness: ${control.effectiveness_rating}%</span>` : ''}
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="mapControl('${control.id}', '${control.name}')">
+                            <i class="fas fa-link"></i> Map
+                        </button>
+                    </div>
+                </div>
+            `);
+            container.append(item);
+        });
+    }
+}
+
+function mapControl(controlId, controlName) {
+    $.ajax({
+        url: '/controls/api/map-to-risk',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            control_id: controlId,
+            risk_id: currentRiskId
+        }),
+        success: function(response) {
+            if (response.success) {
+                toastr.success(`Control "${controlName}" mapped successfully`);
+                // Reload both lists
+                loadMappedControls();
+                loadAvailableControls();
+            } else {
+                toastr.error(response.error || 'Failed to map control');
+            }
+        },
+        error: function() {
+            toastr.error('Failed to map control');
+        }
+    });
+}
+
+function unmapControl(controlId, controlName) {
+    if (!confirm(`Are you sure you want to unmap "${controlName}" from this risk?`)) {
+        return;
+    }
+    
+    $.ajax({
+        url: '/controls/api/unmap-from-risk',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            control_id: controlId,
+            risk_id: currentRiskId
+        }),
+        success: function(response) {
+            if (response.success) {
+                toastr.success(`Control "${controlName}" unmapped successfully`);
+                // Reload both lists
+                loadMappedControls();
+                loadAvailableControls();
+            } else {
+                toastr.error(response.error || 'Failed to unmap control');
+            }
+        },
+        error: function() {
+            toastr.error('Failed to unmap control');
+        }
+    });
+}
+
+// Search functionality
+$('#controlSearch').on('input', function() {
+    const searchTerm = $(this).val().toLowerCase();
+    
+    if (searchTerm === '') {
+        displayAvailableControls();
+    } else {
+        const filteredControls = allControls.filter(c => 
+            !mappedControlIds.includes(c.id) && 
+            (c.name.toLowerCase().includes(searchTerm) || 
+             (c.description && c.description.toLowerCase().includes(searchTerm)))
+        );
+        
+        const container = $('#availableControlsList');
+        container.empty();
+        
+        if (filteredControls.length === 0) {
+            container.html('<div class="text-center text-muted py-3">No matching controls found</div>');
+        } else {
+            filteredControls.forEach(control => {
+                const item = $(`
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">${control.name}</h6>
+                                <p class="mb-1 small text-muted">${control.description || 'No description'}</p>
+                                <div>
+                                    <span class="badge bg-info me-1">${control.type || 'Unknown Type'}</span>
+                                    ${control.effectiveness_rating ? 
+                                        `<span class="badge bg-success">Effectiveness: ${control.effectiveness_rating}%</span>` : ''}
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="mapControl('${control.id}', '${control.name}')">
+                                <i class="fas fa-link"></i> Map
+                            </button>
+                        </div>
+                    </div>
+                `);
+                container.append(item);
+            });
+        }
+    }
+});
+</script>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NAPSA ERM System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+            --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+            --gray-50: #f9fafb;
+            --border-radius: 15px;
+            --sidebar-color: #1e3a8a;
+            --orange-hover: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Left Side - Enterprise Risk Photos & Branding */
+        .login-hero {
+            flex: 1;
+            background: #1e3a8a;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        /* Sliding Background Images */
+        .hero-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            animation: kenBurns 20s ease-out infinite;
+        }
+
+        .slide.active {
+            opacity: 0.7;
+        }
+        
+        @keyframes kenBurns {
+            0% {
+                transform: scale(1) translateX(0);
+            }
+            50% {
+                transform: scale(1.1) translateX(-10px);
+            }
+            100% {
+                transform: scale(1) translateX(0);
+            }
+        }
+
+        /* Overlay for better text readability - lighter overlay for more visible images */
+        .login-hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(30, 58, 138, 0.6) 100%);
+            z-index: 1;
+        }
+
+        /* Risk Management & Enterprise Themed Images */
+        .slide-1 {
+            /* Risk assessment dashboard */
+            background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        }
+
+        .slide-2 {
+            /* Financial charts and analytics */
+            background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        }
+
+        .slide-3 {
+            /* Risk matrix and heat map */
+            background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        }
+
+        .slide-4 {
+            /* Compliance and governance */
+            background-image: url('https://images.unsplash.com/photo-1553484771-371a605b060b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        }
+
+        .slide-5 {
+            /* Risk monitoring dashboard */
+            background-image: url('https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        }
+        
+        .slide-6 {
+            /* Strategic planning and risk */
+            background-image: url('https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        }
+        
+        .slide-7 {
+            /* Security and threat analysis */
+            background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        }
+        
+        .slide-8 {
+            /* Risk mitigation strategies */
+            background-image: url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+        }
+
+        /* Hero Content Overlay */
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .hero-logo {
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-logo img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
+
+        .hero-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero-features {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            backdrop-filter: blur(10px);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .feature:nth-child(1) .feature-icon {
+            animation-delay: 0s;
+        }
+        
+        .feature:nth-child(2) .feature-icon {
+            animation-delay: 1s;
+        }
+        
+        .feature:nth-child(3) .feature-icon {
+            animation-delay: 2s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .feature-icon i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .feature h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Right Side - Login Form */
+        .login-form-container {
+            flex: 1;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .login-form-wrapper {
+            width: 100%;
+            max-width: 480px;
+            padding: 3rem;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .form-logo {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .form-logo img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        .form-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--sidebar-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 0;
+        }
+
+        /* Professional Form Fields */
+        .form-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            border-color: var(--sidebar-color);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+            background: white;
+            outline: none;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-label i {
+            margin-right: 8px;
+            color: var(--sidebar-color);
+        }
+
+        /* Remember Me Checkbox */
+        .remember-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 4px;
+            margin: 0;
+        }
+
+        .form-check-input:checked {
+            background: var(--primary-gradient);
+            border-color: #667eea;
+        }
+
+        .form-check-label {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .forgot-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .forgot-link:hover {
+            color: #4338ca;
+            text-decoration: underline;
+        }
+
+        /* Login Button - NAPSA Sidebar Color with Orange Hover */
+        .btn-login {
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--sidebar-color);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-hover-shadow);
+            background: var(--orange-hover);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Alert Messages */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            margin-bottom: 2rem;
+            padding: 15px 20px;
+            font-size: 14px;
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #166534;
+            border-left: 4px solid #22c55e;
+        }
+
+        /* Footer */
+        .login-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #e5e7eb;
+            padding: 15px 0;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .footer-content {
+            color: #64748b;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .footer-content a {
+            transition: all 0.3s ease;
+        }
+        
+        .footer-content a:hover {
+            text-decoration: underline !important;
+            color: var(--orange-hover) !important;
+        }
+
+        /* Loading State */
+        .btn-login.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .login-wrapper {
+                flex-direction: column;
+            }
+
+            .login-hero {
+                min-height: 40vh;
+                flex: none;
+            }
+
+            .hero-features {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .login-form-container {
+                min-height: 60vh;
+                flex: none;
+            }
+
+            .login-form-wrapper {
+                padding: 2rem 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 32px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .form-title {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-form-wrapper {
+                padding: 1.5rem 1rem;
+            }
+
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .form-title {
+                font-size: 24px;
+            }
+
+            .hero-features {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <!-- Left Side - Hero Section with Sliding Images -->
+        <div class="login-hero">
+            <!-- Sliding Background with More Risk Images -->
+            <div class="hero-slider">
+                <div class="slide slide-1 active"></div>
+                <div class="slide slide-2"></div>
+                <div class="slide slide-3"></div>
+                <div class="slide slide-4"></div>
+                <div class="slide slide-5"></div>
+                <div class="slide slide-6"></div>
+                <div class="slide slide-7"></div>
+                <div class="slide slide-8"></div>
+            </div>
+
+            <!-- Hero Content -->
+            <div class="hero-content">
+                <h1 class="hero-title">Enterprise Risk Management</h1>
+                <h2 class="hero-subtitle">Intelligent Risk Solutions for NAPSA</h2>
+                
+                <div class="hero-features">
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Risk Mitigation</h4>
+                        <p>Proactive risk control</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h4>Risk Analytics</h4>
+                        <p>Real-time insights</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h4>Compliance</h4>
+                        <p>Regulatory ready</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="login-form-container">
+            <div class="login-form-wrapper">
+                <div class="form-header">
+                    <div class="form-logo">
+                        <img src="{{ url_for('static', filename='napsa-logo.png') }}" alt="NAPSA Logo">
+                    </div>
+                    <h1 class="form-title">Welcome Back</h1>
+                    <p class="form-subtitle">Sign in to your NAPSA ERM account</p>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Username Field -->
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.username.id }}">
+                            <i class="fas fa-user"></i>Username
+                        </label>
+                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback d-block text-danger mt-1">
+                                {% for error in form.username.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.password.id }}">
+                            <i class="fas fa-lock"></i>Password
+                        </label>
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback d-block text-danger mt-1">
+                                {% for error in form.password.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="remember-section">
+                        <div class="form-check">
+                            {{ form.remember_me(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.remember_me.id }}">
+                                Remember me
+                            </label>
+                        </div>
+                        <a href="#" class="forgot-link" onclick="showForgotPassword()">
+                            Forgot password?
+                        </a>
+                    </div>
+                    
+                    <!-- Login Button -->
+                    <button type="submit" class="btn-login" id="loginBtn">
+                        <span>Sign In</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+        <div class="footer-content">
+            Developed by <a href="https://ontech.co.zm" target="_blank" style="color: inherit; text-decoration: none;"><strong>Ontech Solutions Limited</strong></a>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sliding background images
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            let currentSlide = 0;
+
+            function nextSlide() {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }
+
+            // Change slide every 4 seconds for better viewing
+            setInterval(nextSlide, 4000);
+
+            // Form enhancements
+            const form = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const inputs = document.querySelectorAll('.form-control');
+            
+            // Add loading state on form submit
+            form.addEventListener('submit', function() {
+                loginBtn.classList.add('loading');
+                loginBtn.innerHTML = '<span>Signing In...</span>';
+            });
+            
+            // Auto-focus first input
+            if (inputs.length > 0) {
+                inputs[0].focus();
+            }
+
+            // Enter key submission
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    form.submit();
+                }
+            });
+        });
+        
+        // Forgot password placeholder
+        function showForgotPassword() {
+            alert('Please contact your system administrator to reset your password.\n\nEmail: admin@napsa.co.zm\nPhone: +260 XXX XXX XXX');
+        }
+    </script>
+</body>
+</html>

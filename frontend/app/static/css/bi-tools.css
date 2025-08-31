@@ -1,0 +1,495 @@
+/* BI Tools Enhanced Styling */
+
+:root {
+    --bi-primary: #6cbace;
+    --bi-secondary: #764ba2;
+    --bi-success: #10b981;
+    --bi-warning: #f59e0b;
+    --bi-danger: #ef4444;
+    --bi-info: #3b82f6;
+    --bi-dark: #1f2937;
+    --bi-light: #f9fafb;
+    --bi-gradient: linear-gradient(135deg, var(--bi-primary) 0%, var(--bi-secondary) 100%);
+    --bi-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    --bi-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --bi-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --bi-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --bi-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dashboard Container */
+.bi-dashboard {
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    position: relative;
+}
+
+.bi-dashboard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+/* Header Section */
+.bi-header {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--bi-shadow-xl);
+    backdrop-filter: blur(10px);
+    animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bi-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: var(--bi-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.bi-title i {
+    -webkit-text-fill-color: var(--bi-primary);
+}
+
+/* Control Buttons */
+.bi-controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.bi-controls select,
+.bi-controls button {
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: var(--bi-transition);
+    border: 2px solid transparent;
+}
+
+.bi-controls select {
+    background: var(--bi-light);
+    border-color: #e5e7eb;
+    cursor: pointer;
+}
+
+.bi-controls select:hover,
+.bi-controls select:focus {
+    border-color: var(--bi-primary);
+    box-shadow: 0 0 0 3px rgba(108, 186, 206, 0.1);
+}
+
+.refresh-btn {
+    background: var(--bi-gradient);
+    color: white;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.refresh-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.refresh-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.refresh-btn:active {
+    transform: scale(0.95);
+}
+
+.export-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+}
+
+/* Metrics Cards */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: var(--bi-transition);
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.metric-card:nth-child(1) { animation-delay: 0.1s; }
+.metric-card:nth-child(2) { animation-delay: 0.2s; }
+.metric-card:nth-child(3) { animation-delay: 0.3s; }
+.metric-card:nth-child(4) { animation-delay: 0.4s; }
+.metric-card:nth-child(5) { animation-delay: 0.5s; }
+.metric-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--bi-gradient);
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--bi-shadow-xl);
+}
+
+.metric-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    position: relative;
+    box-shadow: var(--bi-shadow-md);
+}
+
+.metric-icon::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 12px;
+    background: inherit;
+    opacity: 0.2;
+    filter: blur(10px);
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 1rem 0 0.5rem;
+    background: linear-gradient(135deg, var(--bi-dark) 0%, var(--bi-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.metric-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.metric-change.positive {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--bi-success);
+}
+
+.metric-change.negative {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--bi-danger);
+}
+
+/* Charts */
+.chart-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--bi-shadow-lg);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--bi-light);
+}
+
+.chart-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--bi-dark);
+}
+
+/* Risk Heatmap */
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    padding: 1rem;
+    background: var(--bi-light);
+    border-radius: 12px;
+}
+
+.heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--bi-transition);
+    position: relative;
+    box-shadow: var(--bi-shadow-sm);
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.15);
+    z-index: 10;
+    box-shadow: var(--bi-shadow-xl);
+}
+
+.heatmap-cell.risk-1 { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.heatmap-cell.risk-2 { background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%); }
+.heatmap-cell.risk-3 { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); }
+.heatmap-cell.risk-4 { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+.heatmap-cell.risk-5 { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+
+/* AI Sentiment Analysis */
+.sentiment-analysis {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--bi-shadow-xl);
+}
+
+.sentiment-analysis::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--bi-gradient);
+    opacity: 0.05;
+    transform: rotate(45deg);
+}
+
+.sentiment-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--bi-gradient);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.8rem;
+    box-shadow: var(--bi-shadow-lg);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.sentiment-metric {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: var(--bi-light);
+    transition: var(--bi-transition);
+}
+
+.sentiment-metric:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--bi-shadow-md);
+}
+
+.sentiment-score {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+/* AI Insights */
+.ai-insights {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--bi-shadow-xl);
+}
+
+.insight-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, rgba(108, 186, 206, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-left: 4px solid var(--bi-primary);
+    transition: var(--bi-transition);
+}
+
+.insight-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--bi-shadow-md);
+}
+
+.insight-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--bi-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+/* Loading States */
+.loading-spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .bi-dashboard {
+        padding: 1rem;
+    }
+    
+    .bi-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    
+    .bi-controls {
+        justify-content: center;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sentiment-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animations for real-time updates */
+@keyframes dataUpdate {
+    0% {
+        background: rgba(108, 186, 206, 0.2);
+    }
+    50% {
+        background: rgba(108, 186, 206, 0.4);
+    }
+    100% {
+        background: rgba(108, 186, 206, 0.2);
+    }
+}
+
+.updating {
+    animation: dataUpdate 1s ease-in-out;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bi-light);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bi-gradient);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bi-secondary);
+}

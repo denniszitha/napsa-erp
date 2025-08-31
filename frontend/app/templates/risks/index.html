@@ -1,0 +1,1863 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Risk Management - NAPSA ERM System{% endblock %}
+
+{% block styles %}
+<style>
+    /* Professional Risk Management Styles - NAPSA ERM */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+        --primary-color: #1e40af;
+        --accent-color: #3b82f6;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --info-color: #06b6d4;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --border-radius: 15px;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .risk-container {
+        background: var(--gray-50);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    /* Actions Section */
+    .actions-section {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* Risk Management Specific Styles */
+    .risk-header {
+        background: white;
+        padding: 25px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 25px;
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s ease;
+    }
+
+    .risk-header:hover {
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .risk-filters {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .risk-table {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s ease;
+    }
+
+    .risk-table:hover {
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .risk-stats-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: var(--border-radius);
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+    }
+    
+    .risk-stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    /* Professional Stats Icons */
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .risk-stats-card.total .stats-icon {
+        background: var(--primary-gradient);
+    }
+
+    .risk-stats-card.critical .stats-icon {
+        background: var(--danger-gradient);
+    }
+
+    .risk-stats-card.open .stats-icon {
+        background: var(--warning-gradient);
+    }
+
+    .risk-stats-card.overdue .stats-icon {
+        background: var(--info-gradient);
+    }
+
+    .risk-metric-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b !important;
+        line-height: 1;
+        margin: 0;
+    }
+    
+    .risk-metric-label {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 8px;
+    }
+
+    /* Risk Calculator Styles */
+    .risk-calculator {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .risk-score-display {
+        text-align: center;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.125rem;
+        transition: all 0.3s ease;
+    }
+
+    /* Charts Section */
+    .charts-section {
+        margin-top: 2rem;
+    }
+
+    .chart-card {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .chart-header {
+        border-bottom: 1px solid var(--gray-200);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .chart-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #000000;
+        margin: 0;
+    }
+
+    /* Form Controls */
+    .form-control, .form-select {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 10px 15px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Buttons with Sidebar color and Orange hover */
+    .btn-gradient, .btn-primary {
+        background: var(--sidebar-color) !important;
+        border: none;
+        color: white !important;
+        font-weight: 600;
+        padding: 12px 24px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-gradient:hover, .btn-primary:hover {
+        background: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        color: white !important;
+    }
+
+    .btn-outline-info, .btn-outline-success, .btn-outline-secondary {
+        background: var(--sidebar-color) !important;
+        border: 1px solid var(--sidebar-color) !important;
+        color: white !important;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-info:hover, .btn-outline-success:hover, .btn-outline-secondary:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        color: white !important;
+    }
+
+    /* Table action buttons */
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-sm:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        color: white !important;
+        transform: translateY(-1px);
+    }
+
+    /* All buttons orange hover */
+    .btn:hover, button.btn:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        color: white !important;
+    }
+
+    /* Specific styling for table action buttons */
+    .btn-outline-primary, .btn-outline-secondary, .btn-outline-danger {
+        background: transparent !important;
+        border: 1px solid #e5e7eb !important;
+        color: var(--sidebar-color) !important;
+    }
+
+    .btn-outline-primary:hover, .btn-outline-secondary:hover, .btn-outline-danger:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        color: white !important;
+    }
+
+    /* Button group in table */
+    .btn-group-sm > .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+    }
+
+    .btn-group > .btn:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        color: white !important;
+        z-index: 1;
+    }
+
+    /* DataTable Styling */
+    .table {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .table thead th {
+        background-color: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+        color: var(--gray-700);
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem 0.75rem;
+    }
+
+    .table tbody td {
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 0.875rem;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background-color: var(--gray-50);
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: var(--border-radius);
+        border: none;
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 20px 25px;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .modal-title {
+        color: #1e293b !important;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .modal-body {
+        padding: 25px;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e5e7eb;
+        padding: 15px 25px;
+        border-radius: 0 0 15px 15px;
+    }
+
+    /* Select2 Styling */
+    .select2-container--bootstrap-5 .select2-selection--single {
+        height: calc(2.5rem + 2px);
+        border: 1px solid var(--gray-300);
+    }
+
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        line-height: 2.5rem;
+        padding: 0 1rem;
+    }
+
+    .select2-container--bootstrap-5.select2-container--focus .select2-selection {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .risk-filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .risk-metric-value {
+            font-size: 1.5rem;
+        }
+        
+        .btn-gradient {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background: var(--gray-50); min-height: 100vh;">
+    <div class="row">
+        <div class="col-12">
+            <!-- Action Buttons -->
+            <div class="actions-section">
+                <button class="btn btn-outline-info" onclick="showQuickHelp()">
+                    <i class="fas fa-question-circle me-1"></i>Quick Help
+                </button>
+                <a href="/risks/process-flow" class="btn btn-outline-success">
+                    <i class="fas fa-project-diagram me-1"></i>Process Flow
+                </a>
+                <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#riskModal">
+                    <i class="fas fa-plus me-1"></i>Add New Risk
+                </button>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="risk-stats-card total">
+                        <div class="stats-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="risk-metric-value" id="totalRisks">-</div>
+                        <div class="risk-metric-label">Total Risks</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="risk-stats-card critical">
+                        <div class="stats-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="risk-metric-value" id="highRisks">-</div>
+                        <div class="risk-metric-label">High & Critical</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="risk-stats-card open">
+                        <div class="stats-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="risk-metric-value" id="openRisks">-</div>
+                        <div class="risk-metric-label">Open Risks</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="risk-stats-card overdue">
+                        <div class="stats-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="risk-metric-value" id="overdueActions">-</div>
+                        <div class="risk-metric-label">Overdue Actions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="risk-header">
+                <div class="risk-filters">
+                    <div class="flex-grow-1">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search risks...">
+                    </div>
+                    <select id="categoryFilter" class="form-select" style="width: 200px;">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="statusFilter" class="form-select" style="width: 150px;">
+                        <option value="">All Statuses</option>
+                    </select>
+                    <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Risks Table -->
+            <div class="risk-table">
+                <table id="risksTable" class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Risk ID</th>
+                            <th>Risk Title</th>
+                            <th>Category</th>
+                            <th>Department</th>
+                            <th>Risk Score</th>
+                            <th>Status</th>
+                            <th>Owner</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Charts -->
+    <div class="charts-section">
+        <div class="row">
+            <!-- Risk Distribution by Category -->
+            <div class="col-12 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h5 class="chart-title">Risk Distribution by Category</h5>
+                        <p class="text-muted mb-0">Breakdown of risks across different categories</p>
+                    </div>
+                    <div id="categoryChart" style="height: 400px;"></div>
+                </div>
+            </div>
+
+            <!-- Risk Score Distribution -->
+            <div class="col-12 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h5 class="chart-title">Risk Score Distribution</h5>
+                        <p class="text-muted mb-0">Distribution of risks by score ranges</p>
+                    </div>
+                    <div id="scoreChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Modal -->
+<div class="modal fade" id="riskModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Risk</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="riskForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Risk Title *</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Category *</label>
+                                <select name="category" id="addRiskCategory" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Department *</label>
+                                <select name="department" id="departmentSelect" class="form-select" required>
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Risk Owner</label>
+                                <select name="risk_owner_id" id="ownerSelect" class="form-select">
+                                    <option value="">Select Owner</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Risk Description *</label>
+                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <!-- Risk Assessment Section -->
+                    <div class="risk-calculator">
+                        <h6 class="mb-3">Risk Assessment</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Likelihood (1-5) *</label>
+                                    <select name="likelihood" id="likelihoodSelect" class="form-select" required>
+                                        <option value="">Select</option>
+                                        <option value="1">1 - Rare</option>
+                                        <option value="2">2 - Unlikely</option>
+                                        <option value="3">3 - Possible</option>
+                                        <option value="4">4 - Likely</option>
+                                        <option value="5">5 - Almost Certain</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Impact (1-5) *</label>
+                                    <select name="impact" id="impactSelect" class="form-select" required>
+                                        <option value="">Select</option>
+                                        <option value="1">1 - Insignificant</option>
+                                        <option value="2">2 - Minor</option>
+                                        <option value="3">3 - Moderate</option>
+                                        <option value="4">4 - Major</option>
+                                        <option value="5">5 - Catastrophic</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Risk Score</label>
+                                    <div id="riskScoreDisplay" class="risk-score-display">
+                                        Select likelihood and impact
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="draft">Draft</option>
+                                    <option value="active" selected>Active</option>
+                                    <option value="under_review">Under Review</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Risk Source</label>
+                                <input type="text" name="risk_source" class="form-control" placeholder="e.g., Internal Audit, Management Review">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-gradient">
+                        <i class="fas fa-save me-1"></i>Save Risk
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Risk View Modal -->
+<div class="modal fade" id="viewRiskModal" tabindex="-1" aria-labelledby="viewRiskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewRiskModalLabel">Risk Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 class="fw-bold" id="viewRiskTitle">Risk Title</h6>
+                        <p class="text-muted mb-3" id="viewRiskDescription">Risk description...</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge fs-6" id="viewRiskScore">0</span>
+                        <div class="mt-2">
+                            <span class="badge" id="viewRiskLevel">Level</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Category</label>
+                            <div id="viewRiskCategory">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Department</label>
+                            <div id="viewRiskDepartment">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status</label>
+                            <div id="viewRiskStatus">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Risk Owner</label>
+                            <div id="viewRiskOwner">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Risk Source</label>
+                            <div id="viewRiskSource">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Created Date</label>
+                            <div id="viewRiskCreated">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Likelihood</label>
+                            <div class="d-flex align-items-center">
+                                <span id="viewRiskLikelihood" class="badge bg-info me-2">0</span>
+                                <small class="text-muted" id="viewRiskLikelihoodDesc">-</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Impact</label>
+                            <div class="d-flex align-items-center">
+                                <span id="viewRiskImpact" class="badge bg-warning me-2">0</span>
+                                <small class="text-muted" id="viewRiskImpactDesc">-</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Last Updated</label>
+                    <div id="viewRiskUpdated">-</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="editRiskFromView()">
+                    <i class="fas fa-edit me-1"></i>Edit Risk
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Edit Modal -->
+<div class="modal fade" id="editRiskModal" tabindex="-1" aria-labelledby="editRiskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRiskModalLabel">Edit Risk</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editRiskForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editRiskId" name="id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Risk Title *</label>
+                                <input type="text" name="title" id="editRiskTitle" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Category *</label>
+                                <select name="category" id="editRiskCategory" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Department *</label>
+                                <select name="department" id="editDepartmentSelect" class="form-select" required>
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Risk Owner</label>
+                                <select name="risk_owner_id" id="editOwnerSelect" class="form-select">
+                                    <option value="">Select Owner</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Risk Description *</label>
+                        <textarea name="description" id="editRiskDescription" class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <!-- Risk Assessment Section -->
+                    <div class="risk-calculator">
+                        <h6 class="mb-3">Risk Assessment</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Likelihood (1-5) *</label>
+                                    <select name="likelihood" id="editLikelihoodSelect" class="form-select" required>
+                                        <option value="">Select</option>
+                                        <option value="1">1 - Rare</option>
+                                        <option value="2">2 - Unlikely</option>
+                                        <option value="3">3 - Possible</option>
+                                        <option value="4">4 - Likely</option>
+                                        <option value="5">5 - Almost Certain</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Impact (1-5) *</label>
+                                    <select name="impact" id="editImpactSelect" class="form-select" required>
+                                        <option value="">Select</option>
+                                        <option value="1">1 - Insignificant</option>
+                                        <option value="2">2 - Minor</option>
+                                        <option value="3">3 - Moderate</option>
+                                        <option value="4">4 - Major</option>
+                                        <option value="5">5 - Catastrophic</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Risk Score</label>
+                                    <div id="editRiskScoreDisplay" class="risk-score-display">
+                                        Select likelihood and impact
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select name="status" id="editRiskStatus" class="form-select">
+                                    <option value="draft">Draft</option>
+                                    <option value="active">Active</option>
+                                    <option value="under_review">Under Review</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Risk Source</label>
+                                <input type="text" name="risk_source" id="editRiskSource" class="form-control" placeholder="e.g., Internal Audit, Management Review">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Update Risk
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let risksTable;
+let categoryChart;
+let scoreChart;
+
+$(document).ready(function() {
+    // Initialize components
+    initializeDataTable();
+    loadCategories();
+    loadStatuses();
+    loadDepartments();
+    loadUsers();
+    loadRisks();
+    loadAnalytics();
+    
+    // Setup risk calculator
+    setupRiskCalculator();
+    
+    // Setup form submission
+    $('#riskForm').on('submit', handleFormSubmit);
+    $('#editRiskForm').on('submit', handleEditFormSubmit);
+    
+    // Setup edit risk calculator
+    setupEditRiskCalculator();
+    
+    // Setup filters
+    $('#searchInput, #categoryFilter, #statusFilter').on('change input', applyFilters);
+    
+    // Fix modal accessibility issues
+    $('#riskModal').on('shown.bs.modal', function() {
+        // Ensure the modal is properly accessible when shown
+        $(this).removeAttr('aria-hidden');
+    });
+    
+    $('#riskModal').on('hidden.bs.modal', function() {
+        // Clean up focus and aria attributes when hidden
+        $(this).removeAttr('aria-hidden');
+    });
+});
+
+function initializeDataTable() {
+    risksTable = $('#risksTable').DataTable({
+        responsive: true,
+        pageLength: 25,
+        processing: true,
+        serverSide: false,
+        order: [[7, 'desc']],
+        columns: [
+            { 
+                data: 'id',
+                render: function(data) {
+                    return `<span class="font-weight-bold">${data}</span>`;
+                }
+            },
+            { data: 'title' },
+            { 
+                data: 'category',
+                render: function(data) {
+                    return `<span class="badge" data-color-type="department" data-color-value="${data}">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
+                }
+            },
+            { 
+                data: 'department',
+                render: function(data) {
+                    return `<span class="badge" data-color-type="department" data-color-value="${data}">${data}</span>`;
+                }
+            },
+            { 
+                data: 'inherent_risk_score',
+                render: function(data, type, row) {
+                    const score = data || (row.likelihood * row.impact);
+                    return `<span class="badge" data-color-type="risk" data-color-value="${score}">${score}</span>`;
+                }
+            },
+            { 
+                data: 'status',
+                render: function(data) {
+                    return `<span class="badge" data-color-type="status" data-color-value="${data}">${data.replace('_', ' ').toUpperCase()}</span>`;
+                }
+            },
+            { 
+                data: 'risk_owner_name',
+                render: function(data) {
+                    return data || 'Unassigned';
+                }
+            },
+            { 
+                data: 'created_at',
+                render: function(data) {
+                    return data ? new Date(data).toLocaleDateString() : '-';
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                render: function(data, type, row) {
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="viewRisk('${row.id}')" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="editRisk('${row.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteRisk('${row.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        ],
+        drawCallback: function() {
+            // Apply color coding after table is drawn
+            if (window.ColorCoding) {
+                window.ColorCoding.initializePageColors();
+            }
+        }
+    });
+}
+
+function loadCategories() {
+    fetch('/risks/api/categories')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Populate filter dropdown
+                const filterSelect = $('#categoryFilter');
+                // Populate add risk modal dropdown
+                const addSelect = $('#addRiskCategory');
+                // Populate edit risk modal dropdown (if exists)
+                const editSelect = $('#editRiskCategory');
+                
+                // Clear existing options except the first one
+                addSelect.find('option:not(:first)').remove();
+                editSelect.find('option:not(:first)').remove();
+                
+                data.data.forEach(category => {
+                    // Handle both object and string formats
+                    if (typeof category === 'object') {
+                        filterSelect.append(`<option value="${category.value}">${category.label}</option>`);
+                        addSelect.append(`<option value="${category.value}">${category.label}</option>`);
+                        editSelect.append(`<option value="${category.value}">${category.label}</option>`);
+                    } else {
+                        filterSelect.append(`<option value="${category}">${category.charAt(0).toUpperCase() + category.slice(1)}</option>`);
+                        addSelect.append(`<option value="${category}">${category.charAt(0).toUpperCase() + category.slice(1)}</option>`);
+                        editSelect.append(`<option value="${category}">${category.charAt(0).toUpperCase() + category.slice(1)}</option>`);
+                    }
+                });
+            }
+        })
+        .catch(error => console.error('Error loading categories:', error));
+}
+
+function loadStatuses() {
+    fetch('/risks/api/statuses')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = $('#statusFilter');
+                data.data.forEach(status => {
+                    // Handle both object and string formats
+                    if (typeof status === 'object') {
+                        select.append(`<option value="${status.value}">${status.label}</option>`);
+                    } else {
+                        select.append(`<option value="${status}">${status.replace('_', ' ').toUpperCase()}</option>`);
+                    }
+                });
+            }
+        })
+        .catch(error => console.error('Error loading statuses:', error));
+}
+
+function loadDepartments() {
+    fetch('/risks/api/departments')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = $('#departmentSelect');
+                data.data.forEach(dept => {
+                    select.append(`<option value="${dept.id}">${dept.name}</option>`);
+                });
+                
+                // Initialize Select2
+                $('#departmentSelect').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: 'Select Department',
+                    allowClear: true
+                });
+            }
+        })
+        .catch(error => console.error('Error loading departments:', error));
+}
+
+function loadUsers() {
+    fetch('/risks/api/users')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = $('#ownerSelect');
+                data.data.forEach(user => {
+                    select.append(`<option value="${user.id}">${user.display_name || user.full_name}</option>`);
+                });
+                
+                // Initialize Select2
+                $('#ownerSelect').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: 'Select Risk Owner',
+                    allowClear: true
+                });
+            }
+        })
+        .catch(error => console.error('Error loading users:', error));
+}
+
+function loadRisks() {
+    const params = new URLSearchParams({
+        skip: 0,
+        limit: 1000,
+        category: $('#categoryFilter').val() || '',
+        status: $('#statusFilter').val() || '',
+        search: $('#searchInput').val() || ''
+    });
+
+    fetch(`/risks/api/list?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                risksTable.clear();
+                
+                if (data.data && data.data.items) {
+                    risksTable.rows.add(data.data.items);
+                }
+                
+                risksTable.draw();
+                updateStats(data.data ? data.data.items || [] : []);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading risks:', error);
+            // Load with empty data on error
+            risksTable.clear().draw();
+            updateStats([]);
+        });
+}
+
+function updateStats(risks) {
+    const total = risks.length;
+    const highRisks = risks.filter(r => (r.inherent_risk_score || (r.likelihood * r.impact)) >= 15).length;
+    const openRisks = risks.filter(r => ['draft', 'active', 'under_review'].includes(r.status)).length;
+    const overdueActions = risks.filter(r => r.status === 'overdue').length;
+    
+    $('#totalRisks').text(total);
+    $('#highRisks').text(highRisks);
+    $('#openRisks').text(openRisks);
+    $('#overdueActions').text(overdueActions);
+}
+
+function loadAnalytics() {
+    fetch('/risks/api/analytics/distribution')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderCategoryChart(data.data.category_distribution);
+                renderScoreChart(data.data.score_distribution);
+            }
+        })
+        .catch(error => console.error('Error loading analytics:', error));
+}
+
+function renderCategoryChart(data) {
+    const options = {
+        series: data.map(item => item.count),
+        chart: {
+            type: 'donut',
+            height: 400
+        },
+        labels: data.map(item => item.category),
+        colors: window.ColorCoding ? window.ColorCoding.generateChartColors('department', data.map(item => item.category.toLowerCase())) : ['#1e40af', '#7c3aed', '#059669', '#dc2626', '#374151'],
+        legend: {
+            position: 'bottom'
+        },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '70%'
+                }
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val, opts) {
+                return opts.w.config.series[opts.seriesIndex]
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val + ' risks'
+                }
+            }
+        }
+    };
+
+    categoryChart = new ApexCharts(document.querySelector("#categoryChart"), options);
+    categoryChart.render();
+}
+
+function renderScoreChart(data) {
+    const options = {
+        series: [{
+            name: 'Risk Count',
+            data: data.map(item => item.count)
+        }],
+        chart: {
+            type: 'bar',
+            height: 400,
+            toolbar: {
+                show: false
+            }
+        },
+        xaxis: {
+            categories: data.map(item => item.score_range)
+        },
+        colors: ['#1e40af', '#f59e0b', '#fd7e14', '#ef4444', '#6366f1'],
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                horizontal: false,
+            }
+        },
+        dataLabels: {
+            enabled: true
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val + ' risks'
+                }
+            }
+        }
+    };
+
+    scoreChart = new ApexCharts(document.querySelector("#scoreChart"), options);
+    scoreChart.render();
+}
+
+function setupRiskCalculator() {
+    $('#likelihoodSelect, #impactSelect').on('change', function() {
+        const likelihood = parseInt($('#likelihoodSelect').val()) || 0;
+        const impact = parseInt($('#impactSelect').val()) || 0;
+        
+        if (likelihood && impact) {
+            const score = likelihood * impact;
+            const colorInfo = window.ColorCoding ? window.ColorCoding.getRiskColor(score) : { class: 'risk-low', label: 'Low' };
+            
+            $('#riskScoreDisplay')
+                .text(`${score} (${colorInfo.label})`)
+                .removeClass('risk-low risk-medium risk-high risk-very-high risk-critical')
+                .addClass(colorInfo.class.replace('risk-', 'risk-level-'));
+        } else {
+            $('#riskScoreDisplay')
+                .text('Select likelihood and impact')
+                .removeClass('risk-low risk-medium risk-high risk-very-high risk-critical');
+        }
+    });
+}
+
+function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(e.target);
+    const riskData = Object.fromEntries(formData.entries());
+    
+    // Convert string values to proper types
+    riskData.likelihood = parseInt(riskData.likelihood);
+    riskData.impact = parseInt(riskData.impact);
+    
+    // Calculate risk score
+    riskData.inherent_risk_score = riskData.likelihood * riskData.impact;
+    riskData.residual_risk_score = riskData.inherent_risk_score; // Default to same value
+    
+    // Set status to active if not provided
+    if (!riskData.status) {
+        riskData.status = 'active';
+    }
+    
+    // Handle department field - ensure we have a department value
+    if (riskData.department) {
+        // If department is an ID, get the department name
+        const departmentSelect = document.querySelector('#departmentSelect');
+        if (departmentSelect && departmentSelect.value) {
+            const selectedOption = departmentSelect.options[departmentSelect.selectedIndex];
+            riskData.department = selectedOption.text; // Use department name instead of ID
+        }
+    }
+    
+    // Handle risk_owner_id - ensure it's a proper UUID or null
+    if (riskData.risk_owner_id === '') {
+        delete riskData.risk_owner_id; // Backend will set to current user
+    }
+    
+    // Remove empty values and extra fields that shouldn't be sent
+    Object.keys(riskData).forEach(key => {
+        if (riskData[key] === '' || riskData[key] === null || riskData[key] === undefined) {
+            delete riskData[key];
+        }
+    });
+    
+    // Debug log the data being sent
+    console.log('Submitting risk data:', riskData);
+    
+    // Submit to backend
+    fetch('/risks/api/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': $('meta[name=csrf-token]').attr('content')
+        },
+        body: JSON.stringify(riskData)
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            return response.text().then(text => {
+                console.error('Error response text:', text);
+                throw new Error(`HTTP ${response.status}: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            showAlert('Risk registered successfully!', 'success');
+            
+            // Close modal with proper focus management
+            const modalElement = document.getElementById('riskModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            
+            // Remove aria-hidden before hiding to prevent accessibility issues
+            modalElement.addEventListener('hidden.bs.modal', function() {
+                modalElement.removeAttribute('aria-hidden');
+            }, { once: true });
+            
+            modal.hide();
+            
+            // Reset form
+            e.target.reset();
+            $('#riskScoreDisplay').text('Select likelihood and impact').removeClass('risk-low risk-medium risk-high risk-very-high risk-critical');
+            
+            // Refresh data
+            loadRisks();
+            
+            // Update dashboard if we're on dashboard page
+            if (typeof loadDashboardStats === 'function') {
+                loadDashboardStats();
+            }
+        } else {
+            showAlert(data.error || 'Error saving risk', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving risk:', error);
+        showAlert(`Error saving risk: ${error.message}`, 'error');
+    })
+    .finally(() => {
+        // Restore button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+    
+    // Refresh table (in real implementation, make API call)
+    setTimeout(() => loadRisks(), 500);
+}
+
+function applyFilters() {
+    loadRisks();
+}
+
+function clearFilters() {
+    $('#searchInput').val('');
+    $('#categoryFilter').val('');
+    $('#statusFilter').val('');
+    loadRisks();
+}
+
+// Risk View Function
+function viewRisk(riskId) {
+    fetch(`/risks/api/${riskId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                populateViewModal(data.data);
+                $('#viewRiskModal').modal('show');
+            } else {
+                showAlert('Error loading risk details', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error viewing risk:', error);
+            showAlert('Error loading risk details', 'error');
+        });
+}
+
+// Risk Edit Function
+function editRisk(riskId) {
+    fetch(`/risks/api/${riskId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                populateEditModal(data.data);
+                $('#editRiskModal').modal('show');
+            } else {
+                showAlert('Error loading risk details', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading risk for edit:', error);
+            showAlert('Error loading risk details', 'error');
+        });
+}
+
+// Edit Risk from View Modal
+function editRiskFromView() {
+    const riskId = $('#viewRiskModal').data('currentRiskId');
+    $('#viewRiskModal').modal('hide');
+    setTimeout(() => editRisk(riskId), 300);
+}
+
+// Risk Delete Function
+function deleteRisk(riskId) {
+    if (confirm('Are you sure you want to delete this risk? This action cannot be undone.')) {
+        fetch(`/risks/api/${riskId}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Risk deleted successfully!', 'success');
+                loadRisks();
+            } else {
+                showAlert(data.error || 'Error deleting risk', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting risk:', error);
+            showAlert('Error deleting risk', 'error');
+        });
+    }
+}
+
+// Populate View Modal with Risk Data
+function populateViewModal(risk) {
+    $('#viewRiskModal').data('currentRiskId', risk.id);
+    $('#viewRiskTitle').text(risk.title || 'Untitled Risk');
+    $('#viewRiskDescription').text(risk.description || 'No description available');
+    
+    // Risk Score and Level
+    const score = risk.inherent_risk_score || (risk.likelihood * risk.impact) || 0;
+    const levelInfo = getRiskLevelInfo(score);
+    $('#viewRiskScore').text(score).attr('class', `badge fs-6 ${levelInfo.badgeClass}`);
+    $('#viewRiskLevel').text(levelInfo.text).attr('class', `badge ${levelInfo.badgeClass}`);
+    
+    // Basic Info
+    $('#viewRiskCategory').text(risk.category ? risk.category.charAt(0).toUpperCase() + risk.category.slice(1) : '-');
+    $('#viewRiskDepartment').text(risk.department || '-');
+    $('#viewRiskStatus').text(risk.status ? risk.status.replace('_', ' ').toUpperCase() : '-');
+    $('#viewRiskOwner').text(risk.risk_owner_name || 'Unassigned');
+    $('#viewRiskSource').text(risk.risk_source || '-');
+    
+    // Dates
+    $('#viewRiskCreated').text(risk.created_at ? new Date(risk.created_at).toLocaleDateString() : '-');
+    $('#viewRiskUpdated').text(risk.updated_at ? new Date(risk.updated_at).toLocaleDateString() : '-');
+    
+    // Likelihood and Impact
+    $('#viewRiskLikelihood').text(risk.likelihood || 0);
+    $('#viewRiskLikelihoodDesc').text(getLikelihoodDescription(risk.likelihood));
+    $('#viewRiskImpact').text(risk.impact || 0);
+    $('#viewRiskImpactDesc').text(getImpactDescription(risk.impact));
+}
+
+// Populate Edit Modal with Risk Data
+function populateEditModal(risk) {
+    $('#editRiskId').val(risk.id);
+    $('#editRiskTitle').val(risk.title || '');
+    $('#editRiskDescription').val(risk.description || '');
+    $('#editRiskCategory').val(risk.category || '');
+    $('#editRiskStatus').val(risk.status || 'active');
+    $('#editRiskSource').val(risk.risk_source || '');
+    
+    // Set likelihood and impact
+    $('#editLikelihoodSelect').val(risk.likelihood || '');
+    $('#editImpactSelect').val(risk.impact || '');
+    
+    // Update risk score display
+    updateEditRiskScore();
+    
+    // Load and set department
+    loadDepartmentsForEdit(risk.department);
+    
+    // Load and set owner
+    loadUsersForEdit(risk.risk_owner_id);
+}
+
+// Load departments for edit modal
+function loadDepartmentsForEdit(selectedDepartment) {
+    fetch('/risks/api/departments')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = $('#editDepartmentSelect');
+                select.empty().append('<option value="">Select Department</option>');
+                data.data.forEach(dept => {
+                    const isSelected = (selectedDepartment && dept.name === selectedDepartment) ? 'selected' : '';
+                    select.append(`<option value="${dept.id}" ${isSelected}>${dept.name}</option>`);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading departments for edit:', error));
+}
+
+// Load users for edit modal
+function loadUsersForEdit(selectedOwnerId) {
+    fetch('/risks/api/users')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = $('#editOwnerSelect');
+                select.empty().append('<option value="">Select Owner</option>');
+                data.data.forEach(user => {
+                    const isSelected = (selectedOwnerId && user.id === selectedOwnerId) ? 'selected' : '';
+                    select.append(`<option value="${user.id}" ${isSelected}>${user.display_name || user.full_name}</option>`);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading users for edit:', error));
+}
+
+// Update risk score in edit modal
+function updateEditRiskScore() {
+    const likelihood = parseInt($('#editLikelihoodSelect').val()) || 0;
+    const impact = parseInt($('#editImpactSelect').val()) || 0;
+    
+    if (likelihood && impact) {
+        const score = likelihood * impact;
+        const levelInfo = getRiskLevelInfo(score);
+        $('#editRiskScoreDisplay')
+            .text(`${score} (${levelInfo.text})`)
+            .removeClass('risk-low risk-medium risk-high risk-very-high risk-critical')
+            .addClass(levelInfo.cssClass);
+    } else {
+        $('#editRiskScoreDisplay')
+            .text('Select likelihood and impact')
+            .removeClass('risk-low risk-medium risk-high risk-very-high risk-critical');
+    }
+}
+
+// Helper function to get risk level information
+function getRiskLevelInfo(score) {
+    if (score >= 20) return { text: 'Critical', badgeClass: 'bg-danger', cssClass: 'risk-critical' };
+    if (score >= 15) return { text: 'Very High', badgeClass: 'bg-danger', cssClass: 'risk-very-high' };
+    if (score >= 9) return { text: 'High', badgeClass: 'bg-warning', cssClass: 'risk-high' };
+    if (score >= 4) return { text: 'Medium', badgeClass: 'bg-info', cssClass: 'risk-medium' };
+    return { text: 'Low', badgeClass: 'bg-success', cssClass: 'risk-low' };
+}
+
+// Helper functions for descriptions
+function getLikelihoodDescription(likelihood) {
+    const descriptions = {
+        1: 'Rare (0-5%)',
+        2: 'Unlikely (5-25%)',
+        3: 'Possible (25-50%)',
+        4: 'Likely (50-75%)',
+        5: 'Almost Certain (75-100%)'
+    };
+    return descriptions[likelihood] || '-';
+}
+
+function getImpactDescription(impact) {
+    const descriptions = {
+        1: 'Insignificant',
+        2: 'Minor',
+        3: 'Moderate',
+        4: 'Major',
+        5: 'Catastrophic'
+    };
+    return descriptions[impact] || '-';
+}
+
+// Handle Edit Form Submission
+function handleEditFormSubmit(e) {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(e.target);
+    const riskData = Object.fromEntries(formData.entries());
+    const riskId = riskData.id;
+    delete riskData.id; // Remove ID from payload
+    
+    // Convert string values to proper types
+    riskData.likelihood = parseInt(riskData.likelihood);
+    riskData.impact = parseInt(riskData.impact);
+    
+    // Calculate risk score
+    riskData.inherent_risk_score = riskData.likelihood * riskData.impact;
+    riskData.residual_risk_score = riskData.inherent_risk_score;
+    
+    // Handle department field - get the selected option text as department name
+    if (riskData.department) {
+        const departmentSelect = document.querySelector('#editDepartmentSelect');
+        if (departmentSelect && departmentSelect.value) {
+            const selectedOption = departmentSelect.options[departmentSelect.selectedIndex];
+            riskData.department = selectedOption.text;
+        }
+    }
+    
+    // Handle risk_owner_id - ensure it's a proper UUID or null
+    if (riskData.risk_owner_id === '') {
+        delete riskData.risk_owner_id;
+    }
+    
+    // Remove empty values
+    Object.keys(riskData).forEach(key => {
+        if (riskData[key] === '' || riskData[key] === null || riskData[key] === undefined) {
+            delete riskData[key];
+        }
+    });
+    
+    // Debug log the data being sent
+    console.log('Updating risk data:', riskData);
+    
+    // Submit to backend
+    fetch(`/risks/api/${riskId}/update`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(riskData)
+    })
+    .then(response => {
+        console.log('Update response status:', response.status);
+        if (!response.ok) {
+            return response.text().then(text => {
+                console.error('Update error response text:', text);
+                throw new Error(`HTTP ${response.status}: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Update response data:', data);
+        if (data.success) {
+            showAlert('Risk updated successfully!', 'success');
+            
+            // Close modal
+            $('#editRiskModal').modal('hide');
+            
+            // Reset form
+            e.target.reset();
+            $('#editRiskScoreDisplay').text('Select likelihood and impact');
+            
+            // Refresh data
+            loadRisks();
+        } else {
+            showAlert(data.error || 'Error updating risk', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating risk:', error);
+        showAlert(`Error updating risk: ${error.message}`, 'error');
+    })
+    .finally(() => {
+        // Restore button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+// Setup risk calculator for edit modal
+function setupEditRiskCalculator() {
+    $('#editLikelihoodSelect, #editImpactSelect').on('change', function() {
+        updateEditRiskScore();
+    });
+}
+
+// Show Quick Help
+function showQuickHelp() {
+    const helpContent = `
+        <div class="help-content">
+            <h5 class="mb-3">Quick Help Guide</h5>
+            
+            <div class="mb-4">
+                <h6><i class="fas fa-rocket text-primary"></i> Getting Started</h6>
+                <ol>
+                    <li>Click "Add New Risk" to create your first risk</li>
+                    <li>Fill in the risk details and assessment scores</li>
+                    <li>Assign a risk owner and set the status</li>
+                    <li>Save the risk to add it to the register</li>
+                </ol>
+            </div>
+            
+            <div class="mb-4">
+                <h6><i class="fas fa-filter text-info"></i> Filtering & Search</h6>
+                <ul>
+                    <li>Use the search bar to find specific risks</li>
+                    <li>Filter by category, status, or risk level</li>
+                    <li>Sort by clicking column headers</li>
+                </ul>
+            </div>
+            
+            <div class="mb-4">
+                <h6><i class="fas fa-chart-line text-success"></i> Risk Scoring</h6>
+                <p><strong>Risk Score = Impact × Likelihood</strong></p>
+                <ul>
+                    <li><span class="badge bg-success">1-5</span> Low Risk</li>
+                    <li><span class="badge bg-warning">6-10</span> Medium Risk</li>
+                    <li><span class="badge bg-danger">11-15</span> High Risk</li>
+                    <li><span class="badge bg-dark">16-25</span> Critical Risk</li>
+                </ul>
+            </div>
+            
+            <div class="mb-4">
+                <h6><i class="fas fa-keyboard text-warning"></i> Keyboard Shortcuts</h6>
+                <ul>
+                    <li><kbd>Alt</kbd> + <kbd>N</kbd> - New Risk</li>
+                    <li><kbd>Alt</kbd> + <kbd>F</kbd> - Focus Search</li>
+                    <li><kbd>Alt</kbd> + <kbd>R</kbd> - Refresh</li>
+                    <li><kbd>Alt</kbd> + <kbd>H</kbd> - Help</li>
+                </ul>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="/risks/process-flow" class="btn btn-primary">
+                    <i class="fas fa-book"></i> View Complete Guide
+                </a>
+                <button class="btn btn-success ms-2" onclick="startGuidedTour()">
+                    <i class="fas fa-play"></i> Start Guided Tour
+                </button>
+            </div>
+        </div>
+    `;
+    
+    Swal.fire({
+        title: 'Risk Management Help',
+        html: helpContent,
+        width: '600px',
+        showConfirmButton: true,
+        confirmButtonText: 'Got it!',
+        confirmButtonColor: '#3b82f6'
+    });
+}
+
+// Guided Tour
+function startGuidedTour() {
+    const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+            cancelIcon: {
+                enabled: true
+            },
+            scrollTo: { behavior: 'smooth', block: 'center' }
+        }
+    });
+    
+    tour.addStep({
+        title: 'Welcome to Risk Management',
+        text: 'This guided tour will show you how to use the risk management system effectively.',
+        buttons: [
+            {
+                text: 'Skip',
+                action: tour.cancel,
+                classes: 'btn-secondary'
+            },
+            {
+                text: 'Next',
+                action: tour.next,
+                classes: 'btn-primary'
+            }
+        ]
+    });
+    
+    tour.addStep({
+        title: 'Risk Dashboard',
+        text: 'These cards show key metrics about your risk portfolio at a glance.',
+        attachTo: {
+            element: '.risk-stats-card:first',
+            on: 'bottom'
+        },
+        buttons: [
+            {
+                text: 'Back',
+                action: tour.back,
+                classes: 'btn-secondary'
+            },
+            {
+                text: 'Next',
+                action: tour.next,
+                classes: 'btn-primary'
+            }
+        ]
+    });
+    
+    tour.addStep({
+        title: 'Add New Risk',
+        text: 'Click this button to create a new risk entry in the system.',
+        attachTo: {
+            element: '.btn-gradient',
+            on: 'bottom'
+        },
+        buttons: [
+            {
+                text: 'Back',
+                action: tour.back,
+                classes: 'btn-secondary'
+            },
+            {
+                text: 'Next',
+                action: tour.next,
+                classes: 'btn-primary'
+            }
+        ]
+    });
+    
+    tour.addStep({
+        title: 'Search and Filter',
+        text: 'Use these controls to search for specific risks or filter the list.',
+        attachTo: {
+            element: '.risk-filters',
+            on: 'bottom'
+        },
+        buttons: [
+            {
+                text: 'Back',
+                action: tour.back,
+                classes: 'btn-secondary'
+            },
+            {
+                text: 'Next',
+                action: tour.next,
+                classes: 'btn-primary'
+            }
+        ]
+    });
+    
+    tour.addStep({
+        title: 'Risk Table',
+        text: 'This table shows all risks. Click on any row to view details or edit.',
+        attachTo: {
+            element: '.risk-table',
+            on: 'top'
+        },
+        buttons: [
+            {
+                text: 'Back',
+                action: tour.back,
+                classes: 'btn-secondary'
+            },
+            {
+                text: 'Finish',
+                action: tour.complete,
+                classes: 'btn-success'
+            }
+        ]
+    });
+    
+    tour.start();
+}
+
+function showAlert(message, type = 'info') {
+    const alertClass = type === 'error' ? 'alert-danger' : 
+                      type === 'success' ? 'alert-success' : 
+                      type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const alert = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('body').append(alert);
+    
+    setTimeout(() => {
+        alert.alert('close');
+    }, 5000);
+}
+</script>
+{% endblock %}

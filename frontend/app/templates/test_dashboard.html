@@ -1,0 +1,189 @@
+{% extends "layouts/base.html" %}
+{% block title %}NAPSA ERM Test Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4">NAPSA ERM System - Feature Test Dashboard</h1>
+    
+    <!-- System Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">System Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Frontend Status:</strong> <span class="badge bg-success">Running</span></p>
+                            <p><strong>Backend API:</strong> <span id="backend-status" class="badge bg-warning">Checking...</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Database:</strong> <span id="db-status" class="badge bg-warning">Checking...</span></p>
+                            <p><strong>User:</strong> {{ current_user.username if current_user.is_authenticated else 'Not logged in' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feature Tests -->
+    <div class="row">
+        <!-- Core Features -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Core Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{{ url_for('dashboard.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tachometer-alt"></i> Main Dashboard
+                        </a>
+                        <a href="{{ url_for('risks.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-exclamation-triangle"></i> Risk Management
+                        </a>
+                        <a href="{{ url_for('risks.heatmap') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-th"></i> Risk Heat Map
+                        </a>
+                        <a href="{{ url_for('kri.dashboard') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chart-line"></i> KRI Dashboard
+                        </a>
+                        <a href="{{ url_for('incidents.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-exclamation-circle"></i> Incident Management
+                        </a>
+                        <a href="{{ url_for('controls.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-shield-alt"></i> Controls
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Advanced Features -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Advanced Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{{ url_for('reports.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-pdf"></i> Reports & Export
+                        </a>
+                        <a href="{{ url_for('compliance.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clipboard-check"></i> Compliance
+                        </a>
+                        <a href="{{ url_for('audit.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-history"></i> Audit Trail
+                        </a>
+                        <a href="#" onclick="testOracleIntegration()" class="list-group-item list-group-item-action">
+                            <i class="fas fa-database"></i> Oracle ERP Integration
+                        </a>
+                        <a href="{{ url_for('settings.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                        <a href="{{ url_for('auth.profile') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user"></i> User Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- API Test Results -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>API Test Results</h5>
+                    <button class="btn btn-sm btn-primary float-end" onclick="runAPITests()">Run API Tests</button>
+                </div>
+                <div class="card-body">
+                    <div id="api-test-results">
+                        <p class="text-muted">Click "Run API Tests" to test backend connectivity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Check backend status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    checkBackendStatus();
+});
+
+function checkBackendStatus() {
+    fetch('/api/health')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('backend-status').className = 'badge bg-success';
+            document.getElementById('backend-status').textContent = 'Connected';
+            
+            if (data.database) {
+                document.getElementById('db-status').className = 'badge bg-success';
+                document.getElementById('db-status').textContent = 'Connected';
+            }
+        })
+        .catch(error => {
+            document.getElementById('backend-status').className = 'badge bg-danger';
+            document.getElementById('backend-status').textContent = 'Disconnected';
+            document.getElementById('db-status').className = 'badge bg-danger';
+            document.getElementById('db-status').textContent = 'Unknown';
+        });
+}
+
+function runAPITests() {
+    const resultsDiv = document.getElementById('api-test-results');
+    resultsDiv.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Testing...</span></div>';
+    
+    const endpoints = [
+        {name: 'Risks', url: '/api/risks/list'},
+        {name: 'KRI Dashboard', url: '/kri/api/dashboard-data'},
+        {name: 'Dashboard Stats', url: '/api/dashboard/stats'},
+        {name: 'Incidents', url: '/api/incidents'}
+    ];
+    
+    let html = '<table class="table table-sm"><thead><tr><th>Endpoint</th><th>Status</th><th>Response Time</th></tr></thead><tbody>';
+    let testPromises = [];
+    
+    endpoints.forEach(endpoint => {
+        const startTime = Date.now();
+        const promise = fetch(endpoint.url)
+            .then(response => {
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                const status = response.ok ? 
+                    '<span class="badge bg-success">OK</span>' : 
+                    `<span class="badge bg-danger">${response.status}</span>`;
+                return `<tr><td>${endpoint.name}</td><td>${status}</td><td>${responseTime}ms</td></tr>`;
+            })
+            .catch(error => {
+                return `<tr><td>${endpoint.name}</td><td><span class="badge bg-danger">Failed</span></td><td>-</td></tr>`;
+            });
+        testPromises.push(promise);
+    });
+    
+    Promise.all(testPromises).then(results => {
+        html += results.join('');
+        html += '</tbody></table>';
+        resultsDiv.innerHTML = html;
+    });
+}
+
+function testOracleIntegration() {
+    fetch('/api/oracle/status')
+        .then(response => response.json())
+        .then(data => {
+            alert(`Oracle ERP Integration Status:\nMode: ${data.mode || 'Not configured'}\nStatus: ${data.status || 'Unknown'}`);
+        })
+        .catch(error => {
+            alert('Oracle ERP Integration not available');
+        });
+}
+</script>
+{% endblock %}

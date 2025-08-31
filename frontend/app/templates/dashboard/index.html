@@ -1,0 +1,2334 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard - NAPSA ERM System{% endblock %}
+
+{% block styles %}
+<style>
+    /* Professional Dashboard Styles - NAPSA ERM */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        --primary-color: #1e40af;
+        --accent-color: #3b82f6;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --info-color: #06b6d4;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --border-radius: 12px;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .dashboard-container {
+        background: var(--gray-50) !important;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: #ffffff;
+        border-bottom: 1px solid var(--gray-200);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #000000 !important;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.025em;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-item {
+        color: var(--gray-600) !important;
+        font-size: 0.875rem;
+    }
+
+    .breadcrumb-item.active {
+        color: #000000 !important;
+        font-weight: 500;
+    }
+
+    .breadcrumb-item a {
+        color: var(--primary-color) !important;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--accent-color) !important;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 15px;
+        padding: 25px;
+        position: relative;
+        transition: all 0.3s ease;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .stat-card.total .stat-icon {
+        background: var(--primary-gradient);
+    }
+
+    .stat-card.high .stat-icon {
+        background: var(--danger-gradient);
+    }
+
+    .stat-card.critical .stat-icon {
+        background: var(--warning-gradient);
+    }
+
+    .stat-card.medium .stat-icon {
+        background: var(--info-gradient);
+    }
+
+    .stat-card.low .stat-icon {
+        background: var(--success-gradient);
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--gray-600) !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #000000 !important;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .stat-trend.positive {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
+    }
+
+    .stat-trend.negative {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger-color);
+    }
+
+    .stat-trend.neutral {
+        background: rgba(107, 114, 128, 0.1);
+        color: var(--gray-600);
+    }
+
+    /* Card Styles */
+    .card {
+        background: #ffffff !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--border-radius) !important;
+        box-shadow: var(--shadow-sm) !important;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: var(--shadow-md) !important;
+    }
+
+    .card-header {
+        background: #ffffff !important;
+        border-bottom: 1px solid var(--gray-200) !important;
+        padding: 1.5rem !important;
+        border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    }
+
+    .card-header h5 {
+        color: #000000 !important;
+        font-weight: 700 !important;
+        font-size: 1.125rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .card-header p {
+        color: var(--gray-600) !important;
+        font-size: 0.875rem !important;
+        margin: 0 !important;
+    }
+
+    .card-body {
+        padding: 1.5rem !important;
+    }
+
+    /* Charts Grid - Single row layout */
+    .charts-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        padding: 0 0.5rem;
+    }
+    
+    /* Each chart takes full width */
+    .chart-full-width {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Risk matrix specific sizing */
+    .risk-matrix-card {
+        min-height: 400px;
+    }
+    
+    /* Top risks table card spacing */
+    .top-risks-card {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Quick Actions */
+    .quick-action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 15px;
+        text-decoration: none;
+        color: #000000 !important;
+        transition: all 0.3s ease;
+        height: 100px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .quick-action-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+        color: #000000 !important;
+    }
+
+    .quick-action-btn i {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .quick-action-btn:hover i {
+        color: var(--warning-color);
+        transform: scale(1.1);
+    }
+
+    .quick-action-btn span {
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    /* Risk Heatmap */
+    .risk-heatmap-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 2px;
+    }
+
+    .risk-heatmap-header {
+        background: var(--gray-50);
+        color: #000000 !important;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.75rem;
+        text-align: center;
+        border-radius: 6px;
+    }
+
+    .risk-heatmap-cell {
+        padding: 1rem;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: white !important;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+        position: relative;
+    }
+
+    .risk-heatmap-cell:hover {
+        transform: scale(1.05);
+        z-index: 10;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .risk-very-low { background: var(--success-color); }
+    .risk-low { background: #22c55e; }
+    .risk-medium { background: var(--warning-color); }
+    .risk-high { background: #f97316; }
+    .risk-very-high { background: var(--danger-color); }
+
+    /* Tooltip */
+    .tooltip-container {
+        position: relative;
+    }
+
+    .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background: var(--gray-900);
+        color: white;
+        text-align: center;
+        border-radius: 6px;
+        padding: 0.5rem;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.75rem;
+        font-weight: 400;
+    }
+
+    .tooltip-container:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Buttons */
+    .btn-napsa-primary {
+        background: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        color: white !important;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+
+    .btn-napsa-primary:hover {
+        background: var(--warning-color);
+        border-color: var(--warning-color);
+        color: white !important;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline-napsa {
+        background: transparent;
+        border: 2px solid var(--gray-300);
+        color: var(--gray-700) !important;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+
+    .btn-outline-napsa:hover {
+        background: var(--warning-color);
+        border-color: var(--warning-color);
+        color: white !important;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline-napsa.active {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white !important;
+    }
+
+    /* Progress Bars */
+    .progress-enhanced {
+        height: 8px;
+        background: var(--gray-200);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar-enhanced {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.6s ease;
+    }
+
+    .progress-bar-enhanced.bg-success { background: var(--success-color); }
+    .progress-bar-enhanced.bg-warning { background: var(--warning-color); }
+    .progress-bar-enhanced.bg-info { background: var(--info-color); }
+
+    /* Status Badges */
+    .status-badge {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-success { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
+    .status-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
+    .status-info { background: rgba(6, 182, 212, 0.1); color: var(--info-color); }
+
+    /* Compliance Details */
+    .compliance-details .d-flex {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .compliance-details .d-flex:last-child {
+        border-bottom: none;
+    }
+
+    .fw-medium { font-weight: 500; }
+    .fw-semibold { font-weight: 600; }
+
+    /* Activity Timeline */
+    .activity-timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .activity-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--gray-200);
+    }
+
+    .activity-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+        margin-left: 0.5rem;
+    }
+
+    .activity-item::before {
+        content: '';
+        position: absolute;
+        left: -1.75rem;
+        top: 0.25rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px var(--gray-200);
+    }
+
+    /* List Groups */
+    .list-group-item {
+        background: #ffffff !important;
+        border: none !important;
+        border-bottom: 1px solid var(--gray-100) !important;
+        padding: 1rem !important;
+        color: #000000 !important;
+    }
+
+    .list-group-item:last-child {
+        border-bottom: none !important;
+    }
+
+    .list-group-item h6 {
+        color: #000000 !important;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Badges */
+    .badge {
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+    }
+
+    .badge.bg-danger { background: var(--danger-color) !important; }
+    .badge.bg-warning { background: var(--warning-color) !important; }
+    .badge.bg-info { background: var(--info-color) !important; }
+    .badge.bg-success { background: var(--success-color) !important; }
+
+    /* Chart Container */
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin-top: 1rem;
+    }
+    
+    /* Specific chart heights */
+    .heatmap-card .chart-container {
+        height: 480px;
+        padding: 1rem;
+    }
+    
+    .risk-matrix-card .chart-container {
+        height: 350px;
+    }
+    
+    .chart-full-width .chart-container {
+        height: 300px;
+    }
+    
+    /* Enhanced styling for full-width charts */
+    .chart-full-width .card-header {
+        background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .chart-full-width .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Text Colors */
+    .text-muted {
+        color: var(--gray-600) !important;
+    }
+
+    .text-primary {
+        color: var(--primary-color) !important;
+    }
+
+    .text-success {
+        color: var(--success-color) !important;
+    }
+
+    .text-warning {
+        color: var(--warning-color) !important;
+    }
+
+    .text-danger {
+        color: var(--danger-color) !important;
+    }
+
+    .text-info {
+        color: var(--info-color) !important;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .metrics-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .metrics-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 1200px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .metrics-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .charts-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .heatmap-card {
+            min-height: 450px;
+            margin-bottom: 1rem;
+        }
+        
+        .heatmap-card .chart-container {
+            height: 380px;
+            padding: 0.5rem;
+        }
+    }
+        
+        .page-header {
+            padding: 1rem 0;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+        }
+        
+        .chart-container {
+            height: 250px;
+        }
+    }
+
+    /* Force all text to be black */
+    .dashboard-container,
+    .dashboard-container *:not(.badge):not(.risk-heatmap-cell):not(.tooltip-text):not(.btn-napsa-primary):not(.btn-napsa-primary *) {
+        color: #000000 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid dashboard-container p-0">
+    <div class="container-fluid">
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="stat-card total">
+                <div class="stat-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="stat-value" id="total-risks">
+                    {{ data.risk_summary.total if data and data.risk_summary else 24 }}
+                </div>
+                <div class="stat-label">Total Risks</div>
+            </div>
+            
+            <div class="stat-card critical">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-value" id="critical-risks">0</div>
+                <div class="stat-label">Critical Risks</div>
+            </div>
+            
+            <div class="stat-card medium">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value">
+                    <span id="compliance-score">{{ data.compliance_score if data else 85 }}</span>%
+                </div>
+                <div class="stat-label">Compliance Score</div>
+            </div>
+            
+            <div class="stat-card high">
+                <div class="stat-icon">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <div class="stat-value" id="open-incidents">
+                    {{ data.open_incidents if data else 0 }}
+                </div>
+                <div class="stat-label">Open Incidents</div>
+            </div>
+            
+            <div class="stat-card low">
+                <div class="stat-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-value" id="pending-assessments">
+                    {{ data.pending_assessments if data else 0 }}
+                </div>
+                <div class="stat-label">Pending Assessments</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+                <p>Frequently used operations</p>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-lg-2 col-md-4 col-6">
+                        <a href="/risks/" class="quick-action-btn">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>New Risk</span>
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6">
+                        <a href="/risk-assessments/" class="quick-action-btn">
+                            <i class="fas fa-clipboard-check"></i>
+                            <span>Assessment</span>
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6">
+                        <a href="/incidents/" class="quick-action-btn">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Incident</span>
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6">
+                        <a href="/reports/" class="quick-action-btn">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Report</span>
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6">
+                        <a href="/vendors/" class="quick-action-btn">
+                            <i class="fas fa-building"></i>
+                            <span>Vendor</span>
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6">
+                        <a href="/controls/" class="quick-action-btn">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Control</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <!-- Risk Assessment Matrix -->
+            <div class="card risk-matrix-card chart-full-width">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Risk Assessment Matrix</h5>
+                        <p>Likelihood vs Impact visualization</p>
+                    </div>
+                    <button class="btn btn-outline-napsa btn-sm">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted"><strong>Impact →</strong></small>
+                            <small class="text-muted"><strong>Likelihood ↓</strong></small>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="risk-heatmap-table">
+                            <thead>
+                                <tr>
+                                    <th class="risk-heatmap-header"></th>
+                                    <th class="risk-heatmap-header">Very Low</th>
+                                    <th class="risk-heatmap-header">Low</th>
+                                    <th class="risk-heatmap-header">Medium</th>
+                                    <th class="risk-heatmap-header">High</th>
+                                    <th class="risk-heatmap-header">Very High</th>
+                                </tr>
+                            </thead>
+                            <tbody id="risk-heatmap-body">
+                                <tr>
+                                    <td colspan="6" class="text-center p-4">
+                                        <i class="fas fa-spinner fa-spin text-muted"></i>
+                                        <p class="text-muted mt-2">Loading risk assessment matrix...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Top 10 Urgent Risks -->
+            <div class="card chart-full-width top-risks-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Top 10 Urgent Risks</h5>
+                        <small class="text-muted">Highest risk scores requiring immediate attention • Click rows to view details</small>
+                    </div>
+                    <a href="{{ url_for('risks.index') if url_for else '#' }}" class="text-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="top-risks-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0">Risk Title</th>
+                                    <th class="border-0">Category</th>
+                                    <th class="border-0">Assigned User</th>
+                                    <th class="border-0">Risk Level</th>
+                                    <th class="border-0 text-center">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top-risks-list">
+                                <!-- Top risks will be populated by JavaScript -->
+                                <tr>
+                                    <td colspan="5" class="text-center p-4">
+                                        <i class="fas fa-spinner fa-spin text-muted"></i>
+                                        <p class="text-muted mt-2 mb-0">Loading top risks...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Trend Analysis -->
+            <div class="card chart-full-width">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Risk Trend Analysis</h5>
+                        <p>6-month risk progression overview</p>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-napsa active">6M</button>
+                        <button type="button" class="btn btn-outline-napsa">1Y</button>
+                        <button type="button" class="btn btn-outline-napsa">All</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="riskTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Effectiveness -->
+            <div class="card chart-full-width">
+                <div class="card-header">
+                    <h5>Control Effectiveness Overview</h5>
+                    <p>Performance metrics for risk controls</p>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <div id="controlEffectivenessChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance Framework Status -->
+            <div class="card chart-full-width">
+                <div class="card-header">
+                    <h5>Compliance Framework Status</h5>
+                    <p>Current standing across regulatory frameworks</p>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div id="complianceChart"></div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="compliance-details">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="status-badge status-success me-3">✓</div>
+                                        <span class="fw-medium">ISO 27001</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="progress-enhanced" style="width: 120px;">
+                                            <div class="progress-bar-enhanced bg-success" style="width: 85%"></div>
+                                        </div>
+                                        <span class="fw-semibold text-success">85%</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="status-badge status-warning me-3">⚠</div>
+                                        <span class="fw-medium">NIST Framework</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="progress-enhanced" style="width: 120px;">
+                                            <div class="progress-bar-enhanced bg-warning" style="width: 72%"></div>
+                                        </div>
+                                        <span class="fw-semibold text-warning">72%</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="status-badge status-success me-3">✓</div>
+                                        <span class="fw-medium">COBIT 2019</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="progress-enhanced" style="width: 120px;">
+                                            <div class="progress-bar-enhanced bg-success" style="width: 90%"></div>
+                                        </div>
+                                        <span class="fw-semibold text-success">90%</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="status-badge status-info me-3">i</div>
+                                        <span class="fw-medium">SOX Compliance</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="progress-enhanced" style="width: 120px;">
+                                            <div class="progress-bar-enhanced bg-info" style="width: 78%"></div>
+                                        </div>
+                                        <span class="fw-semibold text-info">78%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>
+                            <i class="fas fa-stream text-primary me-2"></i>
+                            Recent Activities
+                        </h5>
+                        <a href="#" class="text-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-timeline">
+                            {% if data and data.recent_activities %}
+                                {% for activity in data.recent_activities[:5] %}
+                                <div class="activity-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>{{ activity.user }}</strong>
+                                            <span class="text-muted">{{ activity.action }}</span>
+                                        </div>
+                                        <small class="text-muted">{{ activity.timestamp|datetime }}</small>
+                                    </div>
+                                    <p class="text-muted small mb-0 mt-1">{{ activity.details }}</p>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>No recent activities</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load Dashboard Statistics
+function loadDashboardStats() {
+    Promise.all([
+        fetch('/api/risks/stats/summary').then(r => r.json()),
+        fetch('/api/dashboard/overview').then(r => r.json()).catch(() => ({success: false}))
+    ]).then(([riskStats, dashboardData]) => {
+        console.log('Risk stats:', riskStats);
+        console.log('Dashboard data:', dashboardData);
+        
+        // Update all risk statistics from risk stats
+        if (riskStats.success && riskStats.data) {
+            // Update total risks (backend returns 'total_risks')
+            document.getElementById('total-risks').textContent = riskStats.data.total_risks || 0;
+            
+            // Update critical risks (backend returns 'critical_risks')
+            document.getElementById('critical-risks').textContent = riskStats.data.critical_risks || 0;
+        } else if (!riskStats.success) {
+            console.error('Risk stats API error:', riskStats.error);
+            // Show API error state
+            document.getElementById('total-risks').textContent = 'Error';
+            document.getElementById('critical-risks').textContent = 'Error';
+        }
+        
+        // Update other stats from dashboard data if available
+        if (dashboardData.success && dashboardData.data) {
+            if (dashboardData.data.compliance_score !== undefined) {
+                document.getElementById('compliance-score').textContent = dashboardData.data.compliance_score;
+            }
+            if (dashboardData.data.open_incidents !== undefined) {
+                document.getElementById('open-incidents').textContent = dashboardData.data.open_incidents;
+            }
+            if (dashboardData.data.pending_assessments !== undefined) {
+                document.getElementById('pending-assessments').textContent = dashboardData.data.pending_assessments;
+            }
+        }
+    }).catch(error => {
+        console.error('Error loading dashboard stats:', error);
+    });
+}
+
+// Initialize Charts and Load Real Data
+document.addEventListener('DOMContentLoaded', function() {
+    // Load dashboard statistics
+    loadDashboardStats();
+    
+    // Load real risk matrix data
+    loadRiskHeatmap();
+    
+    // Load real top risks data
+    loadTopRisks();
+    
+    // Load critical risks data
+    loadCriticalRisks();
+    // Load risk trend data
+    loadRiskTrend();
+    
+    // Control Effectiveness Chart (ApexCharts)
+    const controlOptions = {
+        series: [85, 72, 90, 68],
+        chart: {
+            type: 'radialBar',
+            height: 300,
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        },
+        plotOptions: {
+            radialBar: {
+                offsetY: 0,
+                startAngle: 0,
+                endAngle: 270,
+                hollow: {
+                    margin: 5,
+                    size: '30%',
+                    background: 'transparent'
+                },
+                dataLabels: {
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        show: false
+                    }
+                }
+            }
+        },
+        colors: ['#1e40af', '#10b981', '#f59e0b', '#ef4444'],
+        labels: ['Preventive', 'Detective', 'Corrective', 'Directive'],
+        legend: {
+            show: true,
+            floating: true,
+            fontSize: '12px',
+            position: 'left',
+            offsetX: 50,
+            offsetY: 10,
+            labels: {
+                useSeriesColors: true
+            },
+            formatter: function(seriesName, opts) {
+                return seriesName + ": " + opts.w.globals.series[opts.seriesIndex] + "%"
+            }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                legend: {
+                    show: false
+                }
+            }
+        }]
+    };
+    
+    const controlChart = new ApexCharts(document.querySelector("#controlEffectivenessChart"), controlOptions);
+    controlChart.render();
+    
+    // Compliance Chart
+    const complianceOptions = {
+        series: [85],
+        chart: {
+            type: 'radialBar',
+            height: 200,
+            sparkline: {
+                enabled: true
+            }
+        },
+        plotOptions: {
+            radialBar: {
+                hollow: {
+                    margin: 0,
+                    size: '70%'
+                },
+                track: {
+                    background: '#e5e7eb',
+                    strokeWidth: '100%'
+                },
+                dataLabels: {
+                    show: true,
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        offsetY: 5,
+                        fontSize: '24px',
+                        fontWeight: '700',
+                        color: '#000000',
+                        formatter: function(val) {
+                            return val + '%'
+                        }
+                    }
+                }
+            }
+        },
+        colors: ['#1e40af'],
+        labels: ['Overall Compliance']
+    };
+    
+    const complianceChart = new ApexCharts(document.querySelector("#complianceChart"), complianceOptions);
+    complianceChart.render();
+});
+
+// Refresh Dashboard Function
+function refreshDashboard() {
+    // Show loading state
+    const refreshBtn = document.querySelector('[onclick="refreshDashboard()"]');
+    const originalText = refreshBtn.innerHTML;
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Refreshing...';
+    refreshBtn.disabled = true;
+    
+    // Simulate data refresh
+    setTimeout(() => {
+        // Update statistics from multiple endpoints
+        Promise.all([
+            fetch('/api/risks/stats/summary').then(r => r.json()),
+            fetch('/api/dashboard/overview').then(r => r.json()).catch(() => ({success: false}))
+        ]).then(([riskStats, dashboardData]) => {
+            // Update total risks from risk stats (backend returns 'total_risks')
+            if (riskStats.success && riskStats.data) {
+                document.getElementById('total-risks').textContent = riskStats.data.total_risks || 0;
+                
+                // Update critical risks
+                const criticalRisksEl = document.getElementById('critical-risks');
+                if (criticalRisksEl) criticalRisksEl.textContent = riskStats.data.critical_risks || 0;
+            } else if (!riskStats.success) {
+                console.error('Risk stats API error:', riskStats.error);
+                document.getElementById('total-risks').textContent = 'Error';
+                const criticalRisksEl = document.getElementById('critical-risks');
+                if (criticalRisksEl) criticalRisksEl.textContent = 'Error';
+            }
+            
+            // Update other stats from dashboard data if available
+            if (dashboardData.success && dashboardData.data) {
+                if (dashboardData.data.compliance_score !== undefined) {
+                    document.getElementById('compliance-score').textContent = dashboardData.data.compliance_score;
+                }
+                if (dashboardData.data.open_incidents !== undefined) {
+                    document.getElementById('open-incidents').textContent = dashboardData.data.open_incidents;
+                }
+                if (dashboardData.data.pending_assessments !== undefined) {
+                    document.getElementById('pending-assessments').textContent = dashboardData.data.pending_assessments;
+                }
+            }
+        })
+            .catch(() => {
+                console.log('Using cached data');
+            })
+            .finally(() => {
+                refreshBtn.innerHTML = originalText;
+                refreshBtn.disabled = false;
+            });
+    }, 1500);
+}
+
+// Auto-refresh every 5 minutes
+setInterval(function() {
+    refreshDashboard();
+    loadRiskHeatmap();  // This loads the Risk Assessment Matrix
+    loadTopRisks();
+    loadCriticalRisks();
+    loadRiskTrend();
+}, 300000);
+
+// Function to load critical risks data
+function loadCriticalRisks() {
+    fetch('/api/critical-risks', {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            document.getElementById('critical-risks').textContent = data.critical_risks || 0;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading critical risks:', error);
+        // Keep existing value on error
+    });
+}
+
+// Function to load risk trend data
+function loadRiskTrend() {
+    fetch('/api/risk-trend', {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            updateRiskTrendChart(data.data);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading risk trend data:', error);
+        // Use fallback data on error
+        updateRiskTrendChart({
+            labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [
+                {
+                    label: 'Critical',
+                    data: [2, 3, 2, 4, 3, 2],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                },
+                {
+                    label: 'High',
+                    data: [8, 10, 9, 12, 11, 9],
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                },
+                {
+                    label: 'Medium',
+                    data: [15, 18, 17, 20, 19, 16],
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                },
+                {
+                    label: 'Low',
+                    data: [25, 22, 24, 21, 23, 26],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                }
+            ]
+        });
+    });
+}
+
+// Function to update risk trend chart
+function updateRiskTrendChart(chartData) {
+    const riskTrendCtx = document.getElementById('riskTrendChart').getContext('2d');
+    
+    // Add styling properties to datasets
+    chartData.datasets.forEach(dataset => {
+        dataset.tension = 0.4;
+        dataset.borderWidth = 3;
+        dataset.pointBackgroundColor = dataset.borderColor;
+        dataset.pointBorderColor = '#ffffff';
+        dataset.pointBorderWidth = 2;
+        dataset.pointRadius = 5;
+    });
+    
+    new Chart(riskTrendCtx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f3f4f6',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        color: '#6b7280'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        color: '#6b7280'
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+}
+
+// Function to load real risk heatmap data
+function loadRiskHeatmap() {
+    // First, load the Risk Assessment Matrix
+    fetch('/api/risks/matrix', {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            // If matrix endpoint doesn't exist, try getting all risks instead
+            return fetch('/api/risks', {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+        return response;
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Risk matrix/data received:', data);
+        if (data.success) {
+            // Update the Risk Assessment Matrix table
+            updateRiskAssessmentMatrix(data.data || data.items || []);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading risk matrix:', error);
+        // Load from basic risks endpoint as fallback
+        fetch('/api/risks', {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.items) {
+                updateRiskAssessmentMatrix(data.items);
+            }
+        })
+        .catch(err => {
+            console.error('Error loading risks fallback:', err);
+            // Show empty matrix on error
+            updateRiskAssessmentMatrix([]);
+        });
+    });
+}
+
+// Function to update Risk Assessment Matrix with real data
+function updateRiskAssessmentMatrix(risks) {
+    const tbody = document.getElementById('risk-heatmap-body');
+    if (!tbody) return;
+    
+    // Create a matrix structure for likelihood vs impact
+    const matrix = {};
+    const likelihoodLevels = ['Very High', 'High', 'Medium', 'Low', 'Very Low'];
+    const impactLevels = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
+    
+    // Initialize matrix
+    likelihoodLevels.forEach(likelihood => {
+        matrix[likelihood] = {};
+        impactLevels.forEach(impact => {
+            matrix[likelihood][impact] = 0;
+        });
+    });
+    
+    // Process risks and populate matrix
+    if (Array.isArray(risks)) {
+        risks.forEach(risk => {
+            // Convert numeric values to text levels
+            const likelihoodLevel = getTextLevel(risk.probability || risk.likelihood || 0);
+            const impactLevel = getTextLevel(risk.impact || 0);
+            
+            if (matrix[likelihoodLevel] && matrix[likelihoodLevel][impactLevel] !== undefined) {
+                matrix[likelihoodLevel][impactLevel]++;
+            }
+        });
+    }
+    
+    // Clear existing content
+    tbody.innerHTML = '';
+    
+    // Build the matrix table rows
+    likelihoodLevels.forEach(likelihood => {
+        const row = document.createElement('tr');
+        
+        // Add likelihood header
+        const th = document.createElement('th');
+        th.className = 'risk-heatmap-header';
+        th.textContent = likelihood;
+        row.appendChild(th);
+        
+        // Add cells for each impact level
+        impactLevels.forEach(impact => {
+            const td = document.createElement('td');
+            const count = matrix[likelihood][impact];
+            const riskScore = getLevelScore(likelihood) * getLevelScore(impact);
+            const riskClass = getRiskClassFromScore(riskScore);
+            
+            td.className = `risk-heatmap-cell ${riskClass} tooltip-container`;
+            td.textContent = count;
+            td.style.cursor = count > 0 ? 'pointer' : 'default';
+            
+            // Add tooltip
+            const tooltip = document.createElement('span');
+            tooltip.className = 'tooltip-text';
+            tooltip.innerHTML = count > 0 
+                ? `${count} risk${count > 1 ? 's' : ''}<br>Likelihood: ${likelihood}<br>Impact: ${impact}` 
+                : 'No risks';
+            td.appendChild(tooltip);
+            
+            row.appendChild(td);
+        });
+        
+        tbody.appendChild(row);
+    });
+}
+
+// Helper function to convert numeric score to text level
+function getTextLevel(score) {
+    if (score <= 1) return 'Very Low';
+    if (score <= 2) return 'Low';
+    if (score <= 3) return 'Medium';
+    if (score <= 4) return 'High';
+    return 'Very High';
+}
+
+// Helper function to get numeric score from text level
+function getLevelScore(level) {
+    const scores = {
+        'Very Low': 1,
+        'Low': 2,
+        'Medium': 3,
+        'High': 4,
+        'Very High': 5
+    };
+    return scores[level] || 3;
+}
+
+// Helper function to get risk class from score
+function getRiskClassFromScore(score) {
+    if (score <= 4) return 'risk-very-low';
+    if (score <= 8) return 'risk-low';
+    if (score <= 12) return 'risk-medium';
+    if (score <= 16) return 'risk-high';
+    return 'risk-very-high';
+}
+
+// Function to update risk heatmap with real data
+function updateRiskHeatmap(riskData) {
+    console.log('Updating risk heatmap with data:', riskData);
+    
+    // Create a 5x5 matrix for probability vs impact
+    const matrix = {};
+    const probabilityLevels = ['very_low', 'low', 'medium', 'high', 'very_high'];
+    const impactLevels = ['very_low', 'low', 'medium', 'high', 'very_high'];
+    
+    // Initialize matrix
+    probabilityLevels.forEach(prob => {
+        matrix[prob] = {};
+        impactLevels.forEach(imp => {
+            matrix[prob][imp] = { count: 0, risks: [] };
+        });
+    });
+    
+    // Process risk data
+    if (Array.isArray(riskData)) {
+        riskData.forEach(risk => {
+            const probLevel = getScoreLevel(risk.probability);
+            const impLevel = getScoreLevel(risk.impact);
+            console.log(`Processing risk: ${risk.title}, prob: ${risk.probability} (${probLevel}), impact: ${risk.impact} (${impLevel})`);
+            if (matrix[probLevel] && matrix[probLevel][impLevel]) {
+                matrix[probLevel][impLevel].count++;
+                matrix[probLevel][impLevel].risks.push(risk.title);
+            }
+        });
+    } else {
+        console.warn('Risk data is not an array:', riskData);
+    }
+    
+    // Update heatmap table
+    const tbody = document.getElementById('risk-heatmap-body');
+    if (!tbody) {
+        console.error('Risk heatmap tbody not found!');
+        return;
+    }
+    
+    console.log('Clearing and updating tbody...');
+    tbody.innerHTML = '';
+    
+    const headers = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
+    const levels = ['very_high', 'high', 'medium', 'low', 'very_low'];
+    
+    levels.forEach((probLevel, probIndex) => {
+        const row = document.createElement('tr');
+        
+        // Add row header
+        const rowHeader = document.createElement('th');
+        rowHeader.className = 'risk-heatmap-header';
+        rowHeader.textContent = headers[4 - probIndex]; // Reverse order for display
+        row.appendChild(rowHeader);
+        
+        // Add cells for each impact level
+        impactLevels.forEach(impLevel => {
+            const cell = document.createElement('td');
+            cell.className = 'tooltip-container';
+            
+            const cellData = matrix[probLevel][impLevel];
+            const count = cellData.count;
+            const riskLevel = getRiskLevel(getScoreFromLevel(probLevel), getScoreFromLevel(impLevel));
+            
+            const cellDiv = document.createElement('div');
+            cellDiv.className = `risk-heatmap-cell risk-${riskLevel}`;
+            cellDiv.textContent = count;
+            
+            const tooltip = document.createElement('span');
+            tooltip.className = 'tooltip-text';
+            if (count > 0) {
+                const recentRisk = cellData.risks[0] || 'Unknown';
+                tooltip.innerHTML = `${count} risk${count > 1 ? 's' : ''}: ${riskLevel} severity<br>Recent: ${recentRisk}`;
+            } else {
+                tooltip.innerHTML = 'No risks in this category';
+            }
+            
+            cell.appendChild(cellDiv);
+            cell.appendChild(tooltip);
+            row.appendChild(cell);
+        });
+        
+        tbody.appendChild(row);
+    });
+    
+    console.log('Risk heatmap table updated successfully');
+}
+
+// Helper functions
+function getScoreLevel(score) {
+    if (score <= 1) return 'very_low';
+    if (score <= 2) return 'low';
+    if (score <= 3) return 'medium';
+    if (score <= 4) return 'high';
+    return 'very_high';
+}
+
+function getScoreFromLevel(level) {
+    const levels = { 'very_low': 1, 'low': 2, 'medium': 3, 'high': 4, 'very_high': 5 };
+    return levels[level] || 3;
+}
+
+function getRiskLevel(probability, impact) {
+    const score = probability * impact;
+    if (score <= 4) return 'very-low';
+    if (score <= 9) return 'low';
+    if (score <= 16) return 'medium';
+    if (score <= 20) return 'high';
+    return 'very-high';
+}
+
+// Create Interactive Risk Heatmap
+function createInteractiveRiskHeatmap(data) {
+    console.log('Creating interactive risk heatmap with data:', data);
+    
+    const heatmapContainer = document.getElementById('riskHeatmapChart');
+    if (!heatmapContainer) return;
+    
+    // Create a 5x5 matrix initialized with empty arrays
+    const matrix = {};
+    for (let likelihood = 1; likelihood <= 5; likelihood++) {
+        for (let impact = 1; impact <= 5; impact++) {
+            matrix[`${likelihood},${impact}`] = [];
+        }
+    }
+    
+    // Populate matrix with real risk data
+    let totalRisks = 0;
+    if (data.success && data.items) {
+        // Process risks from the /api/risks endpoint
+        data.items.forEach(risk => {
+            // Use likelihood field (some risks have this instead of probability)
+            const likelihoodValue = risk.likelihood || risk.probability || 3;
+            const impactValue = risk.impact || 3;
+            
+            // Ensure values are between 1-5
+            const likelihood = Math.min(5, Math.max(1, Math.round(likelihoodValue)));
+            const impact = Math.min(5, Math.max(1, Math.round(impactValue)));
+            
+            const key = `${likelihood},${impact}`;
+            if (matrix[key]) {
+                matrix[key].push({
+                    id: risk.id,
+                    title: risk.title,
+                    category: risk.category,
+                    score: likelihood * impact
+                });
+                totalRisks++;
+            }
+        });
+    } else if (data.heatmap && Array.isArray(data.heatmap)) {
+        // Fallback to heatmap structure if available
+        data.heatmap.forEach(cell => {
+            const key = `${cell.likelihood},${cell.impact}`;
+            if (matrix[key]) {
+                matrix[key] = cell.risks || [];
+                totalRisks += (cell.risks || []).length;
+            }
+        });
+    }
+    
+    // Create user-friendly heatmap HTML
+    let heatmapHTML = `
+        <div style="margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="font-weight: 600; color: #333; font-size: 16px;">Risk Heat Map</div>
+                <div style="font-size: 14px; color: #666;">Total Risks: ${totalRisks}</div>
+            </div>
+            <div style="display: flex; gap: 12px; font-size: 11px; margin-bottom: 15px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div style="width: 12px; height: 12px; background: #86efac; border: 1px solid #22c55e; border-radius: 2px;"></div>
+                    <span style="color: #666;">Very Low (1-3)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div style="width: 12px; height: 12px; background: #bef264; border: 1px solid #84cc16; border-radius: 2px;"></div>
+                    <span style="color: #666;">Low (4-6)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div style="width: 12px; height: 12px; background: #fde047; border: 1px solid #eab308; border-radius: 2px;"></div>
+                    <span style="color: #666;">Medium (7-10)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div style="width: 12px; height: 12px; background: #fb923c; border: 1px solid #ea580c; border-radius: 2px;"></div>
+                    <span style="color: #666;">High (11-15)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div style="width: 12px; height: 12px; background: #f87171; border: 1px solid #dc2626; border-radius: 2px;"></div>
+                    <span style="color: #666;">Very High (16-25)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; font-size: 12px; max-width: 100%; margin: 0 auto;">
+            <!-- Header row -->
+            <div style="display: flex; align-items: center; justify-content: center; font-weight: 600; color: #333;"></div>
+            <div style="text-align: center; font-weight: 600; color: #333; padding: 8px; border-bottom: 2px solid #e5e7eb;">Very Low<br><small style="color: #666;">(1)</small></div>
+            <div style="text-align: center; font-weight: 600; color: #333; padding: 8px; border-bottom: 2px solid #e5e7eb;">Low<br><small style="color: #666;">(2)</small></div>
+            <div style="text-align: center; font-weight: 600; color: #333; padding: 8px; border-bottom: 2px solid #e5e7eb;">Medium<br><small style="color: #666;">(3)</small></div>
+            <div style="text-align: center; font-weight: 600; color: #333; padding: 8px; border-bottom: 2px solid #e5e7eb;">High<br><small style="color: #666;">(4)</small></div>
+            <div style="text-align: center; font-weight: 600; color: #333; padding: 8px; border-bottom: 2px solid #e5e7eb;">Very High<br><small style="color: #666;">(5)</small></div>
+    `;
+    
+    // Create rows for each likelihood level (5 to 1, top to bottom)
+    const likelihoodLabels = [
+        'Very High (5)', 'High (4)', 'Medium (3)', 'Low (2)', 'Very Low (1)'
+    ];
+    
+    for (let likelihood = 5; likelihood >= 1; likelihood--) {
+        // Row header
+        heatmapHTML += `
+            <div style="
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                font-weight: 600; 
+                color: #333; 
+                padding: 8px; 
+                border-right: 2px solid #e5e7eb;
+                writing-mode: vertical-lr; 
+                text-orientation: mixed;
+            ">${likelihoodLabels[5-likelihood]}</div>
+        `;
+        
+        // Cells for each impact level
+        for (let impact = 1; impact <= 5; impact++) {
+            const key = `${likelihood},${impact}`;
+            const risks = matrix[key] || [];
+            const riskCount = risks.length;
+            const riskScore = likelihood * impact;
+            const cellColor = getHeatmapCellColor(likelihood, impact, riskCount);
+            const riskLevel = getHeatmapRiskLevel(riskScore);
+            
+            heatmapHTML += `
+                <div style="
+                    background: ${cellColor.bg};
+                    border: 2px solid ${cellColor.border};
+                    border-radius: 6px;
+                    padding: 10px;
+                    text-align: center;
+                    min-height: 70px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: ${riskCount > 0 ? 'pointer' : 'default'};
+                    transition: all 0.2s ease;
+                    position: relative;
+                " 
+                ${riskCount > 0 ? `onclick="showHeatmapCellRisks(${JSON.stringify(risks).replace(/"/g, '&quot;')}, ${likelihood}, ${impact})"` : ''}
+                onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+                onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"
+                title="Likelihood: ${likelihood}, Impact: ${impact} | Risk Score: ${riskScore} (${riskLevel}) | ${riskCount} risk(s)${riskCount > 0 ? ' - Click to view' : ''}">
+                    
+                    <div style="font-size: 18px; font-weight: 700; color: ${cellColor.text}; margin-bottom: 3px;">
+                        ${riskCount}
+                    </div>
+                    <div style="font-size: 10px; color: ${cellColor.text}; opacity: 0.8;">
+                        ${riskCount === 1 ? 'Risk' : 'Risks'}
+                    </div>
+                    <div style="font-size: 9px; color: ${cellColor.text}; opacity: 0.7; margin-top: 3px;">
+                        Score: ${riskScore}
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    heatmapHTML += `
+        </div>
+        <div style="display: flex; align-items: center; margin-top: 20px;">
+            <div style="font-weight: 600; color: #333; font-size: 14px; writing-mode: vertical-lr; text-orientation: mixed; margin-right: 20px;">
+                ← Likelihood Level
+            </div>
+            <div style="flex: 1; text-align: center; font-weight: 600; color: #333; font-size: 14px;">
+                Impact Level →
+            </div>
+        </div>
+    `;
+    
+    heatmapContainer.innerHTML = heatmapHTML;
+}
+
+// Get heat map cell colors based on risk score (likelihood * impact)
+function getHeatmapCellColor(likelihood, impact, count) {
+    const riskScore = likelihood * impact;
+    
+    // Color based on risk score, not count
+    if (count === 0) {
+        return { bg: '#f3f4f6', border: '#d1d5db', text: '#6b7280' };
+    } else if (riskScore <= 3) {
+        // Very Low Risk (1-3): Green
+        return { bg: '#86efac', border: '#22c55e', text: '#14532d' };
+    } else if (riskScore <= 6) {
+        // Low Risk (4-6): Light Green
+        return { bg: '#bef264', border: '#84cc16', text: '#365314' };
+    } else if (riskScore <= 10) {
+        // Medium Risk (7-10): Yellow
+        return { bg: '#fde047', border: '#eab308', text: '#713f12' };
+    } else if (riskScore <= 15) {
+        // High Risk (11-15): Orange
+        return { bg: '#fb923c', border: '#ea580c', text: '#7c2d12' };
+    } else {
+        // Very High Risk (16-25): Red
+        return { bg: '#f87171', border: '#dc2626', text: '#7f1d1d' };
+    }
+}
+
+// Get risk level text for heatmap
+function getHeatmapRiskLevel(score) {
+    if (score >= 20) return 'Very High';
+    if (score >= 15) return 'High';
+    if (score >= 9) return 'Medium-High';
+    if (score >= 4) return 'Medium';
+    return 'Low';
+}
+
+// Show risks in a heatmap cell
+function showHeatmapCellRisks(risks, likelihood, impact) {
+    if (!risks || risks.length === 0) return;
+    
+    const riskScore = likelihood * impact;
+    const riskLevel = getHeatmapRiskLevel(riskScore);
+    
+    const riskList = risks.map(risk => 
+        `<div style="
+            cursor: pointer; 
+            padding: 12px; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 6px; 
+            margin-bottom: 8px;
+            background: #f9fafb;
+            transition: all 0.2s ease;
+        " 
+        onclick="viewRisk('${risk.id}'); document.querySelector('.heatmap-modal').remove();"
+        onmouseover="this.style.background='#f3f4f6'; this.style.borderColor='#d1d5db'"
+        onmouseout="this.style.background='#f9fafb'; this.style.borderColor='#e5e7eb'">
+            <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">${risk.title}</div>
+            <div style="font-size: 12px; color: #6b7280;">
+                Category: ${risk.category || 'Unknown'} | Risk Score: ${risk.score || riskScore}
+            </div>
+        </div>`
+    ).join('');
+    
+    const modal = `
+        <div class="heatmap-modal" style="
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            z-index: 10000; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        " onclick="this.remove()">
+            <div style="
+                background: white; 
+                padding: 24px; 
+                border-radius: 12px; 
+                max-width: 600px; 
+                max-height: 80vh; 
+                overflow-y: auto;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            " onclick="event.stopPropagation()">
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 8px 0; color: #111827;">Risks in Cell</h4>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                        Likelihood: ${likelihood} | Impact: ${impact} | Risk Score: ${riskScore} (${riskLevel}) | ${risks.length} risk(s)
+                    </p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    ${riskList}
+                </div>
+                
+                <div style="text-align: right;">
+                    <button style="
+                        padding: 8px 16px; 
+                        background: #6b7280; 
+                        color: white; 
+                        border: none; 
+                        border-radius: 6px; 
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 500;
+                    " onclick="this.closest('.heatmap-modal').remove()">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modal);
+}
+
+// Function to load real top risks data
+function loadTopRisks() {
+    fetch('/api/top-risks', {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        updateTopRisks(data.data || data.items || data);
+    })
+    .catch(error => {
+        console.error('Error loading top risks:', error);
+        // Show error message
+        const container = document.getElementById('top-risks-list');
+        container.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center p-4">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    <p class="text-muted mt-2 mb-0">Unable to load top risks data</p>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// Function to update top risks with real data
+function updateTopRisks(risks) {
+    const container = document.getElementById('top-risks-list');
+    
+    if (!risks || risks.length === 0) {
+        container.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center p-4">
+                    <i class="fas fa-info-circle text-info"></i>
+                    <p class="text-muted mt-2 mb-0">No risks found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    // Show top 10 urgent risks (highest scores first)
+    risks.slice(0, 10).forEach((risk, index) => {
+        const row = document.createElement('tr');
+        
+        const riskScore = risk.inherent_risk_score || (risk.probability * risk.impact) || 0;
+        const badgeClass = getRiskBadgeClass(riskScore);
+        const badgeText = getRiskLevelText(riskScore);
+        
+        // Format category name (capitalize first letter)
+        const categoryName = risk.category ? 
+            risk.category.charAt(0).toUpperCase() + risk.category.slice(1) : 
+            'Unknown';
+        
+        // Handle risk owner name
+        const ownerName = risk.risk_owner_name || 'Unassigned';
+        const ownerDisplay = ownerName === 'Unassigned' ? 
+            '<span class="text-muted">Unassigned</span>' : 
+            `<span class="text-dark">${ownerName}</span>`;
+        
+        row.innerHTML = `
+            <td>
+                <div class="fw-medium">${risk.title || 'Untitled Risk'}</div>
+            </td>
+            <td>
+                <span class="badge bg-light text-dark">${categoryName}</span>
+            </td>
+            <td>${ownerDisplay}</td>
+            <td>
+                <span class="badge ${badgeClass}">${badgeText}</span>
+            </td>
+            <td class="text-center">
+                <strong>${riskScore}</strong>
+            </td>
+        `;
+        
+        // Make row clickable to view risk details
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', () => viewRisk(risk.id));
+        row.setAttribute('title', 'Click to view risk details');
+        
+        container.appendChild(row);
+    });
+}
+
+// Helper functions for risk badges
+function getRiskBadgeClass(score) {
+    if (score >= 16) return 'bg-danger';
+    if (score >= 9) return 'bg-warning';
+    if (score >= 4) return 'bg-info';
+    return 'bg-success';
+}
+
+function getRiskLevelText(score) {
+    if (score >= 16) return 'Critical';
+    if (score >= 9) return 'High';
+    if (score >= 4) return 'Medium';
+    return 'Low';
+}
+
+// Function to create and update Risk Heat Map chart
+function updateRiskHeatmapChart(riskData) {
+    // Process data for the chart
+    const series = [];
+    const categories = ['Very Low', 'Low', 'Medium', 'High', 'Very High'];
+    
+    // Create matrix data for ApexCharts heatmap
+    const probabilityLevels = ['very_low', 'low', 'medium', 'high', 'very_high'];
+    const impactLevels = ['very_low', 'low', 'medium', 'high', 'very_high'];
+    
+    // Initialize matrix
+    const matrix = {};
+    probabilityLevels.forEach(prob => {
+        matrix[prob] = {};
+        impactLevels.forEach(imp => {
+            matrix[prob][imp] = 0;
+        });
+    });
+    
+    // Process risk data
+    riskData.forEach(risk => {
+        const probLevel = getScoreLevel(risk.probability);
+        const impLevel = getScoreLevel(risk.impact);
+        if (matrix[probLevel] && matrix[probLevel][impLevel] !== undefined) {
+            matrix[probLevel][impLevel]++;
+        }
+    });
+    
+    // Convert matrix to ApexCharts series format
+    probabilityLevels.reverse().forEach((probLevel, probIndex) => {
+        const data = [];
+        impactLevels.forEach((impLevel, impIndex) => {
+            data.push({
+                x: categories[impIndex],
+                y: matrix[probLevel][impLevel]
+            });
+        });
+        
+        series.push({
+            name: categories[4 - probIndex], // Reverse order for display
+            data: data
+        });
+    });
+    
+    const options = {
+        series: series,
+        chart: {
+            type: 'heatmap',
+            height: 350,
+            toolbar: {
+                show: false
+            }
+        },
+        plotOptions: {
+            heatmap: {
+                shadeIntensity: 0.5,
+                radius: 5,
+                useFillColorAsStroke: true,
+                colorScale: {
+                    ranges: [
+                        { from: 0, to: 0, color: '#f3f4f6' },
+                        { from: 1, to: 2, color: '#10b981' },
+                        { from: 3, to: 5, color: '#f59e0b' },
+                        { from: 6, to: 10, color: '#ef4444' },
+                        { from: 11, to: 50, color: '#7c2d12' }
+                    ]
+                }
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            style: {
+                colors: ['#fff', '#000']
+            }
+        },
+        stroke: {
+            width: 1
+        },
+        title: {
+            text: '',
+            style: {
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#000000'
+            }
+        },
+        xaxis: {
+            title: {
+                text: 'Impact Level',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#666666'
+                }
+            },
+            labels: {
+                style: {
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    colors: '#666666'
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Probability Level',
+                style: {
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#666666'
+                }
+            },
+            labels: {
+                style: {
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    colors: '#666666'
+                }
+            }
+        },
+        tooltip: {
+            custom: function({series, seriesIndex, dataPointIndex, w}) {
+                const value = series[seriesIndex][dataPointIndex];
+                const probability = w.globals.seriesNames[seriesIndex];
+                const impact = w.globals.categoryLabels[dataPointIndex];
+                
+                return `<div class="custom-tooltip" style="padding: 8px 12px; background: #000; color: #fff; border-radius: 6px; font-size: 12px;">
+                    <strong>Probability:</strong> ${probability}<br>
+                    <strong>Impact:</strong> ${impact}<br>
+                    <strong>Risk Count:</strong> ${value}
+                </div>`;
+            }
+        },
+        legend: {
+            show: false
+        }
+    };
+
+    // Create or update the chart
+    const chartElement = document.querySelector("#riskHeatmapChart");
+    if (chartElement) {
+        // Clear any existing chart
+        chartElement.innerHTML = '';
+        
+        const chart = new ApexCharts(chartElement, options);
+        chart.render();
+    }
+}
+
+// Button group functionality
+document.querySelectorAll('.btn-group .btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Remove active class from siblings
+        this.parentNode.querySelectorAll('.btn').forEach(sibling => {
+            sibling.classList.remove('active');
+        });
+        // Add active class to clicked button
+        this.classList.add('active');
+    });
+});
+
+// Risk View Function for Dashboard
+function viewRisk(riskId) {
+    fetch(`/risks/api/${riskId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                populateViewModal(data.data);
+                $('#viewRiskModal').modal('show');
+            } else {
+                showAlert('Error loading risk details', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error viewing risk:', error);
+            showAlert('Error loading risk details', 'error');
+        });
+}
+
+// Populate View Modal with Risk Data
+function populateViewModal(risk) {
+    $('#viewRiskModal').data('currentRiskId', risk.id);
+    $('#viewRiskTitle').text(risk.title || 'Untitled Risk');
+    $('#viewRiskDescription').text(risk.description || 'No description available');
+    
+    // Risk Score and Level
+    const score = risk.inherent_risk_score || (risk.likelihood * risk.impact) || 0;
+    const levelInfo = getRiskLevelInfo(score);
+    $('#viewRiskScore').text(score).attr('class', `badge fs-6 ${levelInfo.badgeClass}`);
+    $('#viewRiskLevel').text(levelInfo.text).attr('class', `badge ${levelInfo.badgeClass}`);
+    
+    // Basic Info
+    $('#viewRiskCategory').text(risk.category ? risk.category.charAt(0).toUpperCase() + risk.category.slice(1) : '-');
+    $('#viewRiskDepartment').text(risk.department || '-');
+    $('#viewRiskStatus').text(risk.status ? risk.status.replace('_', ' ').toUpperCase() : '-');
+    $('#viewRiskOwner').text(risk.risk_owner_name || 'Unassigned');
+    $('#viewRiskSource').text(risk.risk_source || '-');
+    
+    // Dates
+    $('#viewRiskCreated').text(risk.created_at ? new Date(risk.created_at).toLocaleDateString() : '-');
+    $('#viewRiskUpdated').text(risk.updated_at ? new Date(risk.updated_at).toLocaleDateString() : '-');
+    
+    // Likelihood and Impact
+    $('#viewRiskLikelihood').text(risk.likelihood || 0);
+    $('#viewRiskLikelihoodDesc').text(getLikelihoodDescription(risk.likelihood));
+    $('#viewRiskImpact').text(risk.impact || 0);
+    $('#viewRiskImpactDesc').text(getImpactDescription(risk.impact));
+}
+
+// Helper functions for risk level calculation
+function getRiskLevelInfo(score) {
+    if (score >= 20) return { text: 'Critical', badgeClass: 'bg-danger', cssClass: 'risk-critical' };
+    if (score >= 15) return { text: 'Very High', badgeClass: 'bg-danger', cssClass: 'risk-very-high' };
+    if (score >= 9) return { text: 'High', badgeClass: 'bg-warning', cssClass: 'risk-high' };
+    if (score >= 4) return { text: 'Medium', badgeClass: 'bg-info', cssClass: 'risk-medium' };
+    return { text: 'Low', badgeClass: 'bg-success', cssClass: 'risk-low' };
+}
+
+// Helper functions for descriptions
+function getLikelihoodDescription(likelihood) {
+    const descriptions = {
+        1: 'Rare (0-5%)',
+        2: 'Unlikely (5-25%)',
+        3: 'Possible (25-50%)',
+        4: 'Likely (50-75%)',
+        5: 'Almost Certain (75-100%)'
+    };
+    return descriptions[likelihood] || '-';
+}
+
+function getImpactDescription(impact) {
+    const descriptions = {
+        1: 'Insignificant',
+        2: 'Minor',
+        3: 'Moderate',
+        4: 'Major',
+        5: 'Catastrophic'
+    };
+    return descriptions[impact] || '-';
+}
+
+function showAlert(message, type = 'info') {
+    const alertClass = type === 'error' ? 'alert-danger' : 
+                      type === 'success' ? 'alert-success' : 
+                      type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const alert = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('body').append(alert);
+    
+    setTimeout(() => {
+        alert.alert('close');
+    }, 5000);
+}
+</script>
+
+<!-- Risk View Modal -->
+<div class="modal fade" id="viewRiskModal" tabindex="-1" aria-labelledby="viewRiskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewRiskModalLabel">Risk Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 class="fw-bold" id="viewRiskTitle">Risk Title</h6>
+                        <p class="text-muted mb-3" id="viewRiskDescription">Risk description...</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge fs-6" id="viewRiskScore">0</span>
+                        <div class="mt-2">
+                            <span class="badge" id="viewRiskLevel">Level</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Category</label>
+                            <div id="viewRiskCategory">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Department</label>
+                            <div id="viewRiskDepartment">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status</label>
+                            <div id="viewRiskStatus">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Risk Owner</label>
+                            <div id="viewRiskOwner">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Risk Source</label>
+                            <div id="viewRiskSource">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Created Date</label>
+                            <div id="viewRiskCreated">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Likelihood</label>
+                            <div class="d-flex align-items-center">
+                                <span id="viewRiskLikelihood" class="badge bg-info me-2">0</span>
+                                <small class="text-muted" id="viewRiskLikelihoodDesc">-</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Impact</label>
+                            <div class="d-flex align-items-center">
+                                <span id="viewRiskImpact" class="badge bg-warning me-2">0</span>
+                                <small class="text-muted" id="viewRiskImpactDesc">-</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Last Updated</label>
+                    <div id="viewRiskUpdated">-</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="/risks" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i>Manage in Risks Page
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

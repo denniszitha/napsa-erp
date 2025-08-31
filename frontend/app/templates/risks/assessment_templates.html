@@ -1,0 +1,666 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Risk Assessment Templates - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+        --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .btn-primary, .btn-secondary {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover, .btn-secondary:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card:nth-child(1)::before {
+        background: var(--gradient-1);
+    }
+
+    .stat-card:nth-child(2)::before {
+        background: var(--gradient-2);
+    }
+
+    .stat-card:nth-child(3)::before {
+        background: var(--gradient-3);
+    }
+
+    .stat-card:nth-child(4)::before {
+        background: var(--gradient-4);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-card:nth-child(1) .stat-icon {
+        background: var(--gradient-1);
+    }
+
+    .stat-card:nth-child(2) .stat-icon {
+        background: var(--gradient-2);
+    }
+
+    .stat-card:nth-child(3) .stat-icon {
+        background: var(--gradient-3);
+    }
+
+    .stat-card:nth-child(4) .stat-icon {
+        background: var(--gradient-4);
+    }
+
+    .stat-icon i {
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a202c;
+    }
+
+    .stat-label {
+        color: #718096;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+
+    .template-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .template-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .template-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .template-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #111827;
+    }
+    
+    .template-type {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .type-standard { background: #dbeafe; color: #1e40af; }
+    .type-custom { background: #f3e8ff; color: #7c3aed; }
+    .type-regulatory { background: #fef3c7; color: #92400e; }
+    
+    .criteria-list {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0;
+    }
+    
+    .criteria-item {
+        padding: 0.5rem;
+        background: #f9fafb;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .criteria-weight {
+        background: #3b82f6;
+        color: white;
+        padding: 0.125rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        margin-left: auto;
+    }
+    
+    .template-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .scale-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .scale-item {
+        text-align: center;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: white;
+    }
+    
+    .scale-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    
+    .scale-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Action Buttons -->
+            <div class="mb-4">
+                <button class="btn btn-primary" onclick="createNewTemplate()">
+                    <i class="fas fa-plus me-2"></i>Create Template
+                </button>
+                <button class="btn btn-secondary ms-2" onclick="loadTemplates()">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
+                <button class="btn btn-secondary ms-2" onclick="exportTemplates()">
+                    <i class="fas fa-download me-1"></i>Export
+                </button>
+            </div>
+
+            <!-- Template Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="stat-label">Active Templates</p>
+                                <h3 class="stat-value" id="activeTemplatesCount">0</h3>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="stat-label">Total Assessments</p>
+                                <h3 class="stat-value" id="totalAssessmentsCount">0</h3>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="stat-label">Avg Completion Time</p>
+                                <h3 class="stat-value" id="avgCompletionTime">0</h3>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="stat-label">Custom Templates</p>
+                                <h3 class="stat-value" id="customTemplatesCount">0</h3>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates List -->
+            <div class="row">
+                <div class="col-12">
+                    <div id="templatesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Template Modal -->
+<div class="modal fade" id="templateModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Assessment Template</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="templateForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Template Name *</label>
+                                <input type="text" class="form-control" id="templateName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Template Type *</label>
+                                <select class="form-control" id="templateType" required>
+                                    <option value="standard">Standard</option>
+                                    <option value="custom">Custom</option>
+                                    <option value="regulatory">Regulatory</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control" id="templateDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">Assessment Criteria</h5>
+                    <div id="criteriaContainer">
+                        <!-- Dynamic criteria fields will be added here -->
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addCriterion()">
+                        <i class="fas fa-plus"></i> Add Criterion
+                    </button>
+                    
+                    <h5 class="mt-4 mb-3">Scoring Scales</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Impact Scale</label>
+                            <div class="scale-grid" id="impactScale"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Likelihood Scale</label>
+                            <div class="scale-grid" id="likelihoodScale"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveTemplate()">Save Template</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let templates = [];
+let currentTemplate = null;
+
+// Load templates on page load
+$(document).ready(function() {
+    loadTemplates();
+    loadScales();
+});
+
+// Load assessment templates
+function loadTemplates() {
+    $.ajax({
+        url: '/api/v1/risks/templates/assessment',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        },
+        success: function(response) {
+            templates = response.data || [];
+            renderTemplates();
+            updateStatistics();
+        },
+        error: function(xhr) {
+            console.error('Failed to load templates:', xhr);
+            // Use mock data if API fails
+            templates = getMockTemplates();
+            renderTemplates();
+            updateStatistics();
+        }
+    });
+}
+
+// Load impact and likelihood scales
+function loadScales() {
+    // Load impact scales
+    $.ajax({
+        url: '/api/v1/risks/scales/impact',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        },
+        success: function(response) {
+            renderScales(response.data, 'impactScale');
+        }
+    });
+    
+    // Load likelihood scales
+    $.ajax({
+        url: '/api/v1/risks/scales/likelihood',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        },
+        success: function(response) {
+            renderScales(response.data, 'likelihoodScale');
+        }
+    });
+}
+
+// Render templates list
+function renderTemplates() {
+    const container = $('#templatesList');
+    container.empty();
+    
+    if (templates.length === 0) {
+        container.html(`
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No assessment templates found. Create your first template to get started.
+            </div>
+        `);
+        return;
+    }
+    
+    templates.forEach(template => {
+        const templateCard = `
+            <div class="template-card">
+                <div class="template-header">
+                    <div>
+                        <h4 class="template-title">${template.name}</h4>
+                        <span class="template-type type-${template.type}">${template.type}</span>
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="editTemplate(${template.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="useTemplate(${template.id})">
+                            <i class="fas fa-play"></i> Use
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <p class="text-muted">${template.description || 'No description'}</p>
+                <ul class="criteria-list">
+                    ${(template.criteria || []).map(c => `
+                        <li class="criteria-item">
+                            <span>${c.name}</span>
+                            <span class="criteria-weight">${c.weight}%</span>
+                        </li>
+                    `).join('')}
+                </ul>
+                <div class="text-muted small">
+                    Last modified: ${formatDate(template.updated_at)}
+                </div>
+            </div>
+        `;
+        container.append(templateCard);
+    });
+}
+
+// Render scales
+function renderScales(scales, containerId) {
+    const container = $('#' + containerId);
+    container.empty();
+    
+    scales.forEach(scale => {
+        const scaleItem = `
+            <div class="scale-item" style="background: ${getScaleColor(scale.level)}">
+                <div class="scale-value">${scale.level}</div>
+                <div class="scale-label">${scale.name}</div>
+            </div>
+        `;
+        container.append(scaleItem);
+    });
+}
+
+// Get scale color based on level
+function getScaleColor(level) {
+    const colors = ['#dcfce7', '#bbf7d0', '#86efac', '#4ade80', '#22c55e'];
+    return colors[level - 1] || '#f3f4f6';
+}
+
+// Create new template
+function createNewTemplate() {
+    currentTemplate = null;
+    $('#templateForm')[0].reset();
+    $('#criteriaContainer').empty();
+    addCriterion(); // Add one default criterion
+    $('#templateModal').modal('show');
+}
+
+// Add assessment criterion
+function addCriterion() {
+    const criterionId = Date.now();
+    const criterionHtml = `
+        <div class="card mb-2" id="criterion-${criterionId}">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" placeholder="Criterion name" id="criterion-name-${criterionId}">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="number" class="form-control" placeholder="Weight %" min="0" max="100" id="criterion-weight-${criterionId}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeCriterion(${criterionId})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    $('#criteriaContainer').append(criterionHtml);
+}
+
+// Remove criterion
+function removeCriterion(id) {
+    $('#criterion-' + id).remove();
+}
+
+// Save template
+function saveTemplate() {
+    const criteria = [];
+    $('#criteriaContainer .card').each(function() {
+        const id = $(this).attr('id').replace('criterion-', '');
+        const name = $('#criterion-name-' + id).val();
+        const weight = $('#criterion-weight-' + id).val();
+        if (name && weight) {
+            criteria.push({ name, weight: parseInt(weight) });
+        }
+    });
+    
+    const templateData = {
+        name: $('#templateName').val(),
+        type: $('#templateType').val(),
+        description: $('#templateDescription').val(),
+        criteria: criteria,
+        is_active: true
+    };
+    
+    const url = currentTemplate 
+        ? `/api/v1/risks/templates/assessment/${currentTemplate.id}` 
+        : '/api/v1/risks/templates/assessment';
+    const method = currentTemplate ? 'PUT' : 'POST';
+    
+    $.ajax({
+        url: url,
+        method: method,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+            'Content-Type': 'application/json'
+        },
+        data: JSON.stringify(templateData),
+        success: function(response) {
+            $('#templateModal').modal('hide');
+            showNotification('success', 'Template saved successfully');
+            loadTemplates();
+        },
+        error: function(xhr) {
+            showNotification('error', 'Failed to save template');
+        }
+    });
+}
+
+// Update statistics
+function updateStatistics() {
+    $('#activeTemplatesCount').text(templates.filter(t => t.is_active).length);
+    $('#customTemplatesCount').text(templates.filter(t => t.type === 'custom').length);
+    $('#totalAssessmentsCount').text(Math.floor(Math.random() * 100)); // Mock data
+    $('#avgCompletionTime').text('2.5 days'); // Mock data
+}
+
+// Export templates
+function exportTemplates() {
+    const dataStr = JSON.stringify(templates, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportFileDefaultName = 'assessment_templates_' + new Date().toISOString().slice(0,10) + '.json';
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    showNotification('success', 'Templates exported successfully');
+}
+
+// Mock templates for testing
+function getMockTemplates() {
+    return [
+        {
+            id: 1,
+            name: 'Standard Risk Assessment',
+            type: 'standard',
+            description: 'Default template for general risk assessments',
+            criteria: [
+                { name: 'Impact on Operations', weight: 30 },
+                { name: 'Financial Impact', weight: 25 },
+                { name: 'Regulatory Compliance', weight: 20 },
+                { name: 'Reputational Risk', weight: 15 },
+                { name: 'Recovery Time', weight: 10 }
+            ],
+            is_active: true,
+            updated_at: new Date()
+        },
+        {
+            id: 2,
+            name: 'Cyber Security Assessment',
+            type: 'custom',
+            description: 'Specialized template for cyber security risks',
+            criteria: [
+                { name: 'Data Sensitivity', weight: 35 },
+                { name: 'System Criticality', weight: 30 },
+                { name: 'Threat Likelihood', weight: 20 },
+                { name: 'Control Effectiveness', weight: 15 }
+            ],
+            is_active: true,
+            updated_at: new Date()
+        }
+    ];
+}
+
+// Utility functions
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function showNotification(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const notification = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    `;
+    $('.container-fluid').prepend(notification);
+    setTimeout(() => $('.alert').fadeOut(), 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,326 @@
+{% extends "layouts/base.html" %}
+{% block title %}Analytics Dashboard - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    .analytics-container {
+        background: #f5f5f5;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .analytics-card {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+    
+    .analytics-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 0.5rem 0;
+    }
+    
+    .metric-label {
+        font-size: 14px;
+        color: #666666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .metric-trend {
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    
+    .chart-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--gray-200);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+    }
+    
+    .chart-header {
+        padding: 1.5rem 1.5rem 0;
+        border-bottom: 1px solid var(--gray-200);
+        margin-bottom: 1.5rem;
+    }
+    
+    .chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #000000;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+<div class="container-fluid">
+
+    <!-- Analytics Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-3">
+            <div class="analytics-card">
+                <div class="metric-label">Total Risks</div>
+                <div class="metric-value" id="totalRisks">127</div>
+                <div class="metric-trend text-success">↑ 5% from last month</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-3">
+            <div class="analytics-card">
+                <div class="metric-label">Avg Risk Score</div>
+                <div class="metric-value" id="avgRiskScore">6.8</div>
+                <div class="metric-trend text-danger">↓ 2% from last month</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-3">
+            <div class="analytics-card">
+                <div class="metric-label">Compliance Rate</div>
+                <div class="metric-value" id="complianceRate">94%</div>
+                <div class="metric-trend text-success">↑ 3% from last month</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 mb-3">
+            <div class="analytics-card">
+                <div class="metric-label">Active KRIs</div>
+                <div class="metric-value" id="activeKRIs">18</div>
+                <div class="metric-trend text-muted">No change</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="chart-card">
+                <div class="chart-header d-flex justify-content-between align-items-center">
+                    <h3 class="chart-title">Risk Trend Analysis</h3>
+                    <div class="chart-tools">
+                        <select class="form-select form-select-sm" id="trendPeriod" onchange="updateTrendChart()">
+                            <option value="6m" selected>Last 6 Months</option>
+                            <option value="1y">Last Year</option>
+                            <option value="2y">Last 2 Years</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <canvas id="riskTrendChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Risk Distribution</h3>
+                </div>
+                <div class="p-3">
+                    <canvas id="riskDistributionChart"></canvas>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-success">Low Risk</span>
+                            <span>45%</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-warning">Medium Risk</span>
+                            <span>35%</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-danger">High Risk</span>
+                            <span>20%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Analytics -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Risk by Department</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Total Risks</th>
+                                    <th>Avg Score</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td data-label="Department">IT</td>
+                                    <td data-label="Total Risks">23</td>
+                                    <td data-label="Avg Score">7.2</td>
+                                    <td data-label="Trend"><i class="fas fa-arrow-up text-danger"></i></td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Department">Finance</td>
+                                    <td data-label="Total Risks">19</td>
+                                    <td data-label="Avg Score">6.8</td>
+                                    <td data-label="Trend"><i class="fas fa-arrow-down text-success"></i></td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Department">Operations</td>
+                                    <td data-label="Total Risks">31</td>
+                                    <td data-label="Avg Score">5.9</td>
+                                    <td data-label="Trend"><i class="fas fa-minus text-muted"></i></td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Department">HR</td>
+                                    <td data-label="Total Risks">15</td>
+                                    <td data-label="Avg Score">6.1</td>
+                                    <td data-label="Trend"><i class="fas fa-arrow-down text-success"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Key Insights</h3>
+                </div>
+                <div class="card-body">
+                    <div class="insight-item">
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="fas fa-lightbulb text-warning me-2 mt-1"></i>
+                            <div>
+                                <strong>IT Department Risk Increase</strong>
+                                <div class="text-muted small">Cyber security risks have increased by 15% this quarter</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                            <div>
+                                <strong>Compliance Improvement</strong>
+                                <div class="text-muted small">Overall compliance rate improved by 3% this month</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="fas fa-exclamation-triangle text-danger me-2 mt-1"></i>
+                            <div>
+                                <strong>KRI Alert</strong>
+                                <div class="text-muted small">3 KRIs have breached thresholds this week</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-chart-line text-info me-2 mt-1"></i>
+                            <div>
+                                <strong>Risk Maturity</strong>
+                                <div class="text-muted small">Risk management maturity score: 4.2/5.0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let riskTrendChart, riskDistributionChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+});
+
+function initializeCharts() {
+    // Risk Trend Chart
+    const trendCtx = document.getElementById('riskTrendChart').getContext('2d');
+    riskTrendChart = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Average Risk Score',
+                data: [6.5, 6.8, 7.2, 6.9, 6.4, 6.8],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }, {
+                label: 'High Risk Count',
+                data: [15, 18, 22, 19, 16, 20],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Risk Distribution Chart
+    const distCtx = document.getElementById('riskDistributionChart').getContext('2d');
+    riskDistributionChart = new Chart(distCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+            datasets: [{
+                data: [45, 35, 20],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function updateTrendChart() {
+    const period = document.getElementById('trendPeriod').value;
+    // Update chart data based on selected period
+    refreshAnalytics();
+}
+
+function refreshAnalytics() {
+    // Simulate data refresh
+    setTimeout(() => {
+        if (typeof toastr !== 'undefined') {
+            toastr.success('Analytics data refreshed successfully!');
+        }
+    }, 1000);
+}
+
+function exportAnalytics() {
+    alert('Analytics export functionality will be implemented');
+}
+</script>
+{% endblock %}

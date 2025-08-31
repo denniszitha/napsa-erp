@@ -1,0 +1,878 @@
+/* NAPSA ERM System - Custom Styles */
+
+:root {
+    /* NAPSA Brand Colors - Navy Blue and Orange */
+    --primary-color: #1e3a8a;
+    --primary-dark: #1e40af;
+    --primary-light: #3b82f6;
+    --accent-color: #f59e0b;
+    --accent-dark: #d97706;
+    --accent-light: #fbbf24;
+    --secondary-color: #e0e7ff;
+    --secondary-dark: #c7d2fe;
+    --secondary-light: #f0f4ff;
+    --sidebar-color: #e0f2fe;
+    --sidebar-dark: #b3e5fc;
+    --sidebar-light: #f0f9ff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --dark-color: #343a40;
+    --light-color: #f8f9fa;
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --gray-300: #dee2e6;
+    --gray-400: #ced4da;
+    --gray-500: #adb5bd;
+    --gray-600: #6c757d;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    margin: 0;
+    padding: 0;
+}
+
+/* Login Page Styles - Redesigned */
+.login-page {
+    background: whitesmoke;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-page::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 20% 80%, rgba(108, 186, 206, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(204, 231, 232, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(3, 44, 96, 0.05) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(-30px, -30px) rotate(1deg); }
+    66% { transform: translate(30px, -30px) rotate(-1deg); }
+}
+
+.login-container {
+    max-width: 420px;
+    width: 100%;
+    padding: 20px;
+    z-index: 1;
+}
+
+.login-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    padding: 3rem;
+    border: 1px solid rgba(108, 186, 206, 0.1);
+    animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.login-header .logo-container {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, var(--sidebar-color), var(--primary-color));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(108, 186, 206, 0.3);
+    position: relative;
+    transform: rotate(45deg);
+    transition: all 0.3s ease;
+}
+
+.login-header .logo-container:hover {
+    transform: rotate(45deg) scale(1.1);
+    box-shadow: 0 15px 40px rgba(108, 186, 206, 0.4);
+}
+
+.login-header .logo-container i {
+    font-size: 2.5rem;
+    color: white;
+    transform: rotate(-45deg);
+}
+
+.login-header h3 {
+    color: var(--sidebar-color);
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.login-header p {
+    color: var(--gray-600);
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.form-floating {
+    margin-bottom: 1.25rem;
+}
+
+.form-floating .form-control,
+.login-card .form-control {
+    height: 56px;
+    border: 1px solid rgba(108, 186, 206, 0.2);
+    border-radius: 12px;
+    padding: 1rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: rgba(245, 245, 245, 0.5);
+}
+
+.form-floating .form-control:focus,
+.login-card .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(108, 186, 206, 0.1);
+    background-color: white;
+    outline: none;
+}
+
+.form-floating label {
+    padding: 1rem;
+    color: var(--gray-600);
+}
+
+.btn-login {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    border: none;
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 5px 15px rgba(108, 186, 206, 0.3);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.btn-login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(108, 186, 206, 0.4);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+}
+
+.btn-login:hover::before {
+    left: 100%;
+}
+
+/* Dashboard Layout - Optimized for single screen */
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background: var(--sidebar-color);
+}
+
+/* Sidebar - Reversed Color Scheme (Now Light) */
+.sidebar {
+    width: 250px;
+    background: white;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    text-align: center;
+    background: linear-gradient(180deg, #f8f9fa 0%, white 100%);
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.sidebar-logo {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 0.75rem;
+    background: var(--sidebar-color);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--sidebar-light);
+}
+
+.sidebar-logo i {
+    font-size: 2rem;
+    color: #1e3a8a;
+}
+
+.sidebar h5 {
+    color: #1e3a8a;
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+.sidebar .nav {
+    padding: 1rem 0;
+}
+
+.sidebar .nav-link {
+    color: var(--gray-700);
+    padding: 0.75rem 1.25rem;
+    margin: 0.125rem 0.75rem;
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none !important;
+}
+
+.sidebar .nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--secondary-color);
+    transition: height 0.3s;
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    margin-right: 12px;
+    font-size: 1rem;
+}
+
+.sidebar .nav-link:hover {
+    color: #1e3a8a;
+    background: var(--gray-100);
+    padding-left: 1.5rem;
+    text-decoration: none !important;
+}
+
+.sidebar .nav-link:hover::before {
+    height: 70%;
+}
+
+.sidebar .nav-link.active {
+    color: #1e3a8a;
+    background: var(--sidebar-color);
+    font-weight: 600;
+    text-decoration: none !important;
+}
+
+.sidebar .nav-link.active:hover {
+    background: var(--sidebar-dark);
+}
+
+/* Main Content Area - Reversed (Now Dark) */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    background: var(--sidebar-color);
+    min-height: 100vh;
+    padding-top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Navigation Bar - Reversed */
+.top-navbar {
+    background: var(--sidebar-dark);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    padding: 0.75rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Compact Dashboard Content */
+.dashboard-content {
+    padding: 1.5rem;
+    max-width: 100%;
+    margin: 0 auto;
+    flex: 1;
+}
+
+/* Compact Statistics Cards */
+.stat-card {
+    background: white;
+    border-radius: 4px;
+    border: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    min-height: 90px;
+    border-left: 3px solid transparent;
+}
+
+.stat-card:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    border-left-color: var(--sidebar-color);
+}
+
+.stat-card .card-body {
+    padding: 1.25rem;
+}
+
+.stat-icon {
+    display: none; /* Hide icons for professional look */
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #000;
+    margin: 0.5rem 0;
+    line-height: 1;
+}
+
+.stat-label {
+    color: #858796;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.stat-trend {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+/* Compact Charts */
+.chart-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid #e3e6f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    height: 100%;
+    min-height: 400px;
+}
+
+.chart-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 0 0.75rem 0;
+    margin-bottom: 1rem;
+}
+
+.chart-card h6 {
+    color: #2e2e2e;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Compact Risk Heatmap */
+.risk-heatmap {
+    overflow: auto;
+}
+
+.risk-heatmap table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 3px;
+    font-size: 0.8rem;
+}
+
+.risk-heatmap td, .risk-heatmap th {
+    padding: 0.5rem;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.risk-heatmap td:hover {
+    transform: scale(1.1);
+    z-index: 10;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.risk-very-low { background: #28a745; color: white; }
+.risk-low { background: #9ccc65; color: white; }
+.risk-medium { background: #ffc107; color: white; }
+.risk-high { background: #ff9800; color: white; }
+.risk-very-high { background: #dc3545; color: white; }
+
+/* Compact Tables */
+.table-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    height: 100%;
+}
+
+.table {
+    font-size: 0.875rem;
+}
+
+.table thead th {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 0.75rem;
+    border: none;
+}
+
+.table tbody tr {
+    transition: all 0.2s;
+}
+
+.table tbody tr:hover {
+    background: var(--gray-50);
+}
+
+.table tbody td {
+    padding: 0.625rem 0.75rem;
+    vertical-align: middle;
+}
+
+/* Buttons */
+.btn-primary-theme {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border: none;
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(108, 186, 206, 0.3);
+}
+
+.btn-primary-theme:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 186, 206, 0.4);
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+.page-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 0.25rem;
+}
+
+.page-header p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Professional heading styles */
+h1, h2, h3, h4, h5, h6 {
+    color: #000;
+    font-weight: 600;
+}
+
+.h3 {
+    font-size: 1.5rem;
+}
+
+/* Login Form improvements */
+.login-card .form-label {
+    color: var(--gray-700);
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-card .form-check-label {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+}
+
+.login-card hr {
+    border-color: rgba(108, 186, 206, 0.1);
+}
+
+.login-card a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.login-card a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Responsive Grid */
+@media (min-width: 1400px) {
+    .stat-card .card-body {
+        padding: 1rem;
+    }
+    .stat-value {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .stat-card .card-body {
+        padding: 1rem;
+    }
+    .stat-value {
+        font-size: 1.25rem;
+    }
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .dashboard-content {
+        padding: 1rem;
+    }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in { animation: fadeIn 0.5s ease-out; }
+.slide-in-left { animation: slideInLeft 0.5s ease-out; }
+.slide-in-up { animation: slideInUp 0.5s ease-out; }
+
+/* Loading Spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--secondary-color);
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Fix text colors - All black/dark gray */
+.text-gray-800 {
+    color: #2e2e2e !important;
+}
+
+.text-gray-300 {
+    color: #858796 !important;
+}
+
+.text-primary {
+    color: #2e2e2e !important;
+}
+
+.text-success {
+    color: #2e2e2e !important;
+}
+
+.text-warning {
+    color: #2e2e2e !important;
+}
+
+.text-danger {
+    color: #2e2e2e !important;
+}
+
+.text-info {
+    color: #2e2e2e !important;
+}
+
+.text-muted {
+    color: #858796 !important;
+}
+
+.text-xs {
+    font-size: .75rem !important;
+}
+
+.font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.text-uppercase {
+    text-transform: uppercase !important;
+}
+
+.h5 {
+    font-size: 1.25rem;
+    color: #2e2e2e !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mb-1 {
+    margin-bottom: .25rem !important;
+}
+
+.mr-2 {
+    margin-right: .5rem !important;
+}
+
+.no-gutters {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+/* Enhanced KPI Cards */
+.border-left-primary,
+.border-left-success,
+.border-left-info,
+.border-left-warning,
+.border-left-danger,
+.border-left-secondary {
+    border-left: 3px solid #e3e6f0 !important;
+    background: white !important;
+}
+
+/* Analytics Cards */
+.analytics-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    border: 1px solid #e3e6f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: all 0.3s;
+    height: 100%;
+}
+
+.analytics-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.analytics-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2e2e2e;
+}
+
+.analytics-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #858796;
+    margin-bottom: 0.25rem;
+}
+
+/* All cards should be white */
+.card {
+    background: white !important;
+    border: none !important;
+    box-shadow: 0 0 1px rgba(0,0,0,0.1) !important;
+    border-radius: 8px !important;
+}
+
+.card-header {
+    background: white !important;
+    border-bottom: 1px solid #f1f1f1 !important;
+    color: #000 !important;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+.card-body {
+    background: white !important;
+    color: #000 !important;
+}
+
+/* Professional theme */
+main {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.container-fluid {
+    padding-top: 1.5rem !important;
+}
+
+/* Ensure sidebar links have no underline */
+.sidebar a {
+    text-decoration: none !important;
+}
+
+.sidebar a:hover {
+    text-decoration: none !important;
+}
+
+/* Compact layout for better visibility */
+.main-content {
+    padding-top: 0;
+}
+
+.top-navbar {
+    padding: 0.5rem 1rem;
+}
+
+/* Chart improvements */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Responsive adjustments for analytics visibility */
+@media (min-width: 1200px) {
+    .dashboard-content {
+        padding: 0.75rem;
+    }
+}
+
+/* Sidebar scrollbar for many items */
+.sidebar {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+}
+
+/* Make all text in sidebar visible */
+.sidebar .nav-link {
+    font-size: 0.9rem;
+    padding: 0.625rem 1rem;
+}
+
+.sidebar .nav-link i {
+    width: 18px;
+    font-size: 0.9rem;
+}

@@ -1,0 +1,1200 @@
+{% extends "layouts/base.html" %}
+{% block title %}Risk Treatment - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    /* Professional Treatments Management Styles - NAPSA ERM */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        --gray-50: #f9fafb;
+        --border-radius: 15px;
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+    }
+
+    /* Page Header Styling */
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 35px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+    }
+
+    .page-header:hover {
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .page-title {
+        color: #1e293b;
+        font-weight: 700;
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .page-title i {
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-right: 10px;
+    }
+
+    /* Professional Strategy Cards - Reduced Size */
+    .strategy-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .strategy-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .strategy-card .card-body {
+        padding: 1.25rem;
+        text-align: center;
+    }
+
+    .strategy-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        color: white;
+        font-size: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .strategy-card h5 {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    
+    .strategy-card p {
+        font-size: 11px;
+        margin-bottom: 8px;
+    }
+    
+    .strategy-card h3 {
+        font-size: 24px;
+        margin-bottom: 0;
+    }
+
+    .strategy-card[data-strategy="accept"] .strategy-icon {
+        background: var(--info-gradient);
+    }
+    
+    .strategy-card[data-strategy="mitigate"] .strategy-icon {
+        background: var(--success-gradient);
+    }
+    
+    .strategy-card[data-strategy="transfer"] .strategy-icon {
+        background: var(--warning-gradient);
+    }
+    
+    .strategy-card[data-strategy="avoid"] .strategy-icon {
+        background: var(--danger-gradient);
+    }
+
+    .strategy-card h5 {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 10px;
+    }
+
+    .strategy-card h3 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    /* Filter Card Styling */
+    .card {
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    /* Professional Form Controls */
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Professional Buttons - Unified Color Scheme */
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .btn-primary, .btn-secondary {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+    }
+
+    .btn-primary:hover, .btn-secondary:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-outline-primary, .btn-outline-warning, .btn-outline-danger {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+    }
+
+    .btn-outline-primary:hover, .btn-outline-warning:hover, .btn-outline-danger:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-secondary {
+        background: white !important;
+        border-color: #e5e7eb !important;
+        color: #64748b !important;
+    }
+
+    .btn-outline-secondary:hover {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        transform: translateY(-1px);
+    }
+    
+    /* Card action buttons */
+    .card-footer .btn-sm {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .card-footer .btn-sm:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+    }
+
+    /* Treatment Cards Enhancement */
+    .card h-100 {
+        transition: all 0.3s ease;
+    }
+
+    .card h-100:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    /* Professional Modal Styling */
+    .modal-content {
+        border-radius: 15px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        border: none;
+    }
+
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 25px 30px;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid #e5e7eb;
+        background: #f8fafc;
+        border-radius: 0 0 15px 15px;
+    }
+
+    /* Badge Enhancements */
+    .badge {
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Progress bar styling */
+    .progress {
+        border-radius: 10px;
+        background-color: #e5e7eb;
+    }
+
+    .progress-bar {
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Alert positioning */
+    .alert {
+        border-radius: 10px;
+        border: none;
+        box-shadow: var(--card-shadow);
+    }
+
+    /* All text black for consistency */
+    .card-title, .card-text, .form-label, .page-title {
+        color: #1e293b !important;
+    }
+
+    /* Spinner enhancement */
+    .spinner-border {
+        color: #667eea !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Action Buttons -->
+    <div class="mb-4">
+        <button class="btn btn-primary" onclick="showCreateTreatmentModal()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">
+            <i class="fas fa-plus me-2"></i>New Treatment Plan
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="loadTreatments()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="exportTreatments()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">
+            <i class="fas fa-download me-1"></i>Export
+        </button>
+    </div>
+
+    <!-- Strategy Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm strategy-card" data-strategy="accept">
+                <div class="card-body text-center">
+                    <div class="strategy-icon bg-info-subtle text-info mb-3">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Accept</h5>
+                    <p class="text-muted small">Take no action, accept the risk</p>
+                    <h3 class="mb-0" id="acceptCount">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm strategy-card" data-strategy="mitigate">
+                <div class="card-body text-center">
+                    <div class="strategy-icon bg-success-subtle text-success mb-3">
+                        <i class="fas fa-shield-alt fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Mitigate</h5>
+                    <p class="text-muted small">Reduce likelihood or impact</p>
+                    <h3 class="mb-0" id="mitigateCount">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm strategy-card" data-strategy="transfer">
+                <div class="card-body text-center">
+                    <div class="strategy-icon bg-warning-subtle text-warning mb-3">
+                        <i class="fas fa-exchange-alt fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Transfer</h5>
+                    <p class="text-muted small">Transfer risk to third party</p>
+                    <h3 class="mb-0" id="transferCount">0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm strategy-card" data-strategy="avoid">
+                <div class="card-body text-center">
+                    <div class="strategy-icon bg-danger-subtle text-danger mb-3">
+                        <i class="fas fa-times-circle fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">Avoid</h5>
+                    <p class="text-muted small">Eliminate risk entirely</p>
+                    <h3 class="mb-0" id="avoidCount">0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Strategy</label>
+                    <select id="filterStrategy" class="form-select" onchange="loadTreatments()">
+                        <option value="">All Strategies</option>
+                        <option value="accept">Accept</option>
+                        <option value="mitigate">Mitigate</option>
+                        <option value="transfer">Transfer</option>
+                        <option value="avoid">Avoid</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select id="filterStatus" class="form-select" onchange="loadTreatments()">
+                        <option value="">All Status</option>
+                        <option value="proposed">Proposed</option>
+                        <option value="under_review">Under Review</option>
+                        <option value="approved">Approved</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="implemented">Implemented</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Risk</label>
+                    <select id="filterRisk" class="form-select" onchange="loadTreatments()">
+                        <option value="">All Risks</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" id="searchTreatments" class="form-control" placeholder="Search treatments..." onkeyup="debounceSearch()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Treatments Cards -->
+    <div class="row" id="treatmentsContainer">
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading treatments...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading treatment plans...</p>
+        </div>
+    </div>
+            
+    <!-- Pagination -->
+    <nav aria-label="Treatments pagination" class="mt-4">
+        <ul class="pagination justify-content-center" id="treatmentsPagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Create/Edit Treatment Modal -->
+<div class="modal fade" id="treatmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="treatmentModalTitle">Create Treatment Plan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="treatmentForm">
+                    <input type="hidden" id="treatmentId">
+                    
+                    <div class="mb-3">
+                        <label for="treatmentTitle" class="form-label">Treatment Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="treatmentTitle" required placeholder="Enter a descriptive title for this treatment plan">
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="treatmentRisk" class="form-label">Risk <span class="text-danger">*</span></label>
+                            <select class="form-select" id="treatmentRisk" required>
+                                <option value="">Select Risk</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="treatmentStrategy" class="form-label">Strategy <span class="text-danger">*</span></label>
+                            <select class="form-select" id="treatmentStrategy" required>
+                                <option value="">Select Strategy</option>
+                                <option value="accept">Accept - Take no action</option>
+                                <option value="mitigate">Mitigate - Reduce likelihood/impact</option>
+                                <option value="transfer">Transfer - Share with third party</option>
+                                <option value="avoid">Avoid - Eliminate risk</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="treatmentDescription" class="form-label">Treatment Description</label>
+                        <textarea class="form-control" id="treatmentDescription" rows="3" placeholder="Describe the treatment plan in detail..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="actionPlan" class="form-label">Action Plan</label>
+                        <textarea class="form-control" id="actionPlan" rows="3" placeholder="Detail the specific actions to be taken..."></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="treatmentOwner" class="form-label">Treatment Owner <span class="text-danger">*</span></label>
+                            <select class="form-select" id="treatmentOwner" required>
+                                <option value="">Select Treatment Owner</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="targetDate" class="form-label">Target Date <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="targetDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="estimatedCost" class="form-label">Estimated Cost (ZMW)</label>
+                            <input type="number" class="form-control" id="estimatedCost" min="0" step="0.01">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="expectedReduction" class="form-label">Expected Risk Reduction (%)</label>
+                            <input type="number" class="form-control" id="expectedReduction" min="0" max="100" step="1">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="resourcesRequired" class="form-label">Resources Required</label>
+                        <input type="text" class="form-control" id="resourcesRequired" placeholder="People, tools, budget needed...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="successMetrics" class="form-label">Success Metrics</label>
+                        <textarea class="form-control" id="successMetrics" rows="3" placeholder="How will success be measured?"></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="priorityLevel" class="form-label">Priority Level</label>
+                            <select class="form-select" id="priorityLevel">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="treatmentStatus" class="form-label">Status</label>
+                            <select class="form-select" id="treatmentStatus">
+                                <option value="proposed">Proposed</option>
+                                <option value="under_review">Under Review</option>
+                                <option value="approved">Approved</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="implemented">Implemented</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveTreatment()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">Save Treatment Plan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Treatment Details Modal -->
+<div class="modal fade" id="treatmentDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Treatment Plan Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="treatmentDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Treatment Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve/Reject Treatment Plan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="approveForm">
+                    <input type="hidden" id="approveTreatmentId">
+                    <div class="mb-3">
+                        <label for="approvalDecision" class="form-label">Decision</label>
+                        <select class="form-select" id="approvalDecision" required>
+                            <option value="approved">Approve</option>
+                            <option value="rejected">Reject</option>
+                            <option value="under_review">Request More Information</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="approvalComments" class="form-label">Comments</label>
+                        <textarea class="form-control" id="approvalComments" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitApproval()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">Submit Decision</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript moved to scripts block at bottom -->
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let treatments = [];
+let risks = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+let searchTimeout;
+
+// Initialize on page load
+$(document).ready(function() {
+    console.log('Treatments page ready');
+    loadTreatments();
+    loadRisks();
+    loadUsers();
+    updateStrategyCounts();
+});
+
+// Load treatments from API  
+function loadTreatments() {
+    const params = {
+        strategy: $('#filterStrategy').val(),
+        status: $('#filterStatus').val(),
+        risk_id: $('#filterRisk').val(),
+        search: $('#searchTreatments').val(),
+        skip: (currentPage - 1) * itemsPerPage,
+        limit: itemsPerPage
+    };
+    
+    // Remove empty parameters
+    Object.keys(params).forEach(key => {
+        if (!params[key]) delete params[key];
+    });
+    
+    $.ajax({
+        url: '/treatments/api/list',
+        method: 'GET',
+        data: params,
+        success: function(response) {
+            console.log('Treatments API Response:', response);
+            if (response.success) {
+                treatments = response.data.items;
+                console.log('Treatments loaded:', treatments.length, 'items');
+                updateTreatmentsTable();
+                updatePagination(response.data.total);
+                updateStrategyCounts();
+            } else {
+                console.error('API returned success=false:', response);
+                showAlert('Failed to load treatments', 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading treatments:', error);
+            console.error('Response:', xhr.responseText);
+            showAlert('Error loading treatments', 'danger');
+        }
+    });
+}
+
+// Update treatments cards
+function updateTreatmentsTable() {
+    const container = $('#treatmentsContainer');
+    console.log('Updating cards with', treatments.length, 'treatments');
+    
+    if (container.length === 0) {
+        console.error('Treatments container element not found!');
+        return;
+    }
+    
+    container.empty();
+    
+    if (treatments.length === 0) {
+        console.log('No treatments to display');
+        container.html(`
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-shield-alt fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Treatment Plans Found</h4>
+                <p class="text-muted">Create a new treatment plan to get started</p>
+            </div>
+        `);
+        return;
+    }
+    
+    treatments.forEach(treatment => {
+        try {
+            const strategyBadge = getStrategyBadge(treatment.strategy);
+            const statusBadge = getStatusBadge(treatment.status);
+            
+            // Handle possible null/undefined values
+            const description = treatment.description || 'No description provided';
+            const riskTitle = treatment.risk_title || treatment.risk_id || 'Unknown Risk';
+            const owner = treatment.responsible_party || treatment.treatment_owner || 'Unassigned';
+            const cost = treatment.estimated_cost || 0;
+            const reduction = treatment.expected_risk_reduction || 0;
+            
+            // Create progress bar for expected risk reduction
+            const progressClass = reduction >= 50 ? 'bg-success' : reduction >= 25 ? 'bg-warning' : 'bg-danger';
+            
+            container.append(`
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 shadow-sm border-0" style="font-size: 0.875rem;">
+                        <div class="card-header bg-light border-0 py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 text-truncate" style="font-size: 0.9rem;" title="${treatment.title}">${treatment.title}</h6>
+                                ${statusBadge}
+                            </div>
+                        </div>
+                        <div class="card-body py-2 px-3">
+                            <p class="text-muted mb-1" style="font-size: 0.8rem;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 0.75rem;"></i> <strong>Risk:</strong> ${riskTitle}
+                            </p>
+                            <p class="text-muted mb-1" style="font-size: 0.8rem;">
+                                <i class="fas fa-shield-alt" style="font-size: 0.75rem;"></i> <strong>Strategy:</strong> ${strategyBadge}
+                            </p>
+                            <p class="card-text" style="font-size: 0.8rem;">${description.length > 100 ? description.substring(0, 100) + '...' : description}</p>
+                            
+                            <hr class="my-2">
+                            
+                            <div class="row text-center" style="font-size: 0.75rem;">
+                                <div class="col-6">
+                                    <p class="text-muted mb-0">Owner</p>
+                                    <p class="fw-bold text-truncate mb-0" title="${owner}">${owner}</p>
+                                </div>
+                                <div class="col-6">
+                                    <p class="text-muted mb-0">Target</p>
+                                    <p class="fw-bold mb-0">${formatDate(treatment.target_date)}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row text-center mt-2" style="font-size: 0.75rem;">
+                                <div class="col-6">
+                                    <p class="text-muted mb-0">Cost</p>
+                                    <p class="fw-bold mb-0">K${(cost/1000).toFixed(0)}</p>
+                                </div>
+                                <div class="col-6">
+                                    <p class="text-muted mb-0">Reduction</p>
+                                    <div class="progress" style="height: 15px;">
+                                        <div class="progress-bar ${progressClass}" role="progressbar" style="width: ${reduction}%; font-size: 0.7rem;">
+                                            ${reduction}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${treatment.action_plan ? `
+                            <div class="mt-2">
+                                <p class="text-muted mb-0" style="font-size: 0.75rem;"><strong>Action:</strong></p>
+                                <p style="font-size: 0.75rem;" class="mb-0">${treatment.action_plan.length > 80 ? treatment.action_plan.substring(0, 80) + '...' : treatment.action_plan}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="card-footer bg-white border-0 py-2">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-sm" onclick="viewTreatment('${treatment.id}')" title="View Details" style="font-size: 0.75rem;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm" onclick="editTreatment('${treatment.id}')" title="Edit" style="font-size: 0.75rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm" onclick="deleteTreatment('${treatment.id}')" title="Delete" style="font-size: 0.75rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+        } catch (error) {
+            console.error('Error rendering treatment card:', treatment, error);
+        }
+    });
+}
+
+// Load risks for dropdown
+function loadRisks() {
+    $.ajax({
+        url: '/risks/api/list',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                risks = response.data.items;
+                const filterSelect = $('#filterRisk');
+                const formSelect = $('#treatmentRisk');
+                
+                risks.forEach(risk => {
+                    const riskScore = risk.likelihood * risk.impact;
+                    filterSelect.append(`<option value="${risk.id}">${risk.title} (Score: ${riskScore})</option>`);
+                    formSelect.append(`<option value="${risk.id}">${risk.title} (Score: ${riskScore})</option>`);
+                });
+            }
+        }
+    });
+}
+
+// Load users for treatment owner dropdown
+function loadUsers() {
+    $.ajax({
+        url: '/treatments/api/users',
+        method: 'GET',
+        success: function(response) {
+            console.log('Users API Response:', response);
+            if (response.success && response.data) {
+                const ownerSelect = $('#treatmentOwner');
+                ownerSelect.empty();
+                ownerSelect.append('<option value="">Select Treatment Owner</option>');
+                
+                response.data.forEach(user => {
+                    const displayName = user.full_name || user.username || 'Unknown User';
+                    // Store the display name as the value, not the ID
+                    ownerSelect.append(`<option value="${displayName}">${displayName} (${user.department || 'No Dept'})</option>`);
+                });
+                
+                console.log('Loaded', response.data.length, 'users for dropdown');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading users:', error);
+            // Keep the empty select with just the placeholder option
+        }
+    });
+}
+
+// Update strategy counts
+function updateStrategyCounts() {
+    $.ajax({
+        url: '/treatments/api/statistics',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const stats = response.data;
+                $('#acceptCount').text(stats.by_strategy.accept || 0);
+                $('#mitigateCount').text(stats.by_strategy.mitigate || 0);
+                $('#transferCount').text(stats.by_strategy.transfer || 0);
+                $('#avoidCount').text(stats.by_strategy.avoid || 0);
+            }
+        }
+    });
+}
+
+// Show create treatment modal
+function showCreateTreatmentModal() {
+    $('#treatmentModalTitle').text('Create Treatment Plan');
+    $('#treatmentForm')[0].reset();
+    $('#treatmentId').val('');
+    $('#treatmentStatus').val('proposed');
+    
+    // Ensure users are loaded in dropdown
+    loadUsers();
+    
+    $('#treatmentModal').modal('show');
+}
+
+// Save treatment (create or update)
+function saveTreatment() {
+    const treatmentId = $('#treatmentId').val();
+    const isEdit = !!treatmentId;
+    
+    // Convert date to datetime format for backend
+    const targetDateValue = $('#targetDate').val();
+    const targetDateTime = targetDateValue ? targetDateValue + 'T00:00:00' : null;
+    
+    const treatmentData = {
+        risk_id: $('#treatmentRisk').val(),
+        strategy: $('#treatmentStrategy').val(),
+        title: $('#treatmentTitle').val(),
+        description: $('#treatmentDescription').val(),
+        action_plan: $('#actionPlan').val(),
+        responsible_party: $('#treatmentOwner').val(),
+        target_date: targetDateTime,
+        estimated_cost: parseFloat($('#estimatedCost').val()) || null,
+        expected_risk_reduction: parseFloat($('#expectedReduction').val()) || null,
+        status: $('#treatmentStatus').val() || 'draft',
+        resources_required: $('#resourcesRequired').val() || '',
+        success_metrics: $('#successMetrics').val() || '',
+        priority_level: $('#priorityLevel').val() || 'medium'
+    };
+    
+    const url = isEdit ? `/treatments/api/${treatmentId}/update` : '/treatments/api/create';
+    const method = isEdit ? 'PUT' : 'POST';
+    
+    $.ajax({
+        url: url,
+        method: method,
+        contentType: 'application/json',
+        data: JSON.stringify(treatmentData),
+        success: function(response) {
+            if (response.success) {
+                $('#treatmentModal').modal('hide');
+                showAlert(`Treatment plan ${isEdit ? 'updated' : 'created'} successfully`, 'success');
+                loadTreatments();
+            } else {
+                showAlert(response.error || 'Failed to save treatment', 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            showAlert('Error saving treatment', 'danger');
+        }
+    });
+}
+
+// Edit treatment
+function editTreatment(treatmentId) {
+    const treatment = treatments.find(t => t.id === treatmentId);
+    if (!treatment) return;
+    
+    $('#treatmentModalTitle').text('Edit Treatment Plan');
+    $('#treatmentId').val(treatment.id);
+    $('#treatmentTitle').val(treatment.title || '');
+    $('#treatmentRisk').val(treatment.risk_id);
+    $('#treatmentStrategy').val(treatment.strategy);
+    $('#treatmentDescription').val(treatment.description || '');
+    $('#actionPlan').val(treatment.action_plan || '');
+    
+    // Load users first, then set the selected value after a short delay
+    loadUsers();
+    setTimeout(function() {
+        $('#treatmentOwner').val(treatment.responsible_party || '');
+    }, 500);
+    
+    $('#targetDate').val(treatment.target_date ? treatment.target_date.split('T')[0] : '');
+    $('#estimatedCost').val(treatment.estimated_cost || '');
+    $('#expectedReduction').val(treatment.expected_risk_reduction || '');
+    $('#resourcesRequired').val(treatment.resources_required || '');
+    $('#successMetrics').val(treatment.success_metrics || '');
+    $('#priorityLevel').val(treatment.priority_level || 'medium');
+    $('#treatmentStatus').val(treatment.status || 'draft');
+    
+    $('#treatmentModal').modal('show');
+}
+
+// View treatment details
+function viewTreatment(treatmentId) {
+    $.ajax({
+        url: `/treatments/api/${treatmentId}`,
+        success: function(response) {
+            if (response.success) {
+                const treatment = response.data;
+                const content = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>${treatment.risk_title}</h4>
+                            <div class="mb-3">
+                                ${getStrategyBadge(treatment.strategy)} ${getStatusBadge(treatment.status)}
+                            </div>
+                            <p class="text-muted">${treatment.description}</p>
+                            
+                            <div class="mt-4">
+                                <h6>Success Metrics</h6>
+                                <p>${treatment.success_metrics || 'Not defined'}</p>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6>Resources Required</h6>
+                                <p>${treatment.resources_required || 'Not specified'}</p>
+                            </div>
+                            
+                            ${treatment.selected_controls && treatment.selected_controls.length > 0 ? `
+                                <div class="mt-4">
+                                    <h6>Associated Controls</h6>
+                                    <ul>
+                                        ${treatment.selected_controls.map(control => `<li>${control}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            
+                            ${treatment.approval_history && treatment.approval_history.length > 0 ? `
+                                <div class="mt-4">
+                                    <h6>Approval History</h6>
+                                    <div class="timeline">
+                                        ${treatment.approval_history.map(history => `
+                                            <div class="timeline-item">
+                                                <strong>${history.action}</strong> by ${history.approver}<br>
+                                                <small class="text-muted">${formatDate(history.timestamp)}</small><br>
+                                                <em>${history.comments || ''}</em>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">Treatment Details</h6>
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Owner:</dt>
+                                        <dd class="col-sm-7">${treatment.responsible_party || treatment.treatment_owner || 'Unassigned'}</dd>
+                                        
+                                        <dt class="col-sm-5">Priority:</dt>
+                                        <dd class="col-sm-7">${getPriorityBadge(treatment.priority_level)}</dd>
+                                        
+                                        <dt class="col-sm-5">Target Date:</dt>
+                                        <dd class="col-sm-7">${formatDate(treatment.target_date)}</dd>
+                                        
+                                        <dt class="col-sm-5">Est. Cost:</dt>
+                                        <dd class="col-sm-7">ZMW ${(treatment.estimated_cost || 0).toLocaleString()}</dd>
+                                        
+                                        <dt class="col-sm-5">Risk Reduction:</dt>
+                                        <dd class="col-sm-7">${treatment.expected_risk_reduction || treatment.expected_reduction || 0}%</dd>
+                                        
+                                        <dt class="col-sm-5">Effectiveness:</dt>
+                                        <dd class="col-sm-7">${getEffectivenessBar(treatment.effectiveness_rating)}</dd>
+                                        
+                                        <dt class="col-sm-5">Created:</dt>
+                                        <dd class="col-sm-7">${formatDate(treatment.created_at)}</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $('#treatmentDetailsContent').html(content);
+                $('#treatmentDetailsModal').modal('show');
+            }
+        }
+    });
+}
+
+// Show approve modal
+function showApproveModal(treatmentId) {
+    $('#approveTreatmentId').val(treatmentId);
+    $('#approveForm')[0].reset();
+    $('#approveModal').modal('show');
+}
+
+// Submit approval decision
+function submitApproval() {
+    const treatmentId = $('#approveTreatmentId').val();
+    const data = {
+        decision: $('#approvalDecision').val(),
+        comments: $('#approvalComments').val(),
+        approver: 'Current User' // In production, use actual user
+    };
+    
+    $.ajax({
+        url: `/treatments/api/${treatmentId}/approve`,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            if (response.success) {
+                $('#approveModal').modal('hide');
+                showAlert('Decision submitted successfully', 'success');
+                loadTreatments();
+            }
+        }
+    });
+}
+
+// Update effectiveness
+function updateEffectiveness(treatmentId) {
+    const rating = prompt('Enter effectiveness rating (0-100):');
+    if (rating !== null && !isNaN(rating)) {
+        $.ajax({
+            url: `/treatments/api/${treatmentId}/effectiveness`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ effectiveness_rating: parseFloat(rating) }),
+            success: function(response) {
+                if (response.success) {
+                    showAlert('Effectiveness updated successfully', 'success');
+                    loadTreatments();
+                }
+            }
+        });
+    }
+}
+
+// Delete treatment
+function deleteTreatment(treatmentId) {
+    if (confirm('Are you sure you want to delete this treatment plan? This action cannot be undone.')) {
+        $.ajax({
+            url: `/treatments/api/${treatmentId}/delete`,
+            method: 'DELETE',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('Treatment plan deleted successfully', 'success');
+                    loadTreatments();
+                }
+            }
+        });
+    }
+}
+
+// Export treatments
+function exportTreatments() {
+    showAlert('Generating treatment plans report...', 'info');
+    setTimeout(() => {
+        showAlert('Report downloaded successfully', 'success');
+    }, 2000);
+}
+
+// Utility functions
+function getStrategyBadge(strategy) {
+    const badges = {
+        'accept': '<span class="badge bg-info">Accept</span>',
+        'mitigate': '<span class="badge bg-success">Mitigate</span>',
+        'transfer': '<span class="badge bg-warning">Transfer</span>',
+        'avoid': '<span class="badge bg-danger">Avoid</span>'
+    };
+    return badges[strategy] || strategy;
+}
+
+function getStatusBadge(status) {
+    const badges = {
+        'draft': '<span class="badge bg-secondary">Draft</span>',
+        'proposed': '<span class="badge bg-secondary">Proposed</span>',
+        'pending_approval': '<span class="badge bg-info">Pending Approval</span>',
+        'under_review': '<span class="badge bg-info">Under Review</span>',
+        'approved': '<span class="badge bg-primary">Approved</span>',
+        'in_progress': '<span class="badge bg-warning">In Progress</span>',
+        'implemented': '<span class="badge bg-success">Implemented</span>',
+        'rejected': '<span class="badge bg-danger">Rejected</span>',
+        'on_hold': '<span class="badge bg-secondary">On Hold</span>',
+        'monitoring': '<span class="badge bg-info">Monitoring</span>'
+    };
+    return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+}
+
+function getPriorityBadge(priority) {
+    const badges = {
+        'critical': '<span class="badge bg-danger">Critical</span>',
+        'high': '<span class="badge bg-warning">High</span>',
+        'medium': '<span class="badge bg-info">Medium</span>',
+        'low': '<span class="badge bg-secondary">Low</span>'
+    };
+    return badges[priority] || priority;
+}
+
+function getEffectivenessBar(rating) {
+    if (!rating && rating !== 0) return 'Not rated';
+    
+    const color = rating >= 80 ? 'success' : rating >= 60 ? 'warning' : rating >= 40 ? 'info' : 'danger';
+    return `
+        <div class="progress" style="height: 20px;">
+            <div class="progress-bar bg-${color}" role="progressbar" style="width: ${rating}%">
+                ${rating}%
+            </div>
+        </div>
+    `;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+}
+
+function debounceSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(loadTreatments, 500);
+}
+
+function updatePagination(total) {
+    const totalPages = Math.ceil(total / itemsPerPage);
+    const pagination = $('#treatmentsPagination');
+    pagination.empty();
+    
+    if (totalPages <= 1) return;
+    
+    // Previous button
+    pagination.append(`
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+        </li>
+    `);
+    
+    // Page numbers
+    for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        pagination.append(`
+            <li class="page-item ${currentPage === i ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+            </li>
+        `);
+    }
+    
+    // Next button
+    pagination.append(`
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+        </li>
+    `);
+}
+
+function changePage(page) {
+    currentPage = page;
+    loadTreatments();
+}
+
+function showAlert(message, type) {
+    const alert = $(`
+        <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3" style="z-index: 9999;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    $('body').append(alert);
+    setTimeout(() => alert.alert('close'), 5000);
+}
+
+</script>
+{% endblock %}

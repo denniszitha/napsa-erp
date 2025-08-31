@@ -1,0 +1,361 @@
+{% extends "layouts/base.html" %}
+{% block title %}Reports & Analytics - NAPSA ERM{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h1 class="page-title">
+            <i class="fas fa-file-pdf"></i> Reports & Analytics
+        </h1>
+        <div class="page-actions">
+            <button class="btn btn-primary" onclick="generateCustomReport()">
+                <i class="fas fa-plus"></i> Custom Report
+            </button>
+            <button class="btn btn-outline-primary" onclick="scheduleReport()">
+                <i class="fas fa-calendar"></i> Schedule Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Total Reports</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0" id="totalReports">156</h2>
+                        <i class="fas fa-file-alt ms-auto text-primary fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">This Month</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-success" id="monthlyReports">24</h2>
+                        <i class="fas fa-calendar-alt ms-auto text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Scheduled</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-info" id="scheduledReports">8</h2>
+                        <i class="fas fa-clock ms-auto text-info fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Downloads</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-warning" id="totalDownloads">1,243</h2>
+                        <i class="fas fa-download ms-auto text-warning fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Categories -->
+    <div class="row mb-4">
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Risk Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('risk-register')">
+                            <i class="fas fa-list"></i> Risk Register
+                            <small class="text-muted float-end">PDF, Excel</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('risk-dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> Risk Dashboard
+                            <small class="text-muted float-end">PDF</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('risk-heatmap')">
+                            <i class="fas fa-th"></i> Risk Heat Map
+                            <small class="text-muted float-end">PDF, PNG</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('risk-trends')">
+                            <i class="fas fa-chart-line"></i> Risk Trends
+                            <small class="text-muted float-end">PDF, Excel</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6 mb-3">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Compliance Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('compliance-status')">
+                            <i class="fas fa-check-circle"></i> Compliance Status
+                            <small class="text-muted float-end">PDF, Excel</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('audit-findings')">
+                            <i class="fas fa-search"></i> Audit Findings
+                            <small class="text-muted float-end">PDF</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('control-effectiveness')">
+                            <i class="fas fa-cogs"></i> Control Effectiveness
+                            <small class="text-muted float-end">PDF, Excel</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('regulatory-updates')">
+                            <i class="fas fa-gavel"></i> Regulatory Updates
+                            <small class="text-muted float-end">PDF</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-12 mb-3">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> KRI Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('kri-dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> KRI Dashboard
+                            <small class="text-muted float-end">PDF</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('kri-trends')">
+                            <i class="fas fa-chart-line"></i> KRI Trends
+                            <small class="text-muted float-end">PDF, Excel</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('threshold-breaches')">
+                            <i class="fas fa-exclamation"></i> Threshold Breaches
+                            <small class="text-muted float-end">PDF, Excel</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="generateReport('kri-summary')">
+                            <i class="fas fa-list-alt"></i> Executive Summary
+                            <small class="text-muted float-end">PDF</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reports -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Recent Reports</h3>
+            <div class="card-tools">
+                <button class="btn btn-sm btn-outline-primary" onclick="refreshReports()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Report Name</th>
+                            <th>Type</th>
+                            <th>Generated By</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-label="Report Name">Monthly Risk Register</td>
+                            <td data-label="Type"><span class="badge bg-primary">Risk</span></td>
+                            <td data-label="Generated By">Admin User</td>
+                            <td data-label="Date">2025-08-11 09:30</td>
+                            <td data-label="Status"><span class="badge bg-success">Ready</span></td>
+                            <td data-label="Actions">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="Download PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="Download Excel">
+                                        <i class="fas fa-file-excel"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="Share">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-label="Report Name">KRI Dashboard Summary</td>
+                            <td data-label="Type"><span class="badge bg-info">KRI</span></td>
+                            <td data-label="Generated By">System</td>
+                            <td data-label="Date">2025-08-11 08:00</td>
+                            <td data-label="Status"><span class="badge bg-success">Ready</span></td>
+                            <td data-label="Actions">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" title="Download PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" title="Share">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-label="Report Name">Compliance Status Report</td>
+                            <td data-label="Type"><span class="badge bg-success">Compliance</span></td>
+                            <td data-label="Generated By">Compliance Officer</td>
+                            <td data-label="Date">2025-08-10 16:45</td>
+                            <td data-label="Status"><span class="badge bg-warning">Processing</span></td>
+                            <td data-label="Actions">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-secondary" disabled>
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Report Generation Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generate Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Report Type</label>
+                            <select class="form-select" id="reportType">
+                                <option value="risk-register">Risk Register</option>
+                                <option value="risk-dashboard">Risk Dashboard</option>
+                                <option value="kri-dashboard">KRI Dashboard</option>
+                                <option value="compliance-status">Compliance Status</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Format</label>
+                            <select class="form-select" id="reportFormat">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date Range From</label>
+                            <input type="date" class="form-control" id="dateFrom">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date Range To</label>
+                            <input type="date" class="form-control" id="dateTo">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Include Sections</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeCharts" checked>
+                            <label class="form-check-label" for="includeCharts">Charts and Visualizations</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeDetails" checked>
+                            <label class="form-check-label" for="includeDetails">Detailed Data</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeComments">
+                            <label class="form-check-label" for="includeComments">Comments and Notes</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="generateReportNow()">
+                    <i class="fas fa-file-export"></i> Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generateReport(type) {
+    document.getElementById('reportType').value = type;
+    const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+    modal.show();
+}
+
+function generateCustomReport() {
+    const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+    modal.show();
+}
+
+function generateReportNow() {
+    const reportType = document.getElementById('reportType').value;
+    const format = document.getElementById('reportFormat').value;
+    
+    // Show loading state
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    
+    // Simulate report generation
+    setTimeout(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-file-export"></i> Generate Report';
+        
+        // Close modal and show success message
+        bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+        
+        // Simulate download
+        if (typeof toastr !== 'undefined') {
+            toastr.success(`${reportType} report generated successfully!`);
+        } else {
+            alert(`${reportType} report generated successfully!`);
+        }
+    }, 2000);
+}
+
+function scheduleReport() {
+    alert('Schedule report functionality will be implemented');
+}
+
+function refreshReports() {
+    location.reload();
+}
+
+// Set default date range (last 30 days)
+$(document).ready(function() {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+    
+    document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+    document.getElementById('dateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

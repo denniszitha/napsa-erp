@@ -1,0 +1,136 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Query Builder - BI Tools{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="page-header mb-4">
+        <h1 class="h3">Query Builder</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('bi_tools.index') }}">BI Tools</a></li>
+                <li class="breadcrumb-item active">Query Builder</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Data Sources</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectTable('risks')">
+                            <i class="fas fa-table"></i> Risks
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectTable('controls')">
+                            <i class="fas fa-table"></i> Controls
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectTable('incidents')">
+                            <i class="fas fa-table"></i> Incidents
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectTable('assessments')">
+                            <i class="fas fa-table"></i> Assessments
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="selectTable('kri')">
+                            <i class="fas fa-table"></i> Key Risk Indicators
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Query Editor</h5>
+                    <div>
+                        <button class="btn btn-sm btn-primary" onclick="executeQuery()">
+                            <i class="fas fa-play"></i> Execute
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="clearQuery()">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">SQL Query</label>
+                        <textarea id="queryEditor" class="form-control font-monospace" rows="10" placeholder="SELECT * FROM risks WHERE status = 'High' LIMIT 10;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Query Results</h5>
+                </div>
+                <div class="card-body">
+                    <div id="queryResults">
+                        <p class="text-muted">Execute a query to see results</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectTable(table) {
+    const editor = document.getElementById('queryEditor');
+    editor.value = `SELECT * FROM ${table} LIMIT 10;`;
+}
+
+function executeQuery() {
+    const query = document.getElementById('queryEditor').value;
+    if (!query.trim()) {
+        alert('Please enter a query');
+        return;
+    }
+    
+    const resultsDiv = document.getElementById('queryResults');
+    resultsDiv.innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>';
+    
+    // Simulate query execution
+    setTimeout(() => {
+        resultsDiv.innerHTML = `
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Sample Risk</td>
+                            <td><span class="badge bg-danger">High</span></td>
+                            <td>2025-01-15</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Another Risk</td>
+                            <td><span class="badge bg-warning">Medium</span></td>
+                            <td>2025-01-14</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted small">Query executed in 0.023s • 2 rows returned</p>
+        `;
+    }, 1000);
+}
+
+function clearQuery() {
+    document.getElementById('queryEditor').value = '';
+    document.getElementById('queryResults').innerHTML = '<p class="text-muted">Execute a query to see results</p>';
+}
+</script>
+{% endblock %}

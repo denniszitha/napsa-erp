@@ -1,0 +1,1121 @@
+{% extends "layouts/base.html" %}
+{% block title %}Policy Management - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+        --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .btn-primary, .btn-secondary, .btn-outline-primary, .btn-outline-secondary {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover, .btn-secondary:hover, .btn-outline-primary:hover, .btn-outline-secondary:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .col-md-3:nth-child(1) .stat-card::before {
+        background: var(--gradient-1);
+    }
+
+    .col-md-3:nth-child(2) .stat-card::before {
+        background: var(--gradient-2);
+    }
+
+    .col-md-3:nth-child(3) .stat-card::before {
+        background: var(--gradient-3);
+    }
+
+    .col-md-3:nth-child(4) .stat-card::before {
+        background: var(--gradient-4);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .col-md-3:nth-child(1) .stat-icon {
+        background: var(--gradient-1);
+    }
+
+    .col-md-3:nth-child(2) .stat-icon {
+        background: var(--gradient-2);
+    }
+
+    .col-md-3:nth-child(3) .stat-icon {
+        background: var(--gradient-3);
+    }
+
+    .col-md-3:nth-child(4) .stat-icon {
+        background: var(--gradient-4);
+    }
+
+    .stat-icon i {
+        color: white !important;
+    }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Action Buttons -->
+    <div class="mb-4">
+        <button class="btn btn-primary" onclick="showCreatePolicyModal()">
+            <i class="fas fa-plus me-2"></i>New Policy
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="refreshPolicies()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="exportPolicies('pdf')">
+            <i class="fas fa-file-pdf me-1"></i>Export PDF
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="exportPolicies('csv')">
+            <i class="fas fa-file-csv me-1"></i>Export CSV
+        </button>
+    </div>
+
+    <!-- Policy Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Total Policies</p>
+                            <h2 class="mb-0" id="totalPolicies" style="font-weight: 700;">--</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Active Policies</p>
+                            <h2 class="mb-0 text-success" id="activePolicies" style="font-weight: 700;">--</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Under Review</p>
+                            <h2 class="mb-0 text-warning" id="underReview" style="font-weight: 700;">--</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-clock fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Compliance Rate</p>
+                            <h2 class="mb-0 text-info" id="complianceRate" style="font-weight: 700;">--</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="statusFilter" onchange="applyFilters()">
+                        <option value="all">All Status</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                        <option value="under_review">Under Review</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="categoryFilter" onchange="applyFilters()">
+                        <option value="all">All Categories</option>
+                        <option value="governance">Governance</option>
+                        <option value="risk">Risk Management</option>
+                        <option value="compliance">Compliance</option>
+                        <option value="security">Security</option>
+                        <option value="operational">Operational</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Search</label>
+                    <input type="text" class="form-control" id="searchInput" 
+                           placeholder="Search policies..." onkeyup="applyFilters()">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-secondary w-100" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Policies Table -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Policies</h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" onclick="exportPolicies('csv')">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportPolicies('pdf')">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="policiesTable">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                            </th>
+                            <th>Policy ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Version</th>
+                            <th>Effective Date</th>
+                            <th>Owner</th>
+                            <th>Compliance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="policiesTableBody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> 
+                    of <span id="totalRecords">0</span> policies
+                </div>
+                <nav>
+                    <ul class="pagination mb-0" id="pagination">
+                        <!-- Dynamic pagination -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Create/Edit Policy Modal -->
+<div class="modal fade" id="policyModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="policyModalTitle">Create New Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="policyForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Policy Title*</label>
+                            <input type="text" class="form-control" id="policyTitle" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Category*</label>
+                            <select class="form-select" id="policyCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="governance">Governance</option>
+                                <option value="risk">Risk Management</option>
+                                <option value="compliance">Compliance</option>
+                                <option value="security">Security</option>
+                                <option value="operational">Operational</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Risk Category</label>
+                            <select class="form-select" id="riskCategory">
+                                <option value="">Select Risk Level</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description*</label>
+                            <textarea class="form-control" id="policyDescription" rows="2" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Policy Content*</label>
+                            <div id="policyEditor" style="height: 300px; border: 1px solid #dee2e6;"></div>
+                            <textarea id="policyContent" class="d-none"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Policy Owner*</label>
+                            <input type="text" class="form-control" id="policyOwner" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Department*</label>
+                            <select class="form-select" id="policyDepartment" required>
+                                <option value="">Select Department</option>
+                                <option value="risk">Risk Management</option>
+                                <option value="compliance">Compliance</option>
+                                <option value="it">Information Technology</option>
+                                <option value="hr">Human Resources</option>
+                                <option value="finance">Finance</option>
+                                <option value="operations">Operations</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Effective Date*</label>
+                            <input type="date" class="form-control" id="effectiveDate" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Review Date*</label>
+                            <input type="date" class="form-control" id="reviewDate" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Compliance Frameworks</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="ISO 27001" id="iso27001">
+                                    <label class="form-check-label" for="iso27001">ISO 27001</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="NIST" id="nist">
+                                    <label class="form-check-label" for="nist">NIST</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="GDPR" id="gdpr">
+                                    <label class="form-check-label" for="gdpr">GDPR</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="SOC 2" id="soc2">
+                                    <label class="form-check-label" for="soc2">SOC 2</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="PCI DSS" id="pcidss">
+                                    <label class="form-check-label" for="pcidss">PCI DSS</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Approvers</label>
+                            <select class="form-select" id="policyApprovers" multiple>
+                                <option value="cro">Chief Risk Officer</option>
+                                <option value="cco">Chief Compliance Officer</option>
+                                <option value="ciso">Chief Information Security Officer</option>
+                                <option value="cfo">Chief Financial Officer</option>
+                                <option value="legal">Legal Department</option>
+                            </select>
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple approvers</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveAsDraft()">Save as Draft</button>
+                <button type="button" class="btn btn-success" onclick="submitForApproval()">Submit for Approval</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Policy Modal -->
+<div class="modal fade" id="viewPolicyModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Policy Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="policyDetailsContent">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="editPolicy()">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button type="button" class="btn btn-info" onclick="downloadPolicy()">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal fade" id="bulkActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Actions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>You have selected <span id="selectedCount">0</span> policies.</p>
+                <p>Choose an action to apply:</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success" onclick="bulkApprove()">
+                        <i class="fas fa-check"></i> Approve Selected
+                    </button>
+                    <button class="btn btn-info" onclick="bulkPublish()">
+                        <i class="fas fa-upload"></i> Publish Selected
+                    </button>
+                    <button class="btn btn-warning" onclick="bulkArchive()">
+                        <i class="fas fa-archive"></i> Archive Selected
+                    </button>
+                    <button class="btn btn-danger" onclick="bulkDelete()">
+                        <i class="fas fa-trash"></i> Delete Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let currentPage = 1;
+let pageSize = 10;
+let selectedPolicies = [];
+let currentPolicyId = null;
+let policies = [];
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadPolicyStats();
+    loadPolicies();
+    initializeEditor();
+});
+
+// Initialize rich text editor
+function initializeEditor() {
+    // In production, integrate with a rich text editor like Quill or TinyMCE
+    const editor = document.getElementById('policyEditor');
+    editor.contentEditable = true;
+    editor.addEventListener('input', function() {
+        document.getElementById('policyContent').value = editor.innerHTML;
+    });
+}
+
+// Load policy statistics
+function loadPolicyStats() {
+    fetch('/policies/api/policies/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.data;
+                document.getElementById('totalPolicies').textContent = stats.total_policies || 0;
+                document.getElementById('activePolicies').textContent = stats.active_policies || 0;
+                document.getElementById('underReview').textContent = stats.under_review || 0;
+                document.getElementById('complianceRate').textContent = (stats.compliance_rate || 0) + '%';
+            }
+        })
+        .catch(error => console.error('Error loading stats:', error));
+}
+
+// Load policies
+function loadPolicies() {
+    const status = document.getElementById('statusFilter').value;
+    const category = document.getElementById('categoryFilter').value;
+    const search = document.getElementById('searchInput').value;
+    
+    const params = new URLSearchParams({
+        status: status,
+        category: category,
+        search: search,
+        page: currentPage,
+        size: pageSize
+    });
+    
+    fetch(`/policies/api/policies?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                policies = data.data.policies;
+                displayPolicies(policies);
+                updatePagination(data.data.total);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading policies:', error);
+            showNotification('Error loading policies', 'danger');
+        });
+}
+
+// Display policies in table
+function displayPolicies(policies) {
+    const tbody = document.getElementById('policiesTableBody');
+    
+    if (!policies || policies.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" class="text-center py-4">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No policies found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = policies.map(policy => `
+        <tr>
+            <td>
+                <input type="checkbox" value="${policy.id}" onchange="togglePolicySelection('${policy.id}')">
+            </td>
+            <td>${policy.id}</td>
+            <td>
+                <a href="#" onclick="viewPolicy('${policy.id}'); return false;">
+                    ${policy.title}
+                </a>
+            </td>
+            <td>
+                <span class="badge bg-secondary">${policy.category}</span>
+            </td>
+            <td>${getStatusBadge(policy.status)}</td>
+            <td>${policy.version}</td>
+            <td>${formatDate(policy.effective_date)}</td>
+            <td>${policy.owner}</td>
+            <td>${getComplianceBadge(policy.compliance_score)}</td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="viewPolicy('${policy.id}')" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="editPolicy('${policy.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-info" onclick="checkCompliance('${policy.id}')" title="Check Compliance">
+                        <i class="fas fa-shield-alt"></i>
+                    </button>
+                    <button class="btn btn-outline-success" onclick="approvePolicy('${policy.id}')" title="Approve">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="archivePolicy('${policy.id}')" title="Archive">
+                        <i class="fas fa-archive"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Get status badge
+function getStatusBadge(status) {
+    const badges = {
+        'published': '<span class="badge bg-success">Published</span>',
+        'draft': '<span class="badge bg-secondary">Draft</span>',
+        'under_review': '<span class="badge bg-warning">Under Review</span>',
+        'approved': '<span class="badge bg-info">Approved</span>',
+        'archived': '<span class="badge bg-dark">Archived</span>',
+        'rejected': '<span class="badge bg-danger">Rejected</span>'
+    };
+    return badges[status] || '<span class="badge bg-secondary">Unknown</span>';
+}
+
+// Get compliance badge
+function getComplianceBadge(score) {
+    if (!score) return '<span class="badge bg-secondary">N/A</span>';
+    if (score >= 90) return `<span class="badge bg-success">${score}%</span>`;
+    if (score >= 70) return `<span class="badge bg-warning">${score}%</span>`;
+    return `<span class="badge bg-danger">${score}%</span>`;
+}
+
+// Format date
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+}
+
+// Show create policy modal
+function showCreatePolicyModal() {
+    currentPolicyId = null;
+    document.getElementById('policyModalTitle').textContent = 'Create New Policy';
+    document.getElementById('policyForm').reset();
+    document.getElementById('policyEditor').innerHTML = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('policyModal'));
+    modal.show();
+}
+
+// Save policy as draft
+function saveAsDraft() {
+    const policyData = collectPolicyData();
+    policyData.status = 'draft';
+    
+    savePolicy(policyData);
+}
+
+// Submit policy for approval
+function submitForApproval() {
+    const policyData = collectPolicyData();
+    policyData.status = 'under_review';
+    
+    savePolicy(policyData);
+}
+
+// Collect policy data from form
+function collectPolicyData() {
+    const frameworks = [];
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+        if (checkbox.value !== 'on') {
+            frameworks.push(checkbox.value);
+        }
+    });
+    
+    const approvers = Array.from(document.getElementById('policyApprovers').selectedOptions)
+        .map(option => option.value);
+    
+    return {
+        title: document.getElementById('policyTitle').value,
+        category: document.getElementById('policyCategory').value,
+        description: document.getElementById('policyDescription').value,
+        content: document.getElementById('policyEditor').innerHTML,
+        owner: document.getElementById('policyOwner').value,
+        department: document.getElementById('policyDepartment').value,
+        effective_date: document.getElementById('effectiveDate').value,
+        review_date: document.getElementById('reviewDate').value,
+        risk_category: document.getElementById('riskCategory').value,
+        compliance_frameworks: frameworks,
+        approvers: approvers
+    };
+}
+
+// Save policy
+function savePolicy(policyData) {
+    const url = currentPolicyId 
+        ? `/policies/api/policies/${currentPolicyId}`
+        : '/policies/api/policies';
+    
+    const method = currentPolicyId ? 'PUT' : 'POST';
+    
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(policyData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('policyModal')).hide();
+            loadPolicies();
+            loadPolicyStats();
+        } else {
+            showNotification('Error saving policy', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving policy:', error);
+        showNotification('Error saving policy', 'danger');
+    });
+}
+
+// View policy
+function viewPolicy(policyId) {
+    fetch(`/policies/api/policies/${policyId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayPolicyDetails(data.data);
+                const modal = new bootstrap.Modal(document.getElementById('viewPolicyModal'));
+                modal.show();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading policy:', error);
+            showNotification('Error loading policy details', 'danger');
+        });
+}
+
+// Display policy details
+function displayPolicyDetails(policy) {
+    const content = `
+        <div class="row">
+            <div class="col-md-8">
+                <h4>${policy.title}</h4>
+                <p class="text-muted">${policy.description}</p>
+                <div class="mb-3">
+                    ${getStatusBadge(policy.status)}
+                    <span class="badge bg-secondary ms-1">${policy.category}</span>
+                    <span class="badge bg-info ms-1">v${policy.version}</span>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <small class="text-muted">
+                    Created: ${formatDate(policy.created_date)}<br>
+                    Modified: ${formatDate(policy.last_modified)}<br>
+                    Owner: ${policy.owner}
+                </small>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="policy-content">
+            ${policy.content || '<p>No content available</p>'}
+        </div>
+        
+        <hr>
+        
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <h6>Compliance Frameworks</h6>
+                <div>
+                    ${policy.compliance_frameworks ? policy.compliance_frameworks.map(f => 
+                        `<span class="badge bg-primary me-1">${f}</span>`
+                    ).join('') : 'None'}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>Key Dates</h6>
+                <small>
+                    Effective: ${formatDate(policy.effective_date)}<br>
+                    Next Review: ${formatDate(policy.review_date)}
+                </small>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('policyDetailsContent').innerHTML = content;
+    currentPolicyId = policy.id;
+}
+
+// Edit policy
+function editPolicy(policyId) {
+    if (!policyId && currentPolicyId) {
+        policyId = currentPolicyId;
+    }
+    
+    fetch(`/policies/api/policies/${policyId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const policy = data.data;
+                currentPolicyId = policy.id;
+                
+                // Populate form
+                document.getElementById('policyTitle').value = policy.title || '';
+                document.getElementById('policyCategory').value = policy.category || '';
+                document.getElementById('policyDescription').value = policy.description || '';
+                document.getElementById('policyEditor').innerHTML = policy.content || '';
+                document.getElementById('policyOwner').value = policy.owner || '';
+                document.getElementById('policyDepartment').value = policy.department || '';
+                document.getElementById('effectiveDate').value = policy.effective_date || '';
+                document.getElementById('reviewDate').value = policy.review_date || '';
+                document.getElementById('riskCategory').value = policy.risk_category || '';
+                
+                // Show modal
+                document.getElementById('policyModalTitle').textContent = 'Edit Policy';
+                const modal = new bootstrap.Modal(document.getElementById('policyModal'));
+                modal.show();
+                
+                // Close view modal if open
+                const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewPolicyModal'));
+                if (viewModal) viewModal.hide();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading policy:', error);
+            showNotification('Error loading policy', 'danger');
+        });
+}
+
+// Approve policy
+function approvePolicy(policyId) {
+    if (confirm('Are you sure you want to approve this policy?')) {
+        fetch(`/policies/api/policies/${policyId}/approve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                approver: 'Current User',
+                comments: 'Approved via policy management system'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                loadPolicies();
+                loadPolicyStats();
+            }
+        })
+        .catch(error => {
+            console.error('Error approving policy:', error);
+            showNotification('Error approving policy', 'danger');
+        });
+    }
+}
+
+// Archive policy
+function archivePolicy(policyId) {
+    if (confirm('Are you sure you want to archive this policy?')) {
+        fetch(`/policies/api/policies/${policyId}/archive`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                loadPolicies();
+                loadPolicyStats();
+            }
+        })
+        .catch(error => {
+            console.error('Error archiving policy:', error);
+            showNotification('Error archiving policy', 'danger');
+        });
+    }
+}
+
+// Check compliance
+function checkCompliance(policyId) {
+    fetch('/policies/api/policies/compliance-check', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ policy_id: policyId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const result = data.data;
+            let message = `Compliance Score: ${result.compliance_score}%\n`;
+            message += `Status: ${result.status}\n`;
+            if (result.issues && result.issues.length > 0) {
+                message += '\nIssues:\n';
+                result.issues.forEach(issue => {
+                    message += `- ${issue.description}\n`;
+                });
+            }
+            alert(message);
+        }
+    })
+    .catch(error => {
+        console.error('Error checking compliance:', error);
+        showNotification('Error checking compliance', 'danger');
+    });
+}
+
+// Download policy
+function downloadPolicy() {
+    if (currentPolicyId) {
+        fetch(`/policies/api/policies/${currentPolicyId}/download`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Download started', 'info');
+                    // In production, trigger actual download
+                    window.open(data.data.download_url, '_blank');
+                }
+            })
+            .catch(error => {
+                console.error('Error downloading policy:', error);
+                showNotification('Error downloading policy', 'danger');
+            });
+    }
+}
+
+// Toggle select all
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('#policiesTableBody input[type="checkbox"]');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+        const policyId = checkbox.value;
+        if (selectAll.checked) {
+            if (!selectedPolicies.includes(policyId)) {
+                selectedPolicies.push(policyId);
+            }
+        } else {
+            selectedPolicies = [];
+        }
+    });
+    
+    updateBulkActionsButton();
+}
+
+// Toggle policy selection
+function togglePolicySelection(policyId) {
+    const index = selectedPolicies.indexOf(policyId);
+    if (index > -1) {
+        selectedPolicies.splice(index, 1);
+    } else {
+        selectedPolicies.push(policyId);
+    }
+    
+    updateBulkActionsButton();
+}
+
+// Update bulk actions button
+function updateBulkActionsButton() {
+    if (selectedPolicies.length > 0) {
+        // Show bulk actions option
+        document.getElementById('selectedCount').textContent = selectedPolicies.length;
+    }
+}
+
+// Apply filters
+function applyFilters() {
+    currentPage = 1;
+    loadPolicies();
+}
+
+// Clear filters
+function clearFilters() {
+    document.getElementById('statusFilter').value = 'all';
+    document.getElementById('categoryFilter').value = 'all';
+    document.getElementById('searchInput').value = '';
+    currentPage = 1;
+    loadPolicies();
+}
+
+// Refresh policies
+function refreshPolicies() {
+    loadPolicies();
+    loadPolicyStats();
+    showNotification('Policies refreshed', 'info');
+}
+
+// Update pagination
+function updatePagination(total) {
+    const totalPages = Math.ceil(total / pageSize);
+    const pagination = document.getElementById('pagination');
+    
+    let html = '';
+    
+    // Previous button
+    html += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">Previous</a>
+        </li>
+    `;
+    
+    // Page numbers
+    for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        html += `
+            <li class="page-item ${currentPage === i ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i}</a>
+            </li>
+        `;
+    }
+    
+    // Next button
+    html += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">Next</a>
+        </li>
+    `;
+    
+    pagination.innerHTML = html;
+    
+    // Update showing text
+    const start = (currentPage - 1) * pageSize + 1;
+    const end = Math.min(currentPage * pageSize, total);
+    document.getElementById('showingStart').textContent = start;
+    document.getElementById('showingEnd').textContent = end;
+    document.getElementById('totalRecords').textContent = total;
+}
+
+// Go to page
+function goToPage(page) {
+    currentPage = page;
+    loadPolicies();
+}
+
+// Export policies
+function exportPolicies(format) {
+    showNotification(`Exporting policies to ${format.toUpperCase()}...`, 'info');
+    // In production, implement actual export functionality
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Bulk actions
+function showBulkActions() {
+    if (selectedPolicies.length > 0) {
+        const modal = new bootstrap.Modal(document.getElementById('bulkActionsModal'));
+        modal.show();
+    } else {
+        showNotification('Please select policies first', 'warning');
+    }
+}
+
+function bulkApprove() {
+    performBulkAction('approve');
+}
+
+function bulkPublish() {
+    performBulkAction('publish');
+}
+
+function bulkArchive() {
+    performBulkAction('archive');
+}
+
+function bulkDelete() {
+    if (confirm('Are you sure you want to delete selected policies? This action cannot be undone.')) {
+        performBulkAction('delete');
+    }
+}
+
+function performBulkAction(action) {
+    fetch('/policies/api/policies/bulk-action', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            action: action,
+            policy_ids: selectedPolicies
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            selectedPolicies = [];
+            document.getElementById('selectAll').checked = false;
+            bootstrap.Modal.getInstance(document.getElementById('bulkActionsModal')).hide();
+            loadPolicies();
+            loadPolicyStats();
+        }
+    })
+    .catch(error => {
+        console.error('Error performing bulk action:', error);
+        showNotification('Error performing bulk action', 'danger');
+    });
+}
+</script>
+
+<style>
+.policy-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+#policyEditor {
+    padding: 10px;
+    overflow-y: auto;
+    background: white;
+}
+
+#policyEditor:focus {
+    outline: 2px solid #0d6efd;
+}
+
+.table-responsive {
+    min-height: 400px;
+}
+</style>
+{% endblock %}

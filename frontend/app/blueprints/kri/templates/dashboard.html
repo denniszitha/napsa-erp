@@ -1,0 +1,596 @@
+{% extends "base.html" %}
+{% block title %}KRI Dashboard - NAPSA ERM{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-tachometer-alt"></i> Key Risk Indicators Dashboard
+        </h1>
+        <div class="page-actions">
+            <button class="btn btn-primary" onclick="addNewKRI()">
+                <i class="fas fa-plus"></i> Add KRI
+            </button>
+            <button class="btn btn-outline-primary" onclick="refreshKRIs()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- KRI Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Total KRIs</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0" id="totalKRIs">0</h2>
+                        <i class="fas fa-chart-line ms-auto text-primary fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Within Threshold</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-success" id="greenKRIs">0</h2>
+                        <i class="fas fa-check-circle ms-auto text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Warning</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-warning" id="amberKRIs">0</h2>
+                        <i class="fas fa-exclamation-triangle ms-auto text-warning fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Breached</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-danger" id="redKRIs">0</h2>
+                        <i class="fas fa-times-circle ms-auto text-danger fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Alerts -->
+    <div class="card mb-4" id="alertsCard" style="display: none;">
+        <div class="card-header bg-danger text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-bell"></i> Active Alerts
+            </h5>
+        </div>
+        <div class="card-body">
+            <div id="activeAlerts">
+                <!-- Alerts will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- KRI Monitoring Grid -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">KRI Monitoring Status</h3>
+            <div class="card-tools">
+                <span class="badge bg-info">Last Updated: <span id="lastUpdate">-</span></span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>KRI Name</th>
+                            <th>Category</th>
+                            <th>Current Value</th>
+                            <th>Threshold</th>
+                            <th>Status</th>
+                            <th>Trend</th>
+                            <th>Associated Risk</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kriTableBody">
+                        <!-- KRI rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- KRI Detail Modal -->
+    <div class="modal fade" id="kriDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">KRI Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- KRI Chart -->
+                            <canvas id="kriChart" height="100"></canvas>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- KRI Details -->
+                            <h6>Indicator Information</h6>
+                            <dl class="row">
+                                <dt class="col-sm-5">Name:</dt>
+                                <dd class="col-sm-7" id="kriName">-</dd>
+                                
+                                <dt class="col-sm-5">Category:</dt>
+                                <dd class="col-sm-7" id="kriCategory">-</dd>
+                                
+                                <dt class="col-sm-5">Frequency:</dt>
+                                <dd class="col-sm-7" id="kriFrequency">-</dd>
+                                
+                                <dt class="col-sm-5">Owner:</dt>
+                                <dd class="col-sm-7" id="kriOwner">-</dd>
+                            </dl>
+                            
+                            <h6 class="mt-3">Thresholds</h6>
+                            <dl class="row">
+                                <dt class="col-sm-5">Green (≤):</dt>
+                                <dd class="col-sm-7" id="kriGreen">-</dd>
+                                
+                                <dt class="col-sm-5">Amber (≤):</dt>
+                                <dd class="col-sm-7" id="kriAmber">-</dd>
+                                
+                                <dt class="col-sm-5">Red (>):</dt>
+                                <dd class="col-sm-7" id="kriRed">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <!-- Historical Values -->
+                    <div class="mt-4">
+                        <h6>Recent Values</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kriHistory">
+                                <!-- History will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="updateKRIValue()">
+                        Update Value
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+.status-green {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-amber {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-red {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-critical {
+    background-color: #721c24;
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.trend-up {
+    color: #dc3545;
+}
+
+.trend-down {
+    color: #28a745;
+}
+
+.trend-stable {
+    color: #6c757d;
+}
+
+.alert-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #dc3545;
+    background-color: #f8d7da;
+    border-radius: 4px;
+}
+
+.kri-value-bar {
+    position: relative;
+    height: 30px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.kri-value-fill {
+    position: absolute;
+    height: 100%;
+    background-color: #007bff;
+    transition: width 0.3s ease;
+}
+
+.kri-threshold-marker {
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background-color: #000;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let kriData = [];
+let selectedKRI = null;
+let kriChart = null;
+let autoRefreshInterval = null;
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadKRIData();
+    startAutoRefresh();
+});
+
+function startAutoRefresh() {
+    // Auto-refresh every 30 seconds
+    autoRefreshInterval = setInterval(() => {
+        loadKRIData(true);
+    }, 30000);
+}
+
+function loadKRIData(silent = false) {
+    fetch('/api/kris/dashboard')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                kriData = data.data.kris || [];
+                updateDashboard(data.data);
+                if (!silent) {
+                    showNotification('KRI data loaded successfully', 'success');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading KRI data:', error);
+            // Use sample data for demonstration
+            generateSampleKRIData();
+            updateDashboard({
+                summary: {
+                    total_kris: kriData.length,
+                    breached_kris: 3,
+                    critical_kris: 1
+                },
+                kris: kriData
+            });
+        });
+}
+
+function generateSampleKRIData() {
+    kriData = [
+        {
+            id: '1',
+            name: 'System Uptime',
+            category: 'Operational',
+            current_value: 99.95,
+            threshold_green: 99.9,
+            threshold_amber: 99.0,
+            threshold_red: 95.0,
+            status: 'green',
+            trend: 'stable',
+            risk_title: 'System Downtime Risk',
+            frequency: 'Daily',
+            last_updated: new Date().toISOString()
+        },
+        {
+            id: '2',
+            name: 'Failed Login Attempts',
+            category: 'Security',
+            current_value: 45,
+            threshold_green: 10,
+            threshold_amber: 50,
+            threshold_red: 100,
+            status: 'amber',
+            trend: 'up',
+            risk_title: 'Cyber Security Risk',
+            frequency: 'Hourly',
+            last_updated: new Date().toISOString()
+        },
+        {
+            id: '3',
+            name: 'Payment Processing Time',
+            category: 'Operational',
+            current_value: 8.5,
+            threshold_green: 2,
+            threshold_amber: 4,
+            threshold_red: 8,
+            status: 'red',
+            trend: 'up',
+            risk_title: 'Benefits Processing Delay',
+            frequency: 'Daily',
+            last_updated: new Date().toISOString()
+        },
+        {
+            id: '4',
+            name: 'Compliance Score',
+            category: 'Compliance',
+            current_value: 92,
+            threshold_green: 90,
+            threshold_amber: 75,
+            threshold_red: 60,
+            status: 'green',
+            trend: 'stable',
+            risk_title: 'Regulatory Non-Compliance',
+            frequency: 'Monthly',
+            last_updated: new Date().toISOString()
+        }
+    ];
+}
+
+function updateDashboard(data) {
+    // Update summary cards
+    document.getElementById('totalKRIs').textContent = data.summary?.total_kris || kriData.length;
+    
+    const statusCounts = countByStatus();
+    document.getElementById('greenKRIs').textContent = statusCounts.green;
+    document.getElementById('amberKRIs').textContent = statusCounts.amber;
+    document.getElementById('redKRIs').textContent = statusCounts.red + statusCounts.critical;
+    
+    // Update last update time
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+    
+    // Update alerts
+    updateAlerts();
+    
+    // Update KRI table
+    updateKRITable();
+}
+
+function countByStatus() {
+    const counts = { green: 0, amber: 0, red: 0, critical: 0 };
+    kriData.forEach(kri => {
+        counts[kri.status] = (counts[kri.status] || 0) + 1;
+    });
+    return counts;
+}
+
+function updateAlerts() {
+    const alerts = kriData.filter(kri => kri.status === 'red' || kri.status === 'critical');
+    const alertsCard = document.getElementById('alertsCard');
+    const alertsContainer = document.getElementById('activeAlerts');
+    
+    if (alerts.length > 0) {
+        alertsCard.style.display = 'block';
+        alertsContainer.innerHTML = alerts.map(kri => `
+            <div class="alert-item">
+                <strong>${kri.name}</strong> - ${kri.status.toUpperCase()} 
+                <span class="float-end">Value: ${kri.current_value} (Threshold: ${kri.threshold_red})</span>
+                <br>
+                <small>Associated Risk: ${kri.risk_title}</small>
+            </div>
+        `).join('');
+    } else {
+        alertsCard.style.display = 'none';
+    }
+}
+
+function updateKRITable() {
+    const tbody = document.getElementById('kriTableBody');
+    tbody.innerHTML = kriData.map(kri => `
+        <tr onclick="showKRIDetails('${kri.id}')" style="cursor: pointer;">
+            <td><strong>${kri.name}</strong></td>
+            <td>${kri.category}</td>
+            <td>${kri.current_value}</td>
+            <td>
+                <span class="text-success">${kri.threshold_green}</span> /
+                <span class="text-warning">${kri.threshold_amber}</span> /
+                <span class="text-danger">${kri.threshold_red}</span>
+            </td>
+            <td>
+                <span class="status-badge status-${kri.status}">${kri.status}</span>
+            </td>
+            <td>
+                ${getTrendIcon(kri.trend)}
+            </td>
+            <td>${kri.risk_title || '-'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); updateKRIValue('${kri.id}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function getTrendIcon(trend) {
+    if (trend === 'up') {
+        return '<i class="fas fa-arrow-up trend-up"></i>';
+    } else if (trend === 'down') {
+        return '<i class="fas fa-arrow-down trend-down"></i>';
+    } else {
+        return '<i class="fas fa-minus trend-stable"></i>';
+    }
+}
+
+function showKRIDetails(kriId) {
+    selectedKRI = kriData.find(k => k.id === kriId);
+    if (!selectedKRI) return;
+    
+    // Update modal content
+    document.getElementById('kriName').textContent = selectedKRI.name;
+    document.getElementById('kriCategory').textContent = selectedKRI.category;
+    document.getElementById('kriFrequency').textContent = selectedKRI.frequency;
+    document.getElementById('kriOwner').textContent = selectedKRI.owner || 'Not assigned';
+    
+    document.getElementById('kriGreen').textContent = selectedKRI.threshold_green;
+    document.getElementById('kriAmber').textContent = selectedKRI.threshold_amber;
+    document.getElementById('kriRed').textContent = selectedKRI.threshold_red;
+    
+    // Create/update chart
+    createKRIChart(selectedKRI);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('kriDetailModal'));
+    modal.show();
+}
+
+function createKRIChart(kri) {
+    const ctx = document.getElementById('kriChart').getContext('2d');
+    
+    if (kriChart) {
+        kriChart.destroy();
+    }
+    
+    // Generate sample historical data
+    const labels = [];
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString());
+        data.push(kri.current_value + (Math.random() - 0.5) * 10);
+    }
+    data[data.length - 1] = kri.current_value;
+    
+    kriChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: kri.name,
+                data: data,
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                annotation: {
+                    annotations: {
+                        greenLine: {
+                            type: 'line',
+                            yMin: kri.threshold_green,
+                            yMax: kri.threshold_green,
+                            borderColor: 'green',
+                            borderWidth: 2,
+                            borderDash: [5, 5]
+                        },
+                        amberLine: {
+                            type: 'line',
+                            yMin: kri.threshold_amber,
+                            yMax: kri.threshold_amber,
+                            borderColor: 'orange',
+                            borderWidth: 2,
+                            borderDash: [5, 5]
+                        },
+                        redLine: {
+                            type: 'line',
+                            yMin: kri.threshold_red,
+                            yMax: kri.threshold_red,
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            borderDash: [5, 5]
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateKRIValue(kriId) {
+    const kri = kriId ? kriData.find(k => k.id === kriId) : selectedKRI;
+    if (!kri) return;
+    
+    const newValue = prompt(`Enter new value for ${kri.name}:`, kri.current_value);
+    if (newValue === null) return;
+    
+    // Send update to server
+    fetch(`/api/kris/${kri.id}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: parseFloat(newValue) })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('KRI value updated successfully', 'success');
+            loadKRIData();
+        }
+    })
+    .catch(error => {
+        console.error('Error updating KRI:', error);
+        showNotification('Failed to update KRI value', 'error');
+    });
+}
+
+function addNewKRI() {
+    window.location.href = '/kris/new';
+}
+
+function refreshKRIs() {
+    loadKRIData();
+}
+
+function showNotification(message, type) {
+    // Simple notification (can be replaced with a toast library)
+    console.log(`${type}: ${message}`);
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+});
+</script>
+{% endblock %}

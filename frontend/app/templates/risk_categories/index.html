@@ -1,0 +1,1106 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Risk Categories - NAPSA ERM System{% endblock %}
+
+{% block styles %}
+<style>
+    /* Professional Design for Risk Categories */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        --gray-50: #f9fafb;
+        --orange-hover: #f59e0b;
+        --orange-hover-dark: #d97706;
+    }
+
+    /* Create Button Section */
+    .create-section {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* Statistics Cards */
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+        height: 100%;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .stats-card .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .stats-card.total .stats-icon {
+        background: var(--primary-gradient);
+    }
+
+    .stats-card.active .stats-icon {
+        background: var(--success-gradient);
+    }
+
+    .stats-card.parent .stats-icon {
+        background: var(--info-gradient);
+    }
+
+    .stats-card.risks .stats-icon {
+        background: var(--warning-gradient);
+    }
+
+    .stats-card h3 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .stats-card h6 {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .category-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .category-name {
+        font-weight: 600;
+        font-size: 1.125rem;
+        color: #1f2937;
+    }
+    
+    .category-description {
+        color: #6b7280;
+        margin-bottom: 1rem;
+    }
+    
+    .category-meta {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    .category-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-active {
+        background: #dcfce7;
+        color: #16a34a;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .status-inactive {
+        background: #fee2e2;
+        color: #dc2626;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Filter Card */
+    .card {
+        background: white !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 15px !important;
+        box-shadow: var(--card-shadow) !important;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: var(--card-hover-shadow) !important;
+    }
+
+    .card-header {
+        background: white !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        padding: 1.5rem !important;
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .card-header h5 {
+        color: #1e293b !important;
+        font-weight: 700 !important;
+        font-size: 1.125rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    .card-body {
+        padding: 1.5rem !important;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-weight: 600;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+    }
+
+    /* Orange hover for all buttons */
+    .btn:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        color: white !important;
+    }
+
+    .btn-outline-secondary:hover,
+    .btn-secondary:hover,
+    .btn-danger:hover,
+    .btn-warning:hover,
+    .btn-success:hover,
+    .btn-info:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        color: white !important;
+    }
+
+    /* Form Controls */
+    .form-control, .form-select {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 20px 25px;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .modal-body {
+        padding: 25px;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e5e7eb;
+        padding: 15px 25px;
+        border-radius: 0 0 15px 15px;
+    }
+    
+    .tree-view {
+        margin-left: 1.5rem;
+        border-left: 2px solid #e5e7eb;
+        padding-left: 1rem;
+    }
+    
+    .tree-node {
+        margin: 0.5rem 0;
+        position: relative;
+    }
+    
+    .tree-node::before {
+        content: '';
+        position: absolute;
+        left: -1rem;
+        top: 0.75rem;
+        width: 0.5rem;
+        height: 2px;
+        background: #e5e7eb;
+    }
+    
+    .search-box {
+        position: relative;
+    }
+    
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+    }
+    
+    .search-input {
+        padding-left: 2.5rem;
+    }
+
+    /* Pagination Styles */
+    .pagination {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .page-link {
+        border-radius: 8px;
+        padding: 8px 14px;
+        color: #667eea;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .page-link:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        color: white !important;
+    }
+
+    .page-item.active .page-link {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+
+    .page-item.active .page-link:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+    }
+
+    /* Categories per page info */
+    .categories-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f8f9fa;
+        border-radius: 0 0 15px 15px;
+    }
+
+    .categories-info-text {
+        color: #6b7280;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background: var(--gray-50); min-height: 100vh;">
+    <!-- Create Button Section -->
+    <div class="create-section">
+        <button class="btn btn-primary" onclick="showCreateModal()">
+            <i class="fas fa-plus me-2"></i>Create Category
+        </button>
+        <button class="btn btn-outline-secondary ms-2" onclick="refreshCategories()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh
+        </button>
+    </div>
+
+    <!-- Categories Statistics -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card total">
+                <div class="stats-icon">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <h3 id="totalCategories">0</h3>
+                <h6>Total Categories</h6>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card active">
+                <div class="stats-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 id="activeCategories">0</h3>
+                <h6>Active Categories</h6>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card parent">
+                <div class="stats-icon">
+                    <i class="fas fa-sitemap"></i>
+                </div>
+                <h3 id="parentCategories">0</h3>
+                <h6>Parent Categories</h6>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card risks">
+                <div class="stats-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 id="totalRisks">0</h3>
+                <h6>Total Risks</h6>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories List/Tree -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Risk Categories</h5>
+        </div>
+        <div class="card-body">
+            <div id="categoriesContainer">
+                <div class="text-center py-5">
+                    <i class="fas fa-spinner fa-spin fa-3x text-muted"></i>
+                    <p class="mt-3 text-muted">Loading categories...</p>
+                </div>
+            </div>
+            <!-- Pagination -->
+            <nav aria-label="Categories pagination" id="paginationContainer" style="display: none;">
+                <ul class="pagination" id="categoriesPagination">
+                </ul>
+            </nav>
+        </div>
+        <div class="categories-info" id="categoriesInfo" style="display: none;">
+            <span class="categories-info-text">
+                Showing <span id="showingStart">1</span> to <span id="showingEnd">10</span> of <span id="totalCategoriesCount">0</span> categories
+            </span>
+            <div>
+                <label class="me-2">Per page:</label>
+                <select id="perPageSelect" class="form-select form-select-sm" style="width: auto; display: inline-block;" onchange="changePerPage()">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search (moved to bottom) -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Filters & Search</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control search-input" id="searchInput" 
+                               placeholder="Search categories..." onkeyup="searchCategories()">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter" onchange="filterCategories()">
+                        <option value="all">All Status</option>
+                        <option value="true" selected>Active Only</option>
+                        <option value="false">Inactive Only</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="viewType" onchange="changeView()">
+                        <option value="list">List View</option>
+                        <option value="tree">Tree View</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Create Risk Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    <input type="hidden" id="categoryId">
+                    
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Category Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="categoryName" required maxlength="100">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="categoryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="categoryDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="parentCategory" class="form-label">Parent Category</label>
+                        <select class="form-select" id="parentCategory">
+                            <option value="">None (Top Level)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="isActive" checked>
+                        <label class="form-check-label" for="isActive">
+                            Active
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">
+                    <i class="fas fa-save me-2"></i>Save Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Category Risks Modal -->
+<div class="modal fade" id="categoryRisksModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Category Risks</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="categoryRisksContainer">
+                    <div class="text-center py-3">
+                        <i class="fas fa-spinner fa-spin"></i> Loading risks...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let categories = [];
+let currentView = 'list';
+let currentPage = 1;
+let perPage = 10;
+let totalCategories = 0;
+let filteredCategories = [];
+
+// Load categories on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+});
+
+function loadCategories() {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const url = currentView === 'tree' ? '/risk-categories/api/tree' : '/risk-categories/api/list';
+    
+    let params = new URLSearchParams();
+    if (statusFilter !== 'all') {
+        params.append('is_active', statusFilter);
+    }
+    
+    fetch(`${url}?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (currentView === 'tree') {
+                    categories = data.data;
+                    displayTreeView(data.data);
+                } else {
+                    categories = data.data.items || data.data;
+                    displayListView(categories);
+                    updateStatistics(data.data);
+                }
+            } else {
+                showAlert('Failed to load categories', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error loading categories', 'error');
+        });
+}
+
+function displayListView(categoriesList) {
+    const container = document.getElementById('categoriesContainer');
+    filteredCategories = categoriesList;
+    totalCategories = categoriesList.length;
+    
+    // Calculate pagination
+    const startIndex = (currentPage - 1) * perPage;
+    const endIndex = Math.min(startIndex + perPage, totalCategories);
+    const paginatedCategories = categoriesList.slice(startIndex, endIndex);
+    
+    // Update pagination info
+    document.getElementById('showingStart').textContent = totalCategories > 0 ? startIndex + 1 : 0;
+    document.getElementById('showingEnd').textContent = endIndex;
+    document.getElementById('totalCategoriesCount').textContent = totalCategories;
+    
+    // Show pagination controls
+    document.getElementById('paginationContainer').style.display = totalCategories > perPage ? 'block' : 'none';
+    document.getElementById('categoriesInfo').style.display = 'block';
+    
+    updatePagination();
+    
+    if (!categoriesList || categoriesList.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-folder-open fa-3x text-muted"></i>
+                <p class="mt-3 text-muted">No categories found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    paginatedCategories.forEach(category => {
+        html += `
+            <div class="category-card">
+                <div class="category-header">
+                    <div>
+                        <span class="category-name">${category.name}</span>
+                        <span class="status-badge ${category.is_active ? 'status-active' : 'status-inactive'} ms-2">
+                            ${category.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="category-actions">
+                        <button class="btn btn-sm btn-outline-info" onclick="viewCategoryRisks(${category.id}, '${category.name}')" 
+                                title="View Risks">
+                            <i class="fas fa-list"></i> ${category.risks_count || 0} Risks
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editCategory(${category.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" onclick="toggleStatus(${category.id})" 
+                                title="${category.is_active ? 'Deactivate' : 'Activate'}">
+                            <i class="fas fa-${category.is_active ? 'toggle-on' : 'toggle-off'}"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${category.id}, '${category.name}')" 
+                                title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                ${category.description ? `<div class="category-description">${category.description}</div>` : ''}
+                <div class="category-meta">
+                    <span><i class="fas fa-sitemap me-1"></i> ${category.children_count || 0} Children</span>
+                    <span><i class="fas fa-exclamation-triangle me-1"></i> ${category.risks_count || 0} Risks</span>
+                    ${category.parent_id ? `<span><i class="fas fa-level-up-alt me-1"></i> Child Category</span>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function displayTreeView(tree) {
+    const container = document.getElementById('categoriesContainer');
+    
+    if (!tree || tree.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-sitemap fa-3x text-muted"></i>
+                <p class="mt-3 text-muted">No categories found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = buildTreeHTML(tree);
+}
+
+function buildTreeHTML(nodes, level = 0) {
+    let html = level > 0 ? '<div class="tree-view">' : '';
+    
+    nodes.forEach(node => {
+        html += `
+            <div class="tree-node">
+                <div class="category-card">
+                    <div class="category-header">
+                        <div>
+                            <span class="category-name">${node.name}</span>
+                            <span class="status-badge ${node.is_active ? 'status-active' : 'status-inactive'} ms-2">
+                                ${node.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
+                        <div class="category-actions">
+                            <button class="btn btn-sm btn-outline-info" onclick="viewCategoryRisks(${node.id}, '${node.name}')">
+                                <i class="fas fa-list"></i> ${node.risks_count || 0}
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editCategory(${node.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${node.id}, '${node.name}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${node.description ? `<div class="category-description">${node.description}</div>` : ''}
+                </div>
+                ${node.children && node.children.length > 0 ? buildTreeHTML(node.children, level + 1) : ''}
+            </div>
+        `;
+    });
+    
+    if (level > 0) html += '</div>';
+    return html;
+}
+
+function updateStatistics(data) {
+    if (data.total !== undefined) {
+        document.getElementById('totalCategories').textContent = data.total;
+    }
+    
+    // Calculate statistics from items
+    if (data.items) {
+        const activeCount = data.items.filter(c => c.is_active).length;
+        const parentCount = data.items.filter(c => !c.parent_id).length;
+        const totalRisks = data.items.reduce((sum, c) => sum + (c.risks_count || 0), 0);
+        
+        document.getElementById('activeCategories').textContent = activeCount;
+        document.getElementById('parentCategories').textContent = parentCount;
+        document.getElementById('totalRisks').textContent = totalRisks;
+    }
+}
+
+function showCreateModal() {
+    document.getElementById('modalTitle').textContent = 'Create Risk Category';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryId').value = '';
+    document.getElementById('isActive').checked = true;
+    
+    // Load parent categories
+    loadParentCategories();
+    
+    const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+    modal.show();
+}
+
+function editCategory(id) {
+    fetch(`/risk-categories/api/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const category = data.data;
+                document.getElementById('modalTitle').textContent = 'Edit Risk Category';
+                document.getElementById('categoryId').value = category.id;
+                document.getElementById('categoryName').value = category.name;
+                document.getElementById('categoryDescription').value = category.description || '';
+                document.getElementById('isActive').checked = category.is_active;
+                
+                // Load parent categories and select current parent
+                loadParentCategories(category.parent_id, category.id);
+                
+                const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                modal.show();
+            } else {
+                showAlert('Failed to load category details', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error loading category', 'error');
+        });
+}
+
+function loadParentCategories(selectedId = null, excludeId = null) {
+    fetch('/risk-categories/api/list?is_active=true')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = document.getElementById('parentCategory');
+                select.innerHTML = '<option value="">None (Top Level)</option>';
+                
+                const categories = data.data.items || data.data;
+                categories.forEach(category => {
+                    // Don't include self or descendants as parent options
+                    if (category.id !== excludeId) {
+                        const option = document.createElement('option');
+                        option.value = category.id;
+                        option.textContent = category.full_path || category.name;
+                        if (category.id === selectedId) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading parent categories:', error);
+        });
+}
+
+function saveCategory() {
+    const id = document.getElementById('categoryId').value;
+    const data = {
+        name: document.getElementById('categoryName').value.trim(),
+        description: document.getElementById('categoryDescription').value.trim(),
+        parent_id: document.getElementById('parentCategory').value || null,
+        is_active: document.getElementById('isActive').checked
+    };
+    
+    if (!data.name) {
+        showAlert('Category name is required', 'warning');
+        return;
+    }
+    
+    const url = id ? `/risk-categories/api/${id}/update` : '/risk-categories/api/create';
+    const method = id ? 'PUT' : 'POST';
+    
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message || 'Category saved successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+            loadCategories();
+        } else {
+            showAlert(data.error || 'Failed to save category', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Error saving category', 'error');
+    });
+}
+
+function deleteCategory(id, name) {
+    if (!confirm(`Are you sure you want to delete the category "${name}"?`)) {
+        return;
+    }
+    
+    // Ask about force delete if category has risks
+    const forceDelete = confirm('Force delete even if category has associated risks?\n\nClick OK to force delete, Cancel for normal delete.');
+    
+    fetch(`/risk-categories/api/${id}/delete?force=${forceDelete}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Category deleted successfully', 'success');
+            loadCategories();
+        } else {
+            showAlert(data.error || 'Failed to delete category', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Error deleting category', 'error');
+    });
+}
+
+function toggleStatus(id) {
+    fetch(`/risk-categories/api/${id}/toggle-status`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            loadCategories();
+        } else {
+            showAlert(data.error || 'Failed to toggle status', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Error toggling status', 'error');
+    });
+}
+
+function viewCategoryRisks(id, name) {
+    document.querySelector('#categoryRisksModal .modal-title').textContent = `Risks in "${name}" Category`;
+    
+    fetch(`/risk-categories/api/${id}/risks`, {
+        credentials: 'same-origin'
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayCategoryRisks(data.data);
+            } else {
+                document.getElementById('categoryRisksContainer').innerHTML = 
+                    '<div class="alert alert-danger">Failed to load risks</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('categoryRisksContainer').innerHTML = 
+                '<div class="alert alert-danger">Error loading risks</div>';
+        });
+    
+    const modal = new bootstrap.Modal(document.getElementById('categoryRisksModal'));
+    modal.show();
+}
+
+function displayCategoryRisks(risks) {
+    const container = document.getElementById('categoryRisksContainer');
+    
+    if (!risks || risks.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No risks found in this category</div>';
+        return;
+    }
+    
+    let html = '<div class="table-responsive"><table class="table table-hover">';
+    html += `
+        <thead>
+            <tr>
+                <th>Risk ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    risks.forEach(risk => {
+        html += `
+            <tr>
+                <td>${risk.id}</td>
+                <td>${risk.title}</td>
+                <td><span class="badge bg-${getStatusColor(risk.status)}">${risk.status}</span></td>
+                <td>${risk.inherent_risk_score || '-'}</td>
+                <td>
+                    <a href="/risks#view=${risk.id}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function getStatusColor(status) {
+    const colors = {
+        'active': 'success',
+        'draft': 'secondary',
+        'under_review': 'warning',
+        'closed': 'info',
+        'archived': 'dark'
+    };
+    return colors[status] || 'secondary';
+}
+
+function searchCategories() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    if (!searchTerm) {
+        currentPage = 1;
+        loadCategories();
+        return;
+    }
+    
+    // Filter locally for quick response
+    const filtered = categories.filter(cat => 
+        cat.name.toLowerCase().includes(searchTerm) ||
+        (cat.description && cat.description.toLowerCase().includes(searchTerm))
+    );
+    
+    currentPage = 1; // Reset to first page when searching
+    if (currentView === 'list') {
+        displayListView(filtered);
+    }
+}
+
+function filterCategories() {
+    loadCategories();
+}
+
+function changeView() {
+    currentView = document.getElementById('viewType').value;
+    currentPage = 1; // Reset to first page
+    loadCategories();
+}
+
+function refreshCategories() {
+    currentPage = 1; // Reset to first page
+    loadCategories();
+    showAlert('Categories refreshed', 'success');
+}
+
+// Pagination functions
+function updatePagination() {
+    const totalPages = Math.ceil(totalCategories / perPage);
+    const paginationEl = document.getElementById('categoriesPagination');
+    
+    if (totalPages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+    }
+    
+    let html = '';
+    
+    // Previous button
+    html += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+    `;
+    
+    // Page numbers
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    if (startPage > 1) {
+        html += `
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="changePage(1); return false;">1</a>
+            </li>
+        `;
+        if (startPage > 2) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        html += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+            </li>
+        `;
+    }
+    
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+        html += `
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="changePage(${totalPages}); return false;">${totalPages}</a>
+            </li>
+        `;
+    }
+    
+    // Next button
+    html += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    `;
+    
+    paginationEl.innerHTML = html;
+}
+
+function changePage(page) {
+    const totalPages = Math.ceil(totalCategories / perPage);
+    if (page < 1 || page > totalPages) return;
+    
+    currentPage = page;
+    displayListView(filteredCategories);
+    
+    // Scroll to top of categories list
+    document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function changePerPage() {
+    perPage = parseInt(document.getElementById('perPageSelect').value);
+    currentPage = 1; // Reset to first page
+    displayListView(filteredCategories);
+}
+
+function showAlert(message, type = 'info') {
+    const alertClass = type === 'error' ? 'alert-danger' : 
+                      type === 'success' ? 'alert-success' : 
+                      type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const alert = document.createElement('div');
+    alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        alert.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

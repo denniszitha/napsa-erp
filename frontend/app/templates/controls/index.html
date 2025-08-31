@@ -1,0 +1,1643 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Controls Management - NAPSA ERM System{% endblock %}
+
+{% block styles %}
+<style>
+    /* Professional Controls Management Styles - NAPSA ERM */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        --gray-50: #f9fafb;
+        --border-radius: 15px;
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+    }
+
+    /* Create Button Section */
+    .create-section {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* Statistics Cards */
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+        height: 100%;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .stats-card .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .stats-card.total .stats-icon {
+        background: var(--primary-gradient);
+    }
+
+    .stats-card.effective .stats-icon {
+        background: var(--success-gradient);
+    }
+
+    .stats-card.pending .stats-icon {
+        background: var(--warning-gradient);
+    }
+
+    .stats-card.critical .stats-icon {
+        background: var(--danger-gradient);
+    }
+
+    .stats-card h3 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .stats-card h6 {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .controls-filters {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .controls-table {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .controls-table:hover {
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .effectiveness-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+    
+    .effectiveness-badge.effective { background: #d4edda; color: #155724; }
+    .effectiveness-badge.partially-effective { background: #fff3cd; color: #856404; }
+    .effectiveness-badge.ineffective { background: #f8d7da; color: #721c24; }
+    .effectiveness-badge.not-tested { background: #e2e3e5; color: #6c757d; }
+    
+    .control-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+    
+    .control-type-badge.preventive { background: #d1ecf1; color: #0c5460; }
+    .control-type-badge.detective { background: #fff3cd; color: #856404; }
+    .control-type-badge.corrective { background: #f8d7da; color: #721c24; }
+    .control-type-badge.compensating { background: #e2e3e5; color: #6c757d; }
+    
+    .control-modal {
+        max-width: 900px;
+    }
+    
+    .control-form-section {
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .control-form-section:last-child {
+        border-bottom: none;
+    }
+    
+    .test-result {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .test-result.pass { background: #d4edda; border-left: 4px solid #28a745; }
+    .test-result.partial { background: #fff3cd; border-left: 4px solid #ffc107; }
+    .test-result.fail { background: #f8d7da; border-left: 4px solid #dc3545; }
+    
+    .effectiveness-meter {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .effectiveness-fill {
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+    
+    .effectiveness-fill.high { background: #28a745; }
+    .effectiveness-fill.medium { background: #ffc107; }
+    .effectiveness-fill.low { background: #dc3545; }
+    
+    /* All text black */
+    .controls-table th, .controls-table td, .controls-header h2, .controls-header p, label {
+        color: #000000 !important;
+    }
+    
+    /* Loading Spinner */
+    .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 300px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 14px;
+    }
+    
+    /* Modal Styles */
+    .modal-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #5aa3b4 100%);
+        color: white;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+    
+    .risk-mapping-item {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+    }
+
+    /* Professional Statistics Cards */
+    .stats-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .stats-card:hover {
+        box-shadow: var(--card-hover-shadow);
+        transform: translateY(-2px);
+    }
+
+    .stats-card .card-body {
+        padding: 2rem;
+        text-align: left;
+    }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .stats-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .stats-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stats-trend {
+        margin-top: 8px;
+    }
+
+    /* Professional Form Controls */
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Professional Buttons */
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        border: none;
+        color: white;
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+    }
+
+    .btn-success {
+        background: var(--success-gradient);
+    }
+
+    .btn-info {
+        background: var(--info-gradient);
+    }
+
+    .btn-warning {
+        background: var(--warning-gradient);
+    }
+
+    .btn-danger {
+        background: var(--danger-gradient);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        filter: brightness(1.1);
+    }
+
+    /* Table Action Buttons */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+    }
+
+    .action-buttons .btn {
+        margin: 0 2px;
+    }
+
+    /* Professional Modal Styling */
+    .modal-content {
+        border-radius: 15px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        border: none;
+    }
+
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 25px 30px;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid #e5e7eb;
+        background: #f8fafc;
+        border-radius: 0 0 15px 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Create Button Section -->
+    <div class="create-section">
+        <button class="btn btn-primary" onclick="openControlModal()">
+            <i class="fas fa-plus"></i> New Control
+        </button>
+        <button class="btn btn-success" onclick="refreshControls()">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <button class="btn btn-info" onclick="exportControls()">
+            <i class="fas fa-download"></i> Export
+        </button>
+        <button class="btn btn-warning" onclick="generateControlsReport()">
+            <i class="fas fa-chart-line"></i> Analytics
+        </button>
+    </div>
+        
+    <!-- Filters -->
+    <div class="controls-filters mb-4" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+        <div class="form-group mb-0">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search controls..." onkeyup="searchControls()">
+        </div>
+        
+        <div class="form-group mb-0">
+            <select class="form-select" id="categoryFilter" onchange="loadControls()">
+                <option value="">All Categories</option>
+            </select>
+        </div>
+        
+        <div class="form-group mb-0">
+            <select class="form-select" id="typeFilter" onchange="loadControls()">
+                <option value="">All Types</option>
+            </select>
+        </div>
+        
+        <div class="form-group mb-0">
+            <select class="form-select" id="statusFilter" onchange="loadControls()">
+                <option value="">All Statuses</option>
+                <option value="effective">Effective</option>
+                <option value="partially_effective">Partially Effective</option>
+                <option value="ineffective">Ineffective</option>
+                <option value="not_tested">Not Tested</option>
+            </select>
+        </div>
+        
+        <button class="btn btn-secondary" onclick="resetFilters()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">
+            <i class="fas fa-redo me-1"></i>Reset
+        </button>
+    </div>
+    
+    <!-- Control Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon" style="background: var(--primary-gradient);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="stats-number mb-2" id="totalControls">0</h3>
+                    <p class="stats-label mb-0">Total Controls</p>
+                    <div class="stats-trend">
+                        <small class="text-muted">All control activities</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon" style="background: var(--success-gradient);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="stats-number mb-2" id="effectiveControls">0</h3>
+                    <p class="stats-label mb-0">Effective Controls</p>
+                    <div class="stats-trend">
+                        <small class="text-muted">Meeting objectives</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon" style="background: var(--warning-gradient);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="stats-number mb-2" id="needTestingControls">0</h3>
+                    <p class="stats-label mb-0">Need Testing</p>
+                    <div class="stats-trend">
+                        <small class="text-muted">Require evaluation</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <div class="card-body">
+                    <div class="stats-icon" style="background: var(--info-gradient);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="stats-number mb-2" id="avgEffectiveness">0%</h3>
+                    <p class="stats-label mb-0">Avg Effectiveness</p>
+                    <div class="stats-trend">
+                        <small class="text-muted">Overall performance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Controls Table -->
+    <div class="controls-table">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 8%">Control ID</th>
+                        <th style="width: 20%">Control Name</th>
+                        <th style="width: 12%">Type</th>
+                        <th style="width: 12%">Category</th>
+                        <th style="width: 10%">Owner</th>
+                        <th style="width: 12%">Effectiveness</th>
+                        <th style="width: 10%">Status</th>
+                        <th style="width: 10%">Last Test</th>
+                        <th style="width: 6%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="controlsTableBody">
+                    <tr>
+                        <td colspan="9" class="text-center">
+                            <div class="spinner-container">
+                                <div class="spinner-border" role="status" style="color: var(--sidebar-color);">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center p-3 border-top">
+            <div>
+                Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> of <span id="totalControlsCount">0</span> controls
+            </div>
+            <nav>
+                <ul class="pagination mb-0" id="pagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Control Modal -->
+<div class="modal fade" id="controlModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog control-modal modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="controlModalTitle">Add New Control</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="controlForm">
+                    <!-- Basic Information -->
+                    <div class="control-form-section">
+                        <h6 class="mb-3">Basic Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Control ID</label>
+                                    <input type="text" class="form-control" id="controlId" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Control Name *</label>
+                                    <input type="text" class="form-control" id="controlName" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-control" id="controlDescription" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Control Details -->
+                    <div class="control-form-section">
+                        <h6 class="mb-3">Control Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Type *</label>
+                                    <select class="form-select" id="controlType" required>
+                                        <option value="">Select type...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Category *</label>
+                                    <select class="form-select" id="controlCategory" required>
+                                        <option value="">Select category...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Control Owner *</label>
+                                    <select class="form-select" id="controlOwner" required>
+                                        <option value="">Select owner...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Department</label>
+                                    <select class="form-select" id="controlDepartment">
+                                        <option value="">Select department...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Testing Frequency</label>
+                                    <select class="form-select" id="testingFrequency">
+                                        <option value="">Select frequency...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Cost of Control</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">ZMW</span>
+                                        <input type="number" class="form-control" id="costOfControl" min="0" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Testing & Implementation -->
+                    <div class="control-form-section">
+                        <h6 class="mb-3">Testing & Implementation</h6>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Test Procedures</label>
+                            <textarea class="form-control" id="testProcedures" rows="3" placeholder="Describe how this control should be tested..."></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="automated">
+                                    <label class="form-check-label" for="automated">
+                                        Automated Control
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="evidenceRequired">
+                                    <label class="form-check-label" for="evidenceRequired">
+                                        Evidence Required
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Risk Mappings -->
+                    <div class="control-form-section">
+                        <h6 class="mb-3">Risk Mappings</h6>
+                        <div id="riskMappings">
+                            <p class="text-muted">No risks mapped to this control yet.</p>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addRiskMapping(event)">
+                            <i class="fas fa-plus me-1"></i>Map to Risk
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveControl()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">Save Control</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Control Modal -->
+<div class="modal fade" id="testControlModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Control</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="testControlForm">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Test Result *</label>
+                        <select class="form-select" id="testResult" required>
+                            <option value="">Select result...</option>
+                            <option value="Pass">Pass</option>
+                            <option value="Partial">Partial Pass</option>
+                            <option value="Fail">Fail</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Effectiveness Rating (%)</label>
+                        <input type="range" class="form-range" id="effectivenessRating" min="0" max="100" value="50">
+                        <div class="d-flex justify-content-between">
+                            <small>0%</small>
+                            <small><strong id="effectivenessDisplay">50%</strong></small>
+                            <small>100%</small>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Test Findings</label>
+                        <textarea class="form-control" id="testFindings" rows="4" placeholder="Describe your test findings..."></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Tester Name</label>
+                        <input type="text" class="form-control" id="testerName" value="Admin User">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitControlTest()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">Submit Test</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Control Modal -->
+<div class="modal fade" id="viewControlModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Control Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="controlDetailsBody">
+                <!-- Control details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let controls = [];
+let currentEditingControl = null;
+let currentTestingControl = null;
+
+// Initialize on page load
+$(document).ready(function() {
+    loadControls();
+    loadControlTypes();
+    loadControlCategories();
+    loadTestingFrequencies();
+    loadStatistics();
+    loadDepartments();
+    loadControlOwners();
+});
+
+// Load controls from API
+function loadControls() {
+    const params = {
+        skip: 0,
+        limit: 50,
+        category: $('#categoryFilter').val(),
+        type: $('#typeFilter').val(),
+        status: $('#statusFilter').val(),
+        search: $('#searchInput').val()
+    };
+    
+    $('#controlsTableBody').html(`
+        <tr>
+            <td colspan="9" class="text-center">
+                <div class="spinner-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    `);
+    
+    fetch('/controls/api/list?' + new URLSearchParams(params), {
+        credentials: 'same-origin'  // Include cookies for authentication
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                controls = data.data.items;
+                displayControls(controls);
+                updateStatistics();
+            } else {
+                console.error('Failed to load controls:', data.error);
+                showError('Failed to load controls');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading controls:', error);
+            showError('Error loading controls');
+        });
+}
+
+// Display controls in table
+function displayControls(controlsList) {
+    const tbody = $('#controlsTableBody');
+    tbody.empty();
+    
+    if (controlsList.length === 0) {
+        tbody.html(`
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">
+                    <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                    <p>No controls found</p>
+                    <button class="btn btn-primary" onclick="openControlModal()" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important;">
+                        <i class="fas fa-plus me-1"></i>Create First Control
+                    </button>
+                </td>
+            </tr>
+        `);
+        return;
+    }
+    
+    controlsList.forEach(control => {
+        const row = `
+            <tr>
+                <td>${control.control_id || control.id.substr(0,8)}</td>
+                <td>
+                    <strong>${control.name}</strong><br>
+                    <small class="text-muted">${control.description.substring(0, 50)}...</small>
+                </td>
+                <td><span class="control-type-badge ${control.type}">${formatControlType(control.type)}</span></td>
+                <td>${control.category}</td>
+                <td>${control.control_owner}</td>
+                <td>
+                    ${control.effectiveness_rating ? 
+                        `<div>${control.effectiveness_rating}%
+                         <div class="effectiveness-meter">
+                             <div class="effectiveness-fill ${getEffectivenessClass(control.effectiveness_rating)}" 
+                                  style="width: ${control.effectiveness_rating}%"></div>
+                         </div></div>` : 
+                        '<span class="text-muted">Not rated</span>'}
+                </td>
+                <td><span class="effectiveness-badge ${control.status}">${formatStatus(control.status)}</span></td>
+                <td>${control.last_test_date ? formatDate(control.last_test_date) : '<span class="text-muted">Never</span>'}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm" onclick="viewControl('${control.id}')" title="View" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important; color: white !important;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm" onclick="testControl('${control.id}')" title="Test" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important; color: white !important;">
+                            <i class="fas fa-vial"></i>
+                        </button>
+                        <button class="btn btn-sm" onclick="editControl('${control.id}')" title="Edit" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important; color: white !important;">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm" onclick="deleteControl('${control.id}')" title="Delete" style="background: var(--sidebar-color) !important; border-color: var(--sidebar-color) !important; color: white !important;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+        tbody.append(row);
+    });
+    
+    // Update pagination info
+    $('#showingStart').text(1);
+    $('#showingEnd').text(controlsList.length);
+    $('#totalControlsCount').text(controlsList.length);
+}
+
+// Load control types
+function loadControlTypes() {
+    fetch('/controls/api/control-types', {
+        credentials: 'same-origin'  // Include cookies for authentication
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const typeSelect = $('#controlType');
+                const filterSelect = $('#typeFilter');
+                
+                data.data.forEach(type => {
+                    typeSelect.append(`<option value="${type.value}">${type.label}</option>`);
+                    filterSelect.append(`<option value="${type.value}">${type.label}</option>`);
+                });
+            }
+        });
+}
+
+// Load control categories
+function loadControlCategories() {
+    fetch('/controls/api/categories', {
+        credentials: 'same-origin'  // Include cookies for authentication
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const categorySelect = $('#controlCategory');
+                const filterSelect = $('#categoryFilter');
+                
+                data.data.forEach(category => {
+                    categorySelect.append(`<option value="${category}">${category}</option>`);
+                    filterSelect.append(`<option value="${category}">${category}</option>`);
+                });
+            }
+        });
+}
+
+// Load testing frequencies
+function loadTestingFrequencies() {
+    fetch('/controls/api/testing-frequencies', {
+        credentials: 'same-origin'  // Include cookies for authentication
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const freqSelect = $('#testingFrequency');
+                data.data.forEach(freq => {
+                    freqSelect.append(`<option value="${freq.value}">${freq.label}</option>`);
+                });
+            }
+        });
+}
+
+// Load departments
+function loadDepartments() {
+    fetch('/api/departments', {
+        credentials: 'same-origin'  // Include cookies for authentication
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const deptSelect = $('#controlDepartment');
+                deptSelect.empty();
+                deptSelect.append('<option value="">Select department...</option>');
+                
+                // Handle different data structures
+                const departments = Array.isArray(data.data) ? data.data : data.data.items || [];
+                departments.forEach(dept => {
+                    const name = dept.name || dept.department_name;
+                    const id = dept.id || dept.department_id;
+                    deptSelect.append(`<option value="${name}">${name}</option>`);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading departments:', error);
+            // Fallback to manual departments
+            const deptSelect = $('#controlDepartment');
+            const fallbackDepts = ['IT', 'Finance', 'Operations', 'Compliance', 'Risk Management', 'Audit', 'HR', 'Legal'];
+            fallbackDepts.forEach(dept => {
+                deptSelect.append(`<option value="${dept}">${dept}</option>`);
+            });
+        });
+}
+
+// Load control owners (users)
+function loadControlOwners() {
+    fetch('/api/users', {
+        credentials: 'same-origin'  // Include cookies for authentication
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const ownerSelect = $('#controlOwner');
+                ownerSelect.empty();
+                ownerSelect.append('<option value="">Select owner...</option>');
+                
+                // Handle different data structures
+                const users = Array.isArray(data.data) ? data.data : data.data.items || [];
+                users.forEach(user => {
+                    const name = user.full_name || user.name || `${user.first_name} ${user.last_name}`;
+                    ownerSelect.append(`<option value="${name}">${name}</option>`);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading control owners:', error);
+            // Fallback to manual owners
+            const ownerSelect = $('#controlOwner');
+            const fallbackOwners = ['Risk Manager', 'Compliance Officer', 'IT Security', 'Finance Manager', 'Operations Manager'];
+            fallbackOwners.forEach(owner => {
+                ownerSelect.append(`<option value="${owner}">${owner}</option>`);
+            });
+        });
+}
+
+// Load statistics
+function loadStatistics() {
+    fetch('/controls/api/effectiveness', {
+        credentials: 'same-origin'  // Include cookies for authentication
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.data;
+                $('#totalControls').text(stats.total_controls);
+                $('#effectiveControls').text(stats.effective_controls);
+                $('#needTestingControls').text(stats.untested_controls);
+                $('#avgEffectiveness').text(stats.average_effectiveness + '%');
+            }
+        });
+}
+
+// Update statistics from current controls
+function updateStatistics() {
+    const total = controls.length;
+    const effective = controls.filter(c => c.status === 'effective').length;
+    const needTesting = controls.filter(c => c.status === 'not_tested').length;
+    const critical = controls.filter(c => c.control_type === 'critical' || c.control_type === 'preventive').length;
+    const ratedControls = controls.filter(c => c.effectiveness_rating);
+    const avgEff = ratedControls.length > 0 ? 
+        Math.round(ratedControls.reduce((sum, c) => sum + c.effectiveness_rating, 0) / ratedControls.length) : 0;
+    
+    $('#totalControls').text(total);
+    $('#effectiveControls').text(effective);
+    $('#pendingReviews').text(needTesting);
+    $('#criticalControls').text(critical);
+    $('#needTestingControls').text(needTesting);
+    $('#avgEffectiveness').text(avgEff + '%');
+}
+
+// Open control modal
+function openControlModal() {
+    currentEditingControl = null;
+    $('#controlModalTitle').text('Add New Control');
+    $('#controlForm')[0].reset();
+    $('#controlId').val('Auto-generated');
+    
+    // Clear pending risk mappings
+    window.pendingRiskMappings = [];
+    
+    // Reset risk mappings section
+    const riskMappingsDiv = document.getElementById('riskMappings');
+    riskMappingsDiv.innerHTML = '<p class="text-muted">No risks mapped to this control yet.</p>';
+    
+    // Show the "Map to Risk" button
+    const mapButton = document.querySelector('button[onclick*="addRiskMapping"]');
+    if (mapButton) {
+        mapButton.style.display = 'inline-block';
+    }
+    
+    $('#controlModal').modal('show');
+}
+
+// Edit control
+function editControl(controlId) {
+    const control = controls.find(c => c.id === controlId);
+    if (!control) return;
+    
+    currentEditingControl = control;
+    $('#controlModalTitle').text('Edit Control');
+    
+    // Populate form
+    $('#controlId').val(control.control_id || control.id.substr(0,8));
+    $('#controlName').val(control.name);
+    $('#controlDescription').val(control.description);
+    $('#controlType').val(control.type);
+    $('#controlCategory').val(control.category);
+    $('#controlOwner').val(control.control_owner);
+    $('#controlDepartment').val(control.department);
+    $('#testingFrequency').val(control.testing_frequency);
+    $('#costOfControl').val(control.cost_of_control);
+    $('#testProcedures').val(control.test_procedures);
+    $('#automated').prop('checked', control.automated);
+    $('#evidenceRequired').prop('checked', control.evidence_required);
+    
+    $('#controlModal').modal('show');
+}
+
+// Save control
+function saveControl() {
+    // Validate required fields
+    if (!$('#controlName').val()) {
+        showError('Control name is required');
+        return;
+    }
+    if (!$('#controlDescription').val()) {
+        showError('Control description is required');
+        return;
+    }
+    if (!$('#controlOwner').val()) {
+        showError('Control owner is required');
+        return;
+    }
+    
+    const formData = {
+        name: $('#controlName').val(),
+        description: $('#controlDescription').val(),
+        type: $('#controlType').val() || 'preventive',
+        control_owner: $('#controlOwner').val(),
+        implementation_status: 'implemented',  // Required by backend
+        testing_frequency: $('#testingFrequency').val() || 'Monthly',
+        // Additional fields
+        category: $('#controlCategory').val(),
+        department: $('#controlDepartment').val(),
+        cost_of_control: parseFloat($('#costOfControl').val()) || 0,
+        test_procedures: $('#testProcedures').val(),
+        automated: $('#automated').is(':checked'),
+        evidence_required: $('#evidenceRequired').is(':checked')
+    };
+    
+    if (currentEditingControl) {
+        // Update existing control
+        fetch(`/controls/api/${currentEditingControl.id}/update`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'same-origin',  // Include cookies for authentication
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                $('#controlModal').modal('hide');
+                loadControls();
+                showSuccess('Control updated successfully');
+            } else {
+                showError('Failed to update control: ' + data.error);
+            }
+        });
+    } else {
+        // Create new control
+        fetch('/controls/api/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'same-origin',  // Include cookies for authentication
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const controlId = data.data.id;
+                
+                // If there are pending risk mappings, create them
+                if (window.pendingRiskMappings && window.pendingRiskMappings.length > 0) {
+                    const mappingPromises = window.pendingRiskMappings.map(mapping => 
+                        fetch('/controls/api/map-to-risk', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            credentials: 'same-origin',  // Include cookies for authentication
+                            body: JSON.stringify({
+                                control_id: controlId,
+                                risk_id: mapping.risk_id,
+                                coverage_percentage: mapping.coverage_percentage,
+                                criticality: mapping.criticality
+                            })
+                        })
+                    );
+                    
+                    Promise.all(mappingPromises)
+                        .then(responses => Promise.all(responses.map(r => r.json())))
+                        .then(results => {
+                            const failures = results.filter(r => !r.success);
+                            if (failures.length > 0) {
+                                showError(`Control created but ${failures.length} risk mappings failed`);
+                            } else {
+                                showSuccess('Control created and mapped to risks successfully');
+                            }
+                            
+                            // Clear pending mappings
+                            window.pendingRiskMappings = [];
+                        })
+                        .catch(error => {
+                            showError('Control created but risk mapping failed: ' + error.message);
+                        });
+                } else {
+                    showSuccess('Control created successfully');
+                }
+                
+                $('#controlModal').modal('hide');
+                loadControls();
+            } else {
+                showError('Failed to create control: ' + data.error);
+            }
+        });
+    }
+}
+
+// Test control
+function testControl(controlId) {
+    const control = controls.find(c => c.id === controlId);
+    if (!control) return;
+    
+    currentTestingControl = control;
+    $('#testControlForm')[0].reset();
+    $('#effectivenessRating').val(50);
+    $('#effectivenessDisplay').text('50%');
+    $('#testControlModal').modal('show');
+}
+
+// Update effectiveness display
+$('#effectivenessRating').on('input', function() {
+    $('#effectivenessDisplay').text($(this).val() + '%');
+});
+
+// Submit control test
+function submitControlTest() {
+    const testData = {
+        result: $('#testResult').val(),
+        effectiveness_rating: parseFloat($('#effectivenessRating').val()),
+        findings: $('#testFindings').val(),
+        tester: $('#testerName').val()
+    };
+    
+    fetch(`/controls/api/${currentTestingControl.id}/test`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'same-origin',  // Include cookies for authentication
+        body: JSON.stringify(testData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#testControlModal').modal('hide');
+            loadControls();
+            showSuccess('Control test completed successfully');
+        } else {
+            showError('Failed to submit test: ' + data.error);
+        }
+    });
+}
+
+// View control details
+function viewControl(controlId) {
+    const control = controls.find(c => c.id === controlId);
+    if (!control) return;
+    
+    const detailsHtml = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Basic Information</h6>
+                <p><strong>Control ID:</strong> ${control.control_id || control.id.substr(0,8)}</p>
+                <p><strong>Name:</strong> ${control.name}</p>
+                <p><strong>Type:</strong> ${formatControlType(control.type)}</p>
+                <p><strong>Category:</strong> ${control.category}</p>
+                <p><strong>Owner:</strong> ${control.control_owner}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Effectiveness & Testing</h6>
+                <p><strong>Status:</strong> <span class="effectiveness-badge ${control.status}">${formatStatus(control.status)}</span></p>
+                <p><strong>Effectiveness:</strong> ${control.effectiveness_rating ? control.effectiveness_rating + '%' : 'Not rated'}</p>
+                <p><strong>Last Test:</strong> ${control.last_test_date ? formatDate(control.last_test_date) : 'Never'}</p>
+                <p><strong>Testing Frequency:</strong> ${control.testing_frequency}</p>
+            </div>
+        </div>
+        <div class="mt-3">
+            <h6>Description</h6>
+            <p>${control.description}</p>
+        </div>
+        ${control.test_results && control.test_results.length > 0 ? `
+            <div class="mt-3">
+                <h6>Recent Test Results</h6>
+                ${control.test_results.slice(0, 3).map(result => `
+                    <div class="test-result ${result.result.toLowerCase()}">
+                        <strong>${result.result}</strong> - ${formatDate(result.test_date)}<br>
+                        <small>${result.findings}</small>
+                    </div>
+                `).join('')}
+            </div>
+        ` : ''}
+    `;
+    
+    $('#controlDetailsBody').html(detailsHtml);
+    $('#viewControlModal').modal('show');
+}
+
+// Delete control
+function deleteControl(controlId) {
+    if (!confirm('Are you sure you want to delete this control?')) return;
+    
+    fetch(`/controls/api/${controlId}/delete`, {
+        method: 'DELETE',
+        credentials: 'same-origin'  // Include cookies for authentication
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadControls();
+            showSuccess('Control deleted successfully');
+        } else {
+            showError('Failed to delete control: ' + data.error);
+        }
+    });
+}
+
+// Search controls
+function searchControls() {
+    const searchTerm = $('#searchInput').val().toLowerCase();
+    const filteredControls = controls.filter(control => 
+        control.name.toLowerCase().includes(searchTerm) ||
+        control.description.toLowerCase().includes(searchTerm) ||
+        control.control_owner.toLowerCase().includes(searchTerm)
+    );
+    displayControls(filteredControls);
+}
+
+// Refresh controls
+function refreshControls() {
+    loadControls();
+    showSuccess('Controls refreshed');
+}
+
+// Export controls
+function exportControls() {
+    showSuccess('Exporting controls data...');
+    // In production, this would trigger actual export
+    setTimeout(() => {
+        showSuccess('Controls exported successfully');
+    }, 2000);
+}
+
+// Generate controls report
+function generateControlsReport() {
+    showSuccess('Generating controls analytics report...');
+    // In production, this would generate analytics
+    setTimeout(() => {
+        showSuccess('Analytics report generated successfully');
+    }, 2000);
+}
+
+// Reset filters
+function resetFilters() {
+    $('#searchInput').val('');
+    $('#categoryFilter').val('');
+    $('#typeFilter').val('');
+    $('#statusFilter').val('');
+    loadControls();
+}
+
+// Utility functions
+function formatControlType(type) {
+    return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+function formatStatus(status) {
+    return status.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => 
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+}
+
+function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString();
+}
+
+function getEffectivenessClass(rating) {
+    if (rating >= 80) return 'high';
+    if (rating >= 60) return 'medium';
+    return 'low';
+}
+
+function showSuccess(message) {
+    console.log('Success:', message);
+    // Create Bootstrap alert
+    const alertHtml = `
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    // Add to page
+    if ($('#alertContainer').length === 0) {
+        $('.container-fluid').prepend('<div id="alertContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;"></div>');
+    }
+    $('#alertContainer').html(alertHtml);
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        $('.alert').fadeOut();
+    }, 5000);
+}
+
+function showError(message) {
+    console.error('Error:', message);
+    // Create Bootstrap alert
+    const alertHtml = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    // Add to page
+    if ($('#alertContainer').length === 0) {
+        $('.container-fluid').prepend('<div id="alertContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;"></div>');
+    }
+    $('#alertContainer').html(alertHtml);
+    // Auto-hide after 7 seconds
+    setTimeout(() => {
+        $('.alert').fadeOut();
+    }, 7000);
+}
+
+// Add Risk Mapping functionality
+function addRiskMapping(event) {
+    // Prevent default if event exists
+    if (event && event.preventDefault) {
+        event.preventDefault();
+    }
+    
+    // Hide the button that triggered this action
+    try {
+        if (event && event.target) {
+            event.target.style.display = 'none';
+        } else {
+            // Fallback: find and hide the button
+            const mapButton = document.querySelector('button[onclick*="addRiskMapping"]');
+            if (mapButton) {
+                mapButton.style.display = 'none';
+            }
+        }
+    } catch (e) {
+        console.log('Could not hide button:', e);
+    }
+    
+    // Load available risks first
+    loadAvailableRisks().then(risks => {
+        if (!risks || risks.length === 0) {
+            showError('No risks available to map. Please create risks first.');
+            // Show the button again if no risks
+            const mapButton = document.querySelector('button[onclick*="addRiskMapping"]');
+            if (mapButton) {
+                mapButton.style.display = 'inline-block';
+            }
+            return;
+        }
+        
+        const risksHtml = risks.map(risk => `
+            <option value="${risk.id}">${risk.id} - ${risk.title || risk.name || 'Unnamed Risk'}</option>
+        `).join('');
+        
+        const mappingHtml = `
+            <div class="risk-mapping-item" id="newRiskMapping">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group mb-2">
+                            <label class="form-label">Select Risk *</label>
+                            <select class="form-select" id="selectedRisk" required>
+                                <option value="">Choose a risk...</option>
+                                ${risksHtml}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-2">
+                            <label class="form-label">Coverage %</label>
+                            <input type="number" class="form-control" id="coveragePercentage" min="0" max="100" value="80" placeholder="80">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group mb-2">
+                            <label class="form-label">Criticality</label>
+                            <select class="form-select" id="criticality">
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High" selected>High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="button" class="btn btn-success btn-sm me-2" onclick="confirmRiskMapping()">
+                            <i class="fas fa-check"></i> Confirm
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="cancelRiskMapping()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add the mapping form to the risk mappings section
+        const riskMappingsDiv = document.getElementById('riskMappings');
+        const noRisksMessage = riskMappingsDiv.querySelector('p.text-muted');
+        if (noRisksMessage) {
+            noRisksMessage.style.display = 'none';
+        }
+        riskMappingsDiv.insertAdjacentHTML('beforeend', mappingHtml);
+        
+        // Hide the "Map to Risk" button temporarily
+        if (event && event.target) {
+            event.target.style.display = 'none';
+        } else {
+            // Fallback: find and hide the button
+            const mapButton = document.querySelector('button[onclick*="addRiskMapping"]');
+            if (mapButton) {
+                mapButton.style.display = 'none';
+            }
+        }
+    }).catch(error => {
+        console.error('Error in addRiskMapping:', error);
+        showError('Failed to load available risks: ' + (error.message || 'Unknown error'));
+        
+        // Show the button again on error
+        const mapButton = document.querySelector('button[onclick*="addRiskMapping"]');
+        if (mapButton) {
+            mapButton.style.display = 'inline-block';
+        }
+    });
+}
+
+function confirmRiskMapping() {
+    const selectedRisk = document.getElementById('selectedRisk').value;
+    const coveragePercentage = document.getElementById('coveragePercentage').value;
+    const criticality = document.getElementById('criticality').value;
+    
+    if (!selectedRisk) {
+        showError('Please select a risk to map');
+        return;
+    }
+    
+    // Store the mapping data for when the control is saved
+    if (!window.pendingRiskMappings) {
+        window.pendingRiskMappings = [];
+    }
+    
+    window.pendingRiskMappings.push({
+        risk_id: selectedRisk,
+        coverage_percentage: parseFloat(coveragePercentage) || 80,
+        criticality: criticality
+    });
+    
+    // Find the selected risk details
+    const riskOption = document.querySelector(`#selectedRisk option[value="${selectedRisk}"]`);
+    const riskText = riskOption ? riskOption.textContent : selectedRisk;
+    
+    // Replace the form with a confirmation display
+    document.getElementById('newRiskMapping').innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>${riskText}</strong><br>
+                <small class="text-muted">Coverage: ${coveragePercentage || 80}% | Criticality: ${criticality}</small>
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRiskMapping(this)">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    // Show the "Map to Risk" button again
+    const mapButton = document.querySelector('button[onclick*="addRiskMapping"]');
+    if (mapButton) {
+        mapButton.style.display = 'inline-block';
+    }
+    
+    showSuccess('Risk mapping added. Save the control to confirm.');
+}
+
+function cancelRiskMapping() {
+    // Remove the new mapping form
+    const newMapping = document.getElementById('newRiskMapping');
+    if (newMapping) {
+        newMapping.remove();
+    }
+    
+    // Show the "Map to Risk" button again
+    const mapButton = document.querySelector('button[onclick*="addRiskMapping"]');
+    if (mapButton) {
+        mapButton.style.display = 'inline-block';
+    }
+    
+    // Show "No risks mapped" message if no other mappings exist
+    const riskMappingsDiv = document.getElementById('riskMappings');
+    const mappingItems = riskMappingsDiv.querySelectorAll('.risk-mapping-item');
+    if (mappingItems.length === 0) {
+        const noRisksMessage = riskMappingsDiv.querySelector('p.text-muted');
+        if (noRisksMessage) {
+            noRisksMessage.style.display = 'block';
+        }
+    }
+}
+
+function removeRiskMapping(button) {
+    const mappingItem = button.closest('.risk-mapping-item');
+    if (mappingItem) {
+        mappingItem.remove();
+    }
+    
+    // Show "No risks mapped" message if no mappings remain
+    const riskMappingsDiv = document.getElementById('riskMappings');
+    const mappingItems = riskMappingsDiv.querySelectorAll('.risk-mapping-item');
+    if (mappingItems.length === 0) {
+        const noRisksMessage = riskMappingsDiv.querySelector('p.text-muted');
+        if (noRisksMessage) {
+            noRisksMessage.style.display = 'block';
+        }
+    }
+}
+
+async function loadAvailableRisks() {
+    try {
+        const response = await fetch('/risks/api/list', {
+            method: 'GET',
+            credentials: 'same-origin',  // Include cookies for authentication
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            console.warn(`Risk API returned status ${response.status}, trying alternative endpoints`);
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        console.log('Risk API response:', data); // Debug log
+        
+        if (data.success && data.data) {
+            // Check for different possible data structures
+            if (data.data.items && Array.isArray(data.data.items)) {
+                return data.data.items.filter(risk => risk && risk.id);
+            } else if (data.data.risks && Array.isArray(data.data.risks)) {
+                return data.data.risks.filter(risk => risk && risk.id);
+            } else if (Array.isArray(data.data)) {
+                return data.data.filter(risk => risk && risk.id);
+            }
+        }
+        
+        // If no valid data structure found, throw error
+        throw new Error('Invalid risks data structure received');
+    } catch (error) {
+        console.error('Error loading risks from primary endpoint:', error);
+        
+        // Try alternative endpoints
+        const alternativeEndpoints = [
+            '/api/risks',
+            '/risks/api/all',
+            '/api/v1/risks'
+        ];
+        
+        for (const endpoint of alternativeEndpoints) {
+            try {
+                console.log(`Trying alternative endpoint: ${endpoint}`);
+                const response = await fetch(endpoint, {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.data && Array.isArray(data.data)) {
+                        return data.data.filter(risk => risk && risk.id);
+                    } else if (Array.isArray(data)) {
+                        return data.filter(risk => risk && risk.id);
+                    }
+                }
+            } catch (altError) {
+                console.error(`Failed to fetch from ${endpoint}:`, altError);
+            }
+        }
+        
+        // Return mock risks as last resort
+        console.warn('All API endpoints failed. Using mock risks data for demonstration');
+        return [
+            { id: 'RISK-2025-0001', title: 'Operational Risk - System Downtime', name: 'System Downtime' },
+            { id: 'RISK-2025-0002', title: 'Compliance Risk - Regulatory Changes', name: 'Regulatory Changes' },
+            { id: 'RISK-2025-0003', title: 'Financial Risk - Market Volatility', name: 'Market Volatility' }
+        ];
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Analytics - BI Tools{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="page-header mb-4">
+        <h1 class="h3">Advanced Analytics</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('bi_tools.index') }}">BI Tools</a></li>
+                <li class="breadcrumb-item active">Analytics</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Metric</label>
+                    <select name="metric" class="form-select">
+                        <option value="risks" {% if selected_metric == 'risks' %}selected{% endif %}>Risk Trends</option>
+                        <option value="controls" {% if selected_metric == 'controls' %}selected{% endif %}>Control Effectiveness</option>
+                        <option value="incidents" {% if selected_metric == 'incidents' %}selected{% endif %}>Incident Patterns</option>
+                        <option value="assessments" {% if selected_metric == 'assessments' %}selected{% endif %}>Assessment Progress</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Period</label>
+                    <select name="period" class="form-select">
+                        <option value="daily" {% if selected_period == 'daily' %}selected{% endif %}>Daily</option>
+                        <option value="weekly" {% if selected_period == 'weekly' %}selected{% endif %}>Weekly</option>
+                        <option value="monthly" {% if selected_period == 'monthly' %}selected{% endif %}>Monthly</option>
+                        <option value="quarterly" {% if selected_period == 'quarterly' %}selected{% endif %}>Quarterly</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Time Range</label>
+                    <select name="time_range" class="form-select">
+                        <option value="30d" {% if selected_time_range == '30d' %}selected{% endif %}>Last 30 Days</option>
+                        <option value="90d" {% if selected_time_range == '90d' %}selected{% endif %}>Last 90 Days</option>
+                        <option value="180d" {% if selected_time_range == '180d' %}selected{% endif %}>Last 6 Months</option>
+                        <option value="365d" {% if selected_time_range == '365d' %}selected{% endif %}>Last Year</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Trend Chart -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Trend Analysis</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="trendChart" style="height: 400px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Statistical Summary -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Statistical Summary</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>Average</td>
+                                <td class="text-end">{{ trend_data.get('summary', {}).get('average', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Maximum</td>
+                                <td class="text-end">{{ trend_data.get('summary', {}).get('max', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Minimum</td>
+                                <td class="text-end">{{ trend_data.get('summary', {}).get('min', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <td>Trend Direction</td>
+                                <td class="text-end">
+                                    {% set trend = trend_data.get('summary', {}).get('trend', 'stable') %}
+                                    {% if trend == 'increasing' %}
+                                        <span class="text-danger"><i class="fas fa-arrow-up"></i> Increasing</span>
+                                    {% elif trend == 'decreasing' %}
+                                        <span class="text-success"><i class="fas fa-arrow-down"></i> Decreasing</span>
+                                    {% else %}
+                                        <span class="text-muted"><i class="fas fa-minus"></i> Stable</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Insights</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for insight in trend_data.get('insights', []) %}
+                            <li class="mb-2">
+                                <i class="fas fa-lightbulb text-warning"></i> {{ insight }}
+                            </li>
+                        {% else %}
+                            <li class="text-muted">No insights available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const trendData = {{ trend_data | tojson | safe }};
+    
+    if (trendData.data) {
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trendData.labels || [],
+                datasets: [{
+                    label: '{{ selected_metric|title }}',
+                    data: trendData.data || [],
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

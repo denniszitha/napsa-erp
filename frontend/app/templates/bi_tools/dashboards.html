@@ -1,0 +1,244 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboards - BI Tools{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="page-header mb-4">
+        <h1 class="h3">Custom Dashboards</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('bi_tools.index') }}">BI Tools</a></li>
+                <li class="breadcrumb-item active">Dashboards</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>My Dashboards</h4>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createDashboardModal">
+            <i class="fas fa-plus"></i> Create Dashboard
+        </button>
+    </div>
+
+    <div class="row">
+        <!-- Executive Dashboard -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-pie text-primary"></i> Executive Overview
+                    </h5>
+                    <p class="card-text">High-level metrics and KPIs for executive management</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">Updated 2 hours ago</small>
+                        <div>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Dashboard -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-exclamation-triangle text-danger"></i> Risk Monitor
+                    </h5>
+                    <p class="card-text">Real-time risk metrics and heat maps across departments</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">Updated 5 mins ago</small>
+                        <div>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Dashboard -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-check-circle text-success"></i> Compliance Tracker
+                    </h5>
+                    <p class="card-text">Regulatory compliance status and audit findings</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">Updated 1 hour ago</small>
+                        <div>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations Dashboard -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-cogs text-info"></i> Operations Center
+                    </h5>
+                    <p class="card-text">Operational metrics and process performance indicators</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">Updated 30 mins ago</small>
+                        <div>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KRI Dashboard -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-tachometer-alt text-warning"></i> KRI Dashboard
+                    </h5>
+                    <p class="card-text">Key Risk Indicators monitoring and threshold alerts</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">Real-time</small>
+                        <div>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Dashboard -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-building text-secondary"></i> Department View
+                    </h5>
+                    <p class="card-text">Department-specific risk and control metrics</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">Updated 3 hours ago</small>
+                        <div>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Dashboard Modal -->
+<div class="modal fade" id="createDashboardModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Dashboard</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Dashboard Name</label>
+                        <input type="text" class="form-control" placeholder="Enter dashboard name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" rows="2" placeholder="Brief description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Layout</label>
+                        <select class="form-select">
+                            <option>2 Column Grid</option>
+                            <option>3 Column Grid</option>
+                            <option>Single Column</option>
+                            <option>Custom Layout</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Initial Widgets</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="widgetRiskHeatmap">
+                                    <label class="form-check-label" for="widgetRiskHeatmap">
+                                        Risk Heatmap
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="widgetKRIGauge">
+                                    <label class="form-check-label" for="widgetKRIGauge">
+                                        KRI Gauges
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="widgetTrendChart">
+                                    <label class="form-check-label" for="widgetTrendChart">
+                                        Trend Chart
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="widgetMetrics">
+                                    <label class="form-check-label" for="widgetMetrics">
+                                        Key Metrics
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="widgetAlerts">
+                                    <label class="form-check-label" for="widgetAlerts">
+                                        Recent Alerts
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="widgetCompliance">
+                                    <label class="form-check-label" for="widgetCompliance">
+                                        Compliance Status
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createDashboard()">Create Dashboard</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function createDashboard() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('createDashboardModal'));
+    modal.hide();
+    alert('Dashboard created successfully!');
+    location.reload();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    libssl-dev \
+    libffi-dev \
+    curl \
+    netcat-traditional \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app user
+RUN groupadd -r napsa && useradd -r -g napsa napsa
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements.txt && \
+    pip install gunicorn uvloop httptools
+
+# Copy application code
+COPY --chown=napsa:napsa . .
+
+# Copy and set entrypoint script
+COPY --chown=napsa:napsa entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Create necessary directories
+RUN mkdir -p /app/static /app/media /app/logs && \
+    chown -R napsa:napsa /app
+
+# Switch to non-root user
+USER napsa
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run the application with entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]

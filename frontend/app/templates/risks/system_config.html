@@ -1,0 +1,708 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}System Configuration - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    .config-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .config-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .config-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+    }
+    
+    .config-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .config-label {
+        font-weight: 500;
+        color: #374151;
+    }
+    
+    .config-value {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .scale-editor {
+        background: #f9fafb;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .scale-level {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        background: white;
+        border-radius: 6px;
+    }
+    
+    .level-badge {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+    
+    .risk-matrix {
+        display: grid;
+        grid-template-columns: 60px repeat(5, 1fr);
+        gap: 2px;
+        background: #e5e7eb;
+        padding: 2px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .matrix-cell {
+        background: white;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 500;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .matrix-header {
+        background: #374151;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .matrix-label {
+        background: #6b7280;
+        color: white;
+        font-size: 0.875rem;
+    }
+    
+    .risk-low { background: #dcfce7; color: #166534; }
+    .risk-medium { background: #fef3c7; color: #92400e; }
+    .risk-high { background: #fed7aa; color: #9a3412; }
+    .risk-critical { background: #fee2e2; color: #991b1b; }
+    
+    .notification-config {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 24px;
+    }
+    
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+        background-color: #3b82f6;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">System Configuration</h1>
+                    <p class="text-muted">Manage system-wide settings and configurations</p>
+                </div>
+                <div>
+                    <button class="btn btn-success" onclick="saveAllConfigurations()">
+                        <i class="fas fa-save mr-2"></i>Save All Changes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Impact & Likelihood Scales -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h4 class="config-title">
+                        <i class="fas fa-chart-line text-primary mr-2"></i>
+                        Risk Scoring Scales
+                    </h4>
+                    <button class="btn btn-sm btn-outline-primary" onclick="resetScales()">
+                        Reset to Default
+                    </button>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Impact Scale</h5>
+                        <div id="impactScaleEditor"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Likelihood Scale</h5>
+                        <div id="likelihoodScaleEditor"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Matrix Configuration -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h4 class="config-title">
+                        <i class="fas fa-th text-danger mr-2"></i>
+                        Risk Matrix Configuration
+                    </h4>
+                    <button class="btn btn-sm btn-outline-info" onclick="previewMatrix()">
+                        Preview Matrix
+                    </button>
+                </div>
+                
+                <div class="risk-matrix" id="riskMatrix">
+                    <!-- Matrix will be generated here -->
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Risk Score Thresholds</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Low Risk (1-)</label>
+                                <input type="number" class="form-control" id="lowThreshold" value="5">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Medium Risk (up to)</label>
+                                <input type="number" class="form-control" id="mediumThreshold" value="10">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>High Risk (up to)</label>
+                                <input type="number" class="form-control" id="highThreshold" value="15">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Critical Risk (above)</label>
+                                <input type="number" class="form-control" id="criticalThreshold" value="15" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h4 class="config-title">
+                        <i class="fas fa-bell text-warning mr-2"></i>
+                        Notification Settings
+                    </h4>
+                </div>
+                
+                <div class="notification-config">
+                    <div>
+                        <strong>Email Notifications</strong>
+                        <p class="text-muted mb-0 small">Send email alerts for critical events</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="emailEnabled" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="notification-config">
+                    <div>
+                        <strong>SMS Notifications</strong>
+                        <p class="text-muted mb-0 small">Send SMS alerts for urgent risks</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="smsEnabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="notification-config">
+                    <div>
+                        <strong>In-App Notifications</strong>
+                        <p class="text-muted mb-0 small">Show notifications within the application</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="inAppEnabled" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- System Parameters -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h4 class="config-title">
+                        <i class="fas fa-cog text-info mr-2"></i>
+                        System Parameters
+                    </h4>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="config-item">
+                            <span class="config-label">Risk Review Period (days)</span>
+                            <div class="config-value">
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="reviewPeriod" value="90" style="width: 100px;">
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <span class="config-label">Auto-Archive After (days)</span>
+                            <div class="config-value">
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="archivePeriod" value="365" style="width: 100px;">
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <span class="config-label">Max File Upload Size (MB)</span>
+                            <div class="config-value">
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="maxFileSize" value="10" style="width: 100px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="config-item">
+                            <span class="config-label">Session Timeout (minutes)</span>
+                            <div class="config-value">
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="sessionTimeout" value="30" style="width: 100px;">
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <span class="config-label">Password Expiry (days)</span>
+                            <div class="config-value">
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="passwordExpiry" value="90" style="width: 100px;">
+                            </div>
+                        </div>
+                        
+                        <div class="config-item">
+                            <span class="config-label">Audit Log Retention (years)</span>
+                            <div class="config-value">
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="auditRetention" value="7" style="width: 100px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Directory Settings -->
+            <div class="config-section">
+                <div class="config-header">
+                    <h4 class="config-title">
+                        <i class="fas fa-users-cog text-success mr-2"></i>
+                        Active Directory Integration
+                    </h4>
+                    <button class="btn btn-sm btn-outline-success" onclick="testADConnection()">
+                        Test Connection
+                    </button>
+                </div>
+                
+                <div class="config-item">
+                    <span class="config-label">AD Integration Enabled</span>
+                    <label class="switch">
+                        <input type="checkbox" id="adEnabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div id="adSettings" style="display: none;">
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>AD Server URL</label>
+                                <input type="text" class="form-control" id="adServer" 
+                                       placeholder="ldap://dc.napsa.local:389">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Base DN</label>
+                                <input type="text" class="form-control" id="adBaseDN" 
+                                       placeholder="DC=napsa,DC=local">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global configuration object
+let systemConfig = {};
+
+// Load configurations on page load
+$(document).ready(function() {
+    loadConfigurations();
+    setupEventHandlers();
+    generateRiskMatrix();
+});
+
+// Load all configurations
+function loadConfigurations() {
+    $.ajax({
+        url: '/api/v1/risks/system-config',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        },
+        success: function(response) {
+            systemConfig = response;
+            applyConfigurations();
+        },
+        error: function() {
+            // Use default configurations
+            systemConfig = getDefaultConfig();
+            applyConfigurations();
+        }
+    });
+}
+
+// Apply configurations to UI
+function applyConfigurations() {
+    // Load scales
+    loadScaleEditor('impact', systemConfig.impact_scales);
+    loadScaleEditor('likelihood', systemConfig.likelihood_scales);
+    
+    // Load notification settings
+    $('#emailEnabled').prop('checked', systemConfig.notifications?.email_enabled);
+    $('#smsEnabled').prop('checked', systemConfig.notifications?.sms_enabled);
+    $('#inAppEnabled').prop('checked', systemConfig.notifications?.inapp_enabled);
+    
+    // Load system parameters
+    $('#reviewPeriod').val(systemConfig.risk_review_period || 90);
+    $('#archivePeriod').val(systemConfig.auto_archive_days || 365);
+    $('#maxFileSize').val(systemConfig.max_file_size_mb || 10);
+    $('#sessionTimeout').val(systemConfig.session_timeout_minutes || 30);
+    $('#passwordExpiry').val(systemConfig.password_expiry_days || 90);
+    $('#auditRetention').val(systemConfig.audit_retention_years || 7);
+    
+    // Load AD settings
+    $('#adEnabled').prop('checked', systemConfig.ad_enabled);
+    $('#adServer').val(systemConfig.ad_server_url);
+    $('#adBaseDN').val(systemConfig.ad_base_dn);
+    
+    toggleADSettings();
+}
+
+// Load scale editor
+function loadScaleEditor(type, scales) {
+    const container = $(`#${type}ScaleEditor`);
+    container.empty();
+    
+    const defaultScales = scales || getDefaultScales(type);
+    
+    defaultScales.forEach((scale, index) => {
+        const color = getScaleColor(type, scale.level);
+        const scaleHtml = `
+            <div class="scale-level">
+                <div class="level-badge" style="background: ${color}; color: white;">
+                    ${scale.level}
+                </div>
+                <input type="text" class="form-control" value="${scale.name}" 
+                       id="${type}-name-${scale.level}" placeholder="Name">
+                <input type="text" class="form-control" value="${scale.description}" 
+                       id="${type}-desc-${scale.level}" placeholder="Description">
+            </div>
+        `;
+        container.append(scaleHtml);
+    });
+}
+
+// Generate risk matrix
+function generateRiskMatrix() {
+    const matrix = $('#riskMatrix');
+    matrix.empty();
+    
+    // Header row
+    matrix.append('<div class="matrix-cell matrix-header">Risk</div>');
+    for (let i = 1; i <= 5; i++) {
+        matrix.append(`<div class="matrix-cell matrix-header">Impact ${i}</div>`);
+    }
+    
+    // Matrix rows
+    for (let likelihood = 5; likelihood >= 1; likelihood--) {
+        matrix.append(`<div class="matrix-cell matrix-label">L${likelihood}</div>`);
+        
+        for (let impact = 1; impact <= 5; impact++) {
+            const score = likelihood * impact;
+            const riskLevel = getRiskLevel(score);
+            matrix.append(`
+                <div class="matrix-cell risk-${riskLevel}">
+                    ${score}
+                </div>
+            `);
+        }
+    }
+}
+
+// Get risk level based on score
+function getRiskLevel(score) {
+    const low = parseInt($('#lowThreshold').val() || 5);
+    const medium = parseInt($('#mediumThreshold').val() || 10);
+    const high = parseInt($('#highThreshold').val() || 15);
+    
+    if (score <= low) return 'low';
+    if (score <= medium) return 'medium';
+    if (score <= high) return 'high';
+    return 'critical';
+}
+
+// Save all configurations
+function saveAllConfigurations() {
+    // Gather all configuration data
+    const config = {
+        impact_scales: gatherScaleData('impact'),
+        likelihood_scales: gatherScaleData('likelihood'),
+        risk_thresholds: {
+            low: parseInt($('#lowThreshold').val()),
+            medium: parseInt($('#mediumThreshold').val()),
+            high: parseInt($('#highThreshold').val())
+        },
+        notifications: {
+            email_enabled: $('#emailEnabled').is(':checked'),
+            sms_enabled: $('#smsEnabled').is(':checked'),
+            inapp_enabled: $('#inAppEnabled').is(':checked')
+        },
+        system_parameters: {
+            risk_review_period: parseInt($('#reviewPeriod').val()),
+            auto_archive_days: parseInt($('#archivePeriod').val()),
+            max_file_size_mb: parseInt($('#maxFileSize').val()),
+            session_timeout_minutes: parseInt($('#sessionTimeout').val()),
+            password_expiry_days: parseInt($('#passwordExpiry').val()),
+            audit_retention_years: parseInt($('#auditRetention').val())
+        },
+        ad_settings: {
+            enabled: $('#adEnabled').is(':checked'),
+            server_url: $('#adServer').val(),
+            base_dn: $('#adBaseDN').val()
+        }
+    };
+    
+    // Save via API
+    $.ajax({
+        url: '/api/v1/risks/system-config',
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+            'Content-Type': 'application/json'
+        },
+        data: JSON.stringify(config),
+        success: function() {
+            showNotification('success', 'Configuration saved successfully');
+            loadConfigurations();
+        },
+        error: function() {
+            showNotification('error', 'Failed to save configuration');
+        }
+    });
+}
+
+// Gather scale data
+function gatherScaleData(type) {
+    const scales = [];
+    for (let level = 1; level <= 5; level++) {
+        scales.push({
+            level: level,
+            name: $(`#${type}-name-${level}`).val(),
+            description: $(`#${type}-desc-${level}`).val()
+        });
+    }
+    return scales;
+}
+
+// Setup event handlers
+function setupEventHandlers() {
+    $('#adEnabled').change(toggleADSettings);
+    
+    $('#lowThreshold, #mediumThreshold, #highThreshold').on('input', function() {
+        generateRiskMatrix();
+    });
+}
+
+// Toggle AD settings visibility
+function toggleADSettings() {
+    if ($('#adEnabled').is(':checked')) {
+        $('#adSettings').slideDown();
+    } else {
+        $('#adSettings').slideUp();
+    }
+}
+
+// Test AD connection
+function testADConnection() {
+    const config = {
+        server_url: $('#adServer').val(),
+        base_dn: $('#adBaseDN').val()
+    };
+    
+    $.ajax({
+        url: '/api/v1/ad/test-connection',
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+            'Content-Type': 'application/json'
+        },
+        data: JSON.stringify(config),
+        success: function(response) {
+            showNotification('success', 'AD connection successful');
+        },
+        error: function() {
+            showNotification('error', 'AD connection failed');
+        }
+    });
+}
+
+// Get default configuration
+function getDefaultConfig() {
+    return {
+        impact_scales: getDefaultScales('impact'),
+        likelihood_scales: getDefaultScales('likelihood'),
+        notifications: {
+            email_enabled: true,
+            sms_enabled: false,
+            inapp_enabled: true
+        },
+        risk_review_period: 90,
+        auto_archive_days: 365,
+        max_file_size_mb: 10,
+        session_timeout_minutes: 30,
+        password_expiry_days: 90,
+        audit_retention_years: 7
+    };
+}
+
+// Get default scales
+function getDefaultScales(type) {
+    if (type === 'impact') {
+        return [
+            { level: 1, name: 'Negligible', description: 'Minimal impact' },
+            { level: 2, name: 'Minor', description: 'Limited impact' },
+            { level: 3, name: 'Moderate', description: 'Noticeable impact' },
+            { level: 4, name: 'Major', description: 'Significant impact' },
+            { level: 5, name: 'Catastrophic', description: 'Severe impact' }
+        ];
+    } else {
+        return [
+            { level: 1, name: 'Rare', description: 'Very unlikely' },
+            { level: 2, name: 'Unlikely', description: 'Could happen' },
+            { level: 3, name: 'Possible', description: 'Might happen' },
+            { level: 4, name: 'Likely', description: 'Will probably happen' },
+            { level: 5, name: 'Almost Certain', description: 'Expected to happen' }
+        ];
+    }
+}
+
+// Get scale color
+function getScaleColor(type, level) {
+    const colors = {
+        impact: ['#10b981', '#84cc16', '#eab308', '#f97316', '#ef4444'],
+        likelihood: ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444']
+    };
+    return colors[type][level - 1];
+}
+
+// Show notification
+function showNotification(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const notification = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 9999;">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    `;
+    $('body').append(notification);
+    setTimeout(() => $('.alert').fadeOut(), 3000);
+}
+</script>
+{% endblock %}

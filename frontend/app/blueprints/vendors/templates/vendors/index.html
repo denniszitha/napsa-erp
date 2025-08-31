@@ -1,0 +1,1121 @@
+{% extends "layouts/base.html" %}
+{% block title %}Vendor Management - NAPSA ERM{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h1 class="page-title">
+            <i class="fas fa-truck"></i> Vendor Management
+        </h1>
+        <div class="page-actions">
+            <button class="btn btn-primary" onclick="showAddVendorModal()">
+                <i class="fas fa-plus"></i> New Vendor
+            </button>
+            <button class="btn btn-outline-primary" onclick="performDueDiligence()">
+                <i class="fas fa-search"></i> Due Diligence
+            </button>
+            <button class="btn btn-outline-secondary" onclick="refreshVendors()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Vendor Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Total Vendors</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0" id="totalVendors">--</h2>
+                        <i class="fas fa-building ms-auto text-primary fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Active Vendors</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-success" id="activeVendors">--</h2>
+                        <i class="fas fa-check-circle ms-auto text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">High Risk</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-danger" id="highRiskVendors">--</h2>
+                        <i class="fas fa-exclamation-triangle ms-auto text-danger fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Total Spend</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-info" id="totalSpend">--</h2>
+                        <i class="fas fa-dollar-sign ms-auto text-info fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="statusFilter" onchange="applyFilters()">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending Approval</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="categoryFilter" onchange="applyFilters()">
+                        <option value="all">All Categories</option>
+                        <option value="technology">Technology</option>
+                        <option value="professional_services">Professional Services</option>
+                        <option value="facilities">Facilities</option>
+                        <option value="supplies">Supplies</option>
+                        <option value="consulting">Consulting</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Risk Level</label>
+                    <select class="form-select" id="riskFilter" onchange="applyFilters()">
+                        <option value="all">All Levels</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" class="form-control" id="searchInput" 
+                           placeholder="Search vendors..." onkeyup="applyFilters()">
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-secondary w-100" onclick="clearFilters()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendors Table -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Vendors</h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" onclick="exportVendors('csv')">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportVendors('pdf')">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="vendorsTable">
+                    <thead>
+                        <tr>
+                            <th>Vendor ID</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Risk Level</th>
+                            <th>Performance</th>
+                            <th>Contracts</th>
+                            <th>Compliance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendorsTableBody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> 
+                    of <span id="totalRecords">0</span> vendors
+                </div>
+                <nav>
+                    <ul class="pagination mb-0" id="pagination">
+                        <!-- Dynamic pagination -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Add/Edit Vendor Modal -->
+<div class="modal fade" id="vendorModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vendorModalTitle">Add New Vendor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="vendorForm">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#basicInfo">Basic Information</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#contactInfo">Contact Details</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#financialInfo">Financial Information</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#complianceInfo">Compliance</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Basic Information Tab -->
+                        <div class="tab-pane active" id="basicInfo">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Vendor Name*</label>
+                                    <input type="text" class="form-control" id="vendorName" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Category*</label>
+                                    <select class="form-select" id="vendorCategory" required>
+                                        <option value="">Select Category</option>
+                                        <option value="technology">Technology</option>
+                                        <option value="professional_services">Professional Services</option>
+                                        <option value="facilities">Facilities</option>
+                                        <option value="supplies">Supplies</option>
+                                        <option value="consulting">Consulting</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Risk Level</label>
+                                    <select class="form-select" id="vendorRiskLevel">
+                                        <option value="low">Low</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="critical">Critical</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" id="vendorDescription" rows="3"></textarea>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Registration Number*</label>
+                                    <input type="text" class="form-control" id="registrationNumber" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Tax ID/TPIN*</label>
+                                    <input type="text" class="form-control" id="taxId" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Country</label>
+                                    <select class="form-select" id="vendorCountry">
+                                        <option value="Zambia" selected>Zambia</option>
+                                        <option value="South Africa">South Africa</option>
+                                        <option value="Zimbabwe">Zimbabwe</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Details Tab -->
+                        <div class="tab-pane" id="contactInfo">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Contact Person*</label>
+                                    <input type="text" class="form-control" id="contactPerson" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Position/Title</label>
+                                    <input type="text" class="form-control" id="contactTitle">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email Address*</label>
+                                    <input type="email" class="form-control" id="vendorEmail" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone Number*</label>
+                                    <input type="tel" class="form-control" id="vendorPhone" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Physical Address</label>
+                                    <textarea class="form-control" id="vendorAddress" rows="2"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-control" id="vendorCity">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Postal Code</label>
+                                    <input type="text" class="form-control" id="vendorPostalCode">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Information Tab -->
+                        <div class="tab-pane" id="financialInfo">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Payment Terms</label>
+                                    <select class="form-select" id="paymentTerms">
+                                        <option value="Net 30" selected>Net 30</option>
+                                        <option value="Net 60">Net 60</option>
+                                        <option value="Net 90">Net 90</option>
+                                        <option value="Immediate">Immediate</option>
+                                        <option value="Custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Currency</label>
+                                    <select class="form-select" id="vendorCurrency">
+                                        <option value="ZMW" selected>ZMW - Zambian Kwacha</option>
+                                        <option value="USD">USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                        <option value="GBP">GBP - British Pound</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" class="form-control" id="bankName">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Account Number</label>
+                                    <input type="text" class="form-control" id="accountNumber">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Branch Code</label>
+                                    <input type="text" class="form-control" id="branchCode">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">SWIFT Code</label>
+                                    <input type="text" class="form-control" id="swiftCode">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Annual Revenue</label>
+                                    <input type="number" class="form-control" id="annualRevenue">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Credit Limit</label>
+                                    <input type="number" class="form-control" id="creditLimit">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Compliance Tab -->
+                        <div class="tab-pane" id="complianceInfo">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <h6>Required Certifications</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cert1">
+                                        <label class="form-check-label" for="cert1">
+                                            Business Registration Certificate
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cert2">
+                                        <label class="form-check-label" for="cert2">
+                                            Tax Clearance Certificate
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cert3">
+                                        <label class="form-check-label" for="cert3">
+                                            NAPSA Compliance Certificate
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cert4">
+                                        <label class="form-check-label" for="cert4">
+                                            Workers Compensation Certificate
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Insurance Provider</label>
+                                    <input type="text" class="form-control" id="insuranceProvider">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Insurance Policy Number</label>
+                                    <input type="text" class="form-control" id="insurancePolicyNumber">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Insurance Expiry Date</label>
+                                    <input type="date" class="form-control" id="insuranceExpiry">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Coverage Amount</label>
+                                    <input type="number" class="form-control" id="coverageAmount">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Compliance Notes</label>
+                                    <textarea class="form-control" id="complianceNotes" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveVendor()">Save Vendor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vendor Details Modal -->
+<div class="modal fade" id="vendorDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vendor Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="vendorDetailsContent">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="editVendor()">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button type="button" class="btn btn-info" onclick="evaluateVendor()">
+                    <i class="fas fa-chart-line"></i> Evaluate
+                </button>
+                <button type="button" class="btn btn-warning" onclick="riskAssessment()">
+                    <i class="fas fa-shield-alt"></i> Risk Assessment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vendor Evaluation Modal -->
+<div class="modal fade" id="evaluationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vendor Evaluation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="evaluationForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Evaluation Period</label>
+                            <select class="form-select" id="evalPeriod">
+                                <option value="Q1">Q1 2025</option>
+                                <option value="Q2">Q2 2025</option>
+                                <option value="Q3">Q3 2025</option>
+                                <option value="Q4">Q4 2025</option>
+                                <option value="Annual">Annual 2025</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Overall Rating</label>
+                            <select class="form-select" id="overallRating">
+                                <option value="excellent">Excellent</option>
+                                <option value="good">Good</option>
+                                <option value="satisfactory">Satisfactory</option>
+                                <option value="needs_improvement">Needs Improvement</option>
+                                <option value="poor">Poor</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <h6>Performance Criteria</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Quality (1-10)</label>
+                            <input type="range" class="form-range" min="1" max="10" id="qualityScore">
+                            <span id="qualityValue">5</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Delivery (1-10)</label>
+                            <input type="range" class="form-range" min="1" max="10" id="deliveryScore">
+                            <span id="deliveryValue">5</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Cost (1-10)</label>
+                            <input type="range" class="form-range" min="1" max="10" id="costScore">
+                            <span id="costValue">5</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Communication (1-10)</label>
+                            <input type="range" class="form-range" min="1" max="10" id="communicationScore">
+                            <span id="communicationValue">5</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Compliance (1-10)</label>
+                            <input type="range" class="form-range" min="1" max="10" id="complianceScore">
+                            <span id="complianceValue">5</span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Innovation (1-10)</label>
+                            <input type="range" class="form-range" min="1" max="10" id="innovationScore">
+                            <span id="innovationValue">5</span>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Comments</label>
+                            <textarea class="form-control" id="evalComments" rows="3"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Action Items</label>
+                            <textarea class="form-control" id="actionItems" rows="2" 
+                                      placeholder="List any follow-up actions required"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEvaluation()">Submit Evaluation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let currentPage = 1;
+let pageSize = 10;
+let currentVendorId = null;
+let vendors = [];
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadVendorStats();
+    loadVendors();
+    setupRangeSliders();
+});
+
+// Setup range sliders
+function setupRangeSliders() {
+    const sliders = ['quality', 'delivery', 'cost', 'communication', 'compliance', 'innovation'];
+    sliders.forEach(slider => {
+        const element = document.getElementById(slider + 'Score');
+        if (element) {
+            element.addEventListener('input', function() {
+                document.getElementById(slider + 'Value').textContent = this.value;
+            });
+        }
+    });
+}
+
+// Load vendor statistics
+function loadVendorStats() {
+    fetch('/vendors/api/vendors/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.data;
+                document.getElementById('totalVendors').textContent = stats.total_vendors || 0;
+                document.getElementById('activeVendors').textContent = stats.active_vendors || 0;
+                document.getElementById('highRiskVendors').textContent = stats.high_risk_vendors || 0;
+                document.getElementById('totalSpend').textContent = 'K' + (stats.total_spend || 0).toLocaleString();
+            }
+        })
+        .catch(error => console.error('Error loading stats:', error));
+}
+
+// Load vendors
+function loadVendors() {
+    const status = document.getElementById('statusFilter').value;
+    const category = document.getElementById('categoryFilter').value;
+    const risk_level = document.getElementById('riskFilter').value;
+    const search = document.getElementById('searchInput').value;
+    
+    const params = new URLSearchParams({
+        status: status,
+        category: category,
+        risk_level: risk_level,
+        search: search,
+        page: currentPage,
+        size: pageSize
+    });
+    
+    fetch(`/vendors/api/vendors?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                vendors = data.data.vendors;
+                displayVendors(vendors);
+                updatePagination(data.data.total);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading vendors:', error);
+            showNotification('Error loading vendors', 'danger');
+        });
+}
+
+// Display vendors in table
+function displayVendors(vendors) {
+    const tbody = document.getElementById('vendorsTableBody');
+    
+    if (!vendors || vendors.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="text-center py-4">
+                    <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No vendors found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = vendors.map(vendor => `
+        <tr>
+            <td>${vendor.id}</td>
+            <td>
+                <a href="#" onclick="viewVendor('${vendor.id}'); return false;">
+                    <strong>${vendor.name}</strong>
+                </a>
+            </td>
+            <td>
+                <span class="badge bg-secondary">${vendor.category}</span>
+            </td>
+            <td>${getStatusBadge(vendor.status)}</td>
+            <td>${getRiskBadge(vendor.risk_level)}</td>
+            <td>${getPerformanceStars(vendor.performance_score)}</td>
+            <td>${vendor.active_contracts || 0}</td>
+            <td>${getComplianceBadge(vendor.compliance_status)}</td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="viewVendor('${vendor.id}')" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="editVendor('${vendor.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-info" onclick="evaluateVendor('${vendor.id}')" title="Evaluate">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                    ${vendor.status === 'active' ? 
+                        `<button class="btn btn-outline-warning" onclick="suspendVendor('${vendor.id}')" title="Suspend">
+                            <i class="fas fa-pause"></i>
+                        </button>` :
+                        `<button class="btn btn-outline-success" onclick="activateVendor('${vendor.id}')" title="Activate">
+                            <i class="fas fa-play"></i>
+                        </button>`
+                    }
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Get status badge
+function getStatusBadge(status) {
+    const badges = {
+        'active': '<span class="badge bg-success">Active</span>',
+        'pending': '<span class="badge bg-warning">Pending</span>',
+        'suspended': '<span class="badge bg-danger">Suspended</span>',
+        'inactive': '<span class="badge bg-secondary">Inactive</span>'
+    };
+    return badges[status] || '<span class="badge bg-secondary">Unknown</span>';
+}
+
+// Get risk badge
+function getRiskBadge(risk) {
+    const badges = {
+        'low': '<span class="badge bg-success">Low</span>',
+        'medium': '<span class="badge bg-warning">Medium</span>',
+        'high': '<span class="badge bg-danger">High</span>',
+        'critical': '<span class="badge bg-dark">Critical</span>'
+    };
+    return badges[risk] || '<span class="badge bg-secondary">Unknown</span>';
+}
+
+// Get compliance badge
+function getComplianceBadge(status) {
+    const badges = {
+        'compliant': '<span class="badge bg-success">Compliant</span>',
+        'partial': '<span class="badge bg-warning">Partial</span>',
+        'non_compliant': '<span class="badge bg-danger">Non-Compliant</span>',
+        'pending': '<span class="badge bg-info">Pending</span>'
+    };
+    return badges[status] || '<span class="badge bg-secondary">N/A</span>';
+}
+
+// Get performance stars
+function getPerformanceStars(score) {
+    if (!score) return 'N/A';
+    const stars = Math.round(score / 20);
+    let html = '';
+    for (let i = 0; i < 5; i++) {
+        if (i < stars) {
+            html += '<i class="fas fa-star text-warning"></i>';
+        } else {
+            html += '<i class="far fa-star text-muted"></i>';
+        }
+    }
+    return html;
+}
+
+// Show add vendor modal
+function showAddVendorModal() {
+    currentVendorId = null;
+    document.getElementById('vendorModalTitle').textContent = 'Add New Vendor';
+    document.getElementById('vendorForm').reset();
+    
+    const modal = new bootstrap.Modal(document.getElementById('vendorModal'));
+    modal.show();
+}
+
+// Save vendor
+function saveVendor() {
+    const vendorData = {
+        name: document.getElementById('vendorName').value,
+        category: document.getElementById('vendorCategory').value,
+        description: document.getElementById('vendorDescription').value,
+        contact_person: document.getElementById('contactPerson').value,
+        email: document.getElementById('vendorEmail').value,
+        phone: document.getElementById('vendorPhone').value,
+        address: document.getElementById('vendorAddress').value,
+        country: document.getElementById('vendorCountry').value,
+        tax_id: document.getElementById('taxId').value,
+        registration_number: document.getElementById('registrationNumber').value,
+        risk_level: document.getElementById('vendorRiskLevel').value,
+        payment_terms: document.getElementById('paymentTerms').value,
+        bank_details: {
+            bank_name: document.getElementById('bankName').value,
+            account_number: document.getElementById('accountNumber').value,
+            branch_code: document.getElementById('branchCode').value,
+            swift_code: document.getElementById('swiftCode').value
+        }
+    };
+    
+    const url = currentVendorId 
+        ? `/vendors/api/vendors/${currentVendorId}`
+        : '/vendors/api/vendors';
+    
+    const method = currentVendorId ? 'PUT' : 'POST';
+    
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(vendorData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('vendorModal')).hide();
+            loadVendors();
+            loadVendorStats();
+        } else {
+            showNotification('Error saving vendor', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving vendor:', error);
+        showNotification('Error saving vendor', 'danger');
+    });
+}
+
+// View vendor
+function viewVendor(vendorId) {
+    fetch(`/vendors/api/vendors/${vendorId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayVendorDetails(data.data);
+                currentVendorId = vendorId;
+                const modal = new bootstrap.Modal(document.getElementById('vendorDetailsModal'));
+                modal.show();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading vendor:', error);
+            showNotification('Error loading vendor details', 'danger');
+        });
+}
+
+// Display vendor details
+function displayVendorDetails(vendor) {
+    const content = `
+        <div class="row">
+            <div class="col-md-8">
+                <h4>${vendor.name}</h4>
+                <p class="text-muted">${vendor.description || 'No description available'}</p>
+                <div class="mb-3">
+                    ${getStatusBadge(vendor.status)}
+                    <span class="badge bg-secondary ms-1">${vendor.category}</span>
+                    ${getRiskBadge(vendor.risk_level)}
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <small class="text-muted">
+                    ID: ${vendor.id}<br>
+                    Created: ${new Date(vendor.created_date).toLocaleDateString()}<br>
+                    Modified: ${new Date(vendor.last_modified).toLocaleDateString()}
+                </small>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Contact Information</h6>
+                <p>
+                    <strong>Contact Person:</strong> ${vendor.contact_person}<br>
+                    <strong>Email:</strong> ${vendor.email}<br>
+                    <strong>Phone:</strong> ${vendor.phone}<br>
+                    <strong>Address:</strong> ${vendor.address || 'N/A'}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <h6>Financial Information</h6>
+                <p>
+                    <strong>Tax ID:</strong> ${vendor.tax_id}<br>
+                    <strong>Registration:</strong> ${vendor.registration_number}<br>
+                    <strong>Payment Terms:</strong> ${vendor.payment_terms}<br>
+                    <strong>Currency:</strong> ${vendor.currency || 'ZMW'}
+                </p>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <h6>Performance</h6>
+                <div>${getPerformanceStars(vendor.performance_score)}</div>
+                <small>Score: ${vendor.performance_score || 'N/A'}/100</small>
+            </div>
+            <div class="col-md-4">
+                <h6>Compliance</h6>
+                ${getComplianceBadge(vendor.compliance_status)}
+                <br>
+                <small>Last audit: ${vendor.last_audit_date || 'Never'}</small>
+            </div>
+            <div class="col-md-4">
+                <h6>Contracts</h6>
+                <p>
+                    Active: ${vendor.active_contracts || 0}<br>
+                    Total Value: K${(vendor.total_contract_value || 0).toLocaleString()}
+                </p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('vendorDetailsContent').innerHTML = content;
+}
+
+// Edit vendor
+function editVendor(vendorId) {
+    if (!vendorId && currentVendorId) {
+        vendorId = currentVendorId;
+    }
+    
+    fetch(`/vendors/api/vendors/${vendorId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const vendor = data.data;
+                currentVendorId = vendor.id;
+                
+                // Populate form
+                document.getElementById('vendorName').value = vendor.name || '';
+                document.getElementById('vendorCategory').value = vendor.category || '';
+                document.getElementById('vendorDescription').value = vendor.description || '';
+                document.getElementById('contactPerson').value = vendor.contact_person || '';
+                document.getElementById('vendorEmail').value = vendor.email || '';
+                document.getElementById('vendorPhone').value = vendor.phone || '';
+                document.getElementById('vendorAddress').value = vendor.address || '';
+                document.getElementById('vendorCountry').value = vendor.country || 'Zambia';
+                document.getElementById('taxId').value = vendor.tax_id || '';
+                document.getElementById('registrationNumber').value = vendor.registration_number || '';
+                document.getElementById('vendorRiskLevel').value = vendor.risk_level || 'medium';
+                document.getElementById('paymentTerms').value = vendor.payment_terms || 'Net 30';
+                
+                // Show modal
+                document.getElementById('vendorModalTitle').textContent = 'Edit Vendor';
+                const modal = new bootstrap.Modal(document.getElementById('vendorModal'));
+                modal.show();
+                
+                // Close details modal if open
+                const detailsModal = bootstrap.Modal.getInstance(document.getElementById('vendorDetailsModal'));
+                if (detailsModal) detailsModal.hide();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading vendor:', error);
+            showNotification('Error loading vendor', 'danger');
+        });
+}
+
+// Evaluate vendor
+function evaluateVendor(vendorId) {
+    if (!vendorId && currentVendorId) {
+        vendorId = currentVendorId;
+    }
+    
+    currentVendorId = vendorId;
+    
+    // Reset form
+    document.getElementById('evaluationForm').reset();
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('evaluationModal'));
+    modal.show();
+}
+
+// Submit evaluation
+function submitEvaluation() {
+    const evaluationData = {
+        period: document.getElementById('evalPeriod').value,
+        overall_rating: document.getElementById('overallRating').value,
+        quality_score: parseInt(document.getElementById('qualityScore').value),
+        delivery_score: parseInt(document.getElementById('deliveryScore').value),
+        cost_score: parseInt(document.getElementById('costScore').value),
+        communication_score: parseInt(document.getElementById('communicationScore').value),
+        compliance_score: parseInt(document.getElementById('complianceScore').value),
+        innovation_score: parseInt(document.getElementById('innovationScore').value),
+        comments: document.getElementById('evalComments').value,
+        action_items: document.getElementById('actionItems').value.split('\n').filter(item => item.trim())
+    };
+    
+    // Calculate overall score
+    const scores = [
+        evaluationData.quality_score,
+        evaluationData.delivery_score,
+        evaluationData.cost_score,
+        evaluationData.communication_score,
+        evaluationData.compliance_score,
+        evaluationData.innovation_score
+    ];
+    evaluationData.overall_score = (scores.reduce((a, b) => a + b, 0) / scores.length) * 10;
+    
+    fetch(`/vendors/api/vendors/${currentVendorId}/evaluation`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(evaluationData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Evaluation submitted successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('evaluationModal')).hide();
+            loadVendors();
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting evaluation:', error);
+        showNotification('Error submitting evaluation', 'danger');
+    });
+}
+
+// Suspend vendor
+function suspendVendor(vendorId) {
+    const reason = prompt('Please provide a reason for suspension:');
+    if (reason) {
+        fetch(`/vendors/api/vendors/${vendorId}/suspend`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                loadVendors();
+                loadVendorStats();
+            }
+        })
+        .catch(error => {
+            console.error('Error suspending vendor:', error);
+            showNotification('Error suspending vendor', 'danger');
+        });
+    }
+}
+
+// Activate vendor
+function activateVendor(vendorId) {
+    if (confirm('Are you sure you want to activate this vendor?')) {
+        fetch(`/vendors/api/vendors/${vendorId}/approve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ comments: 'Vendor activated' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Vendor activated successfully', 'success');
+                loadVendors();
+                loadVendorStats();
+            }
+        })
+        .catch(error => {
+            console.error('Error activating vendor:', error);
+            showNotification('Error activating vendor', 'danger');
+        });
+    }
+}
+
+// Risk assessment
+function riskAssessment() {
+    if (currentVendorId) {
+        fetch(`/vendors/api/vendors/${currentVendorId}/risk-assessment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                assessment_type: 'comprehensive'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Risk Assessment Complete\n\nRisk Score: ${data.data.risk_score}/100\nRisk Level: ${data.data.risk_level}\n\nRecommendations:\n${data.data.recommendations.join('\n')}`);
+            }
+        })
+        .catch(error => {
+            console.error('Error performing risk assessment:', error);
+            showNotification('Error performing risk assessment', 'danger');
+        });
+    }
+}
+
+// Perform due diligence
+function performDueDiligence() {
+    showNotification('Due diligence check initiated', 'info');
+    // In production, this would open a due diligence workflow
+}
+
+// Apply filters
+function applyFilters() {
+    currentPage = 1;
+    loadVendors();
+}
+
+// Clear filters
+function clearFilters() {
+    document.getElementById('statusFilter').value = 'all';
+    document.getElementById('categoryFilter').value = 'all';
+    document.getElementById('riskFilter').value = 'all';
+    document.getElementById('searchInput').value = '';
+    currentPage = 1;
+    loadVendors();
+}
+
+// Refresh vendors
+function refreshVendors() {
+    loadVendors();
+    loadVendorStats();
+    showNotification('Vendors refreshed', 'info');
+}
+
+// Update pagination
+function updatePagination(total) {
+    const totalPages = Math.ceil(total / pageSize);
+    const pagination = document.getElementById('pagination');
+    
+    let html = '';
+    
+    // Previous button
+    html += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">Previous</a>
+        </li>
+    `;
+    
+    // Page numbers
+    for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        html += `
+            <li class="page-item ${currentPage === i ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i}</a>
+            </li>
+        `;
+    }
+    
+    // Next button
+    html += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">Next</a>
+        </li>
+    `;
+    
+    pagination.innerHTML = html;
+    
+    // Update showing text
+    const start = (currentPage - 1) * pageSize + 1;
+    const end = Math.min(currentPage * pageSize, total);
+    document.getElementById('showingStart').textContent = start;
+    document.getElementById('showingEnd').textContent = end;
+    document.getElementById('totalRecords').textContent = total;
+}
+
+// Go to page
+function goToPage(page) {
+    currentPage = page;
+    loadVendors();
+}
+
+// Export vendors
+function exportVendors(format) {
+    showNotification(`Exporting vendors to ${format.toUpperCase()}...`, 'info');
+    // In production, implement actual export functionality
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

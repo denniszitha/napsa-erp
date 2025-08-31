@@ -1,0 +1,1632 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Risk Matrix Configuration - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    /* Professional Dashboard Styles - NAPSA ERM */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+        --primary-color: #1e40af;
+        --accent-color: #3b82f6;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --info-color: #06b6d4;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --border-radius: 15px;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Page Header */
+    .text-gradient {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+    }
+
+    /* Statistics Cards - Modern Gradient Style */
+    .card-metric {
+        background: white;
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+        transition: all 0.3s ease;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+    }
+    
+    .card-metric::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .card-metric:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .card-metric:hover::before {
+        opacity: 1;
+    }
+    
+    .card-metric.primary::before {
+        background: var(--primary-gradient);
+    }
+    
+    .card-metric.success::before {
+        background: var(--success-gradient);
+    }
+    
+    .card-metric.warning::before {
+        background: var(--warning-gradient);
+    }
+    
+    .card-metric.info::before {
+        background: var(--info-gradient);
+    }
+
+    .card-metric h6 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--gray-600) !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-metric h3 {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #000000 !important;
+        line-height: 1;
+        margin-bottom: 0;
+    }
+
+    .card-metric i {
+        color: var(--primary-color);
+        opacity: 0.7;
+    }
+
+    /* Card Styles */
+    .card {
+        background: #ffffff !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--border-radius) !important;
+        box-shadow: var(--shadow-sm) !important;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: var(--shadow-md) !important;
+    }
+
+    .card-header {
+        background: #ffffff !important;
+        border-bottom: 1px solid var(--gray-200) !important;
+        padding: 1.5rem !important;
+        border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    }
+
+    .card-header h5 {
+        color: #000000 !important;
+        font-weight: 700 !important;
+        font-size: 1.125rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    .card-body {
+        padding: 1.5rem !important;
+    }
+
+    /* Buttons - Consistent with other pages */
+    .btn-primary, .btn-secondary, .btn-gradient {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover, .btn-secondary:hover, .btn-gradient:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        color: white !important;
+    }
+
+    .btn-outline-primary {
+        background: white !important;
+        border: 2px solid var(--sidebar-color) !important;
+        color: var(--sidebar-color) !important;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    /* Action buttons in tables */
+    .btn-action {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+    }
+    
+    .btn-action:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+    }
+
+    /* Form Controls */
+    .form-control, .form-select {
+        border: 1px solid var(--gray-300);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .label-input {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin: 4px 0;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+
+    .label-input:focus {
+        background: #ffffff;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Nav Tabs */
+    .nav-tabs {
+        border-bottom: 1px solid var(--gray-200);
+        margin-bottom: 2rem;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--gray-600);
+        font-weight: 500;
+        padding: 1rem 1.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: var(--primary-color);
+        border-color: transparent;
+        background: var(--gray-50);
+    }
+
+    .nav-tabs .nav-link.active {
+        background: transparent !important;
+        border-color: var(--primary-color) !important;
+        color: var(--primary-color) !important;
+        font-weight: 600;
+    }
+
+    /* Matrix Grid */
+    .matrix-grid {
+        display: grid;
+        gap: 2px;
+        background-color: var(--gray-200);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .matrix-cell {
+        background-color: white;
+        padding: 12px 8px;
+        text-align: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .matrix-cell:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-md);
+        z-index: 10;
+    }
+    
+    .matrix-header {
+        background-color: var(--gray-600) !important;
+        color: white !important;
+        font-weight: 700;
+        cursor: default;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .matrix-header:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .risk-level-low { background-color: var(--success-color); }
+    .risk-level-medium { background-color: var(--warning-color); color: #000; }
+    .risk-level-high { background-color: #fd7e14; }
+    .risk-level-very-high { background-color: var(--danger-color); }
+    .risk-level-critical { background-color: #6366f1; }
+    
+    .matrix-preview {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-200);
+    }
+
+    /* Template Cards */
+    .template-card {
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin: 0.5rem 0;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .template-card:hover {
+        border-color: var(--accent-color);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+    
+    .template-card.selected {
+        border-color: var(--primary-color);
+        background-color: rgba(59, 130, 246, 0.05);
+        box-shadow: var(--shadow-md);
+    }
+
+    .template-card h6 {
+        color: #000000 !important;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .template-card p {
+        color: var(--gray-600) !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .template-card .badge {
+        background-color: var(--gray-100) !important;
+        color: var(--gray-700) !important;
+        font-weight: 500;
+    }
+
+    /* DataTable Styling */
+    .table {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .table thead th {
+        background-color: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+        color: var(--gray-700);
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 1rem 0.75rem;
+    }
+
+    .table tbody td {
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 0.875rem;
+    }
+
+    .table tbody tr:hover {
+        background-color: var(--gray-50);
+    }
+
+    /* Badge Styles */
+    .badge {
+        font-weight: 500;
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+    }
+
+    .badge.bg-primary {
+        background-color: var(--primary-color) !important;
+    }
+
+    .badge.bg-secondary {
+        background-color: var(--gray-500) !important;
+    }
+
+    .badge.bg-success {
+        background-color: var(--success-color) !important;
+    }
+
+    /* Button Groups */
+    .btn-group-sm .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        border-radius: 6px;
+    }
+
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .btn-outline-secondary {
+        color: var(--gray-600);
+        border-color: var(--gray-300);
+    }
+
+    .btn-outline-info {
+        color: var(--info-color);
+        border-color: var(--info-color);
+    }
+
+    .btn-outline-warning {
+        color: var(--warning-color);
+        border-color: var(--warning-color);
+    }
+
+    .btn-outline-danger {
+        color: var(--danger-color);
+        border-color: var(--danger-color);
+    }
+
+    /* Validation Messages */
+    .validation-error {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        padding: 0.75rem 1rem;
+        background-color: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 8px;
+    }
+    
+    .validation-success {
+        color: var(--success-color);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        padding: 0.75rem 1rem;
+        background-color: rgba(16, 185, 129, 0.05);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 8px;
+    }
+
+    /* Modal Customizations */
+    .modal-content {
+        border-radius: var(--border-radius);
+        border: none;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--gray-200);
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        color: #000000 !important;
+        font-weight: 700;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid var(--gray-200);
+        padding: 1rem 1.5rem;
+    }
+
+    /* Risk Level Configuration */
+    .form-control-color {
+        width: 3rem;
+        height: 2.5rem;
+        border-radius: 6px;
+        border: 1px solid var(--gray-300);
+    }
+
+    /* Loading States */
+    .loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    /* Additional Styles */
+    .text-muted {
+        color: var(--gray-500) !important;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .card-metric {
+            padding: 1rem;
+        }
+
+        .card-metric h3 {
+            font-size: 1.5rem;
+        }
+
+        .modal-dialog {
+            margin: 1rem;
+        }
+
+        .matrix-preview {
+            max-width: 100%;
+            padding: 0.5rem;
+        }
+
+        .matrix-cell {
+            padding: 8px 4px;
+            font-size: 0.7rem;
+            min-height: 32px;
+        }
+
+        .btn-gradient, .btn-outline-primary {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .card-metric {
+            padding: 0.75rem;
+        }
+
+        .card-metric h3 {
+            font-size: 1.25rem;
+        }
+
+        .card-metric i {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-gradient mb-2">Risk Matrix Configuration</h2>
+            <p class="text-muted">Design and manage risk assessment matrices for your organization</p>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mb-4">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#templateModal">
+            <i class="fas fa-plus-circle me-2"></i>New from Template
+        </button>
+        <button class="btn btn-secondary ms-2" data-bs-toggle="modal" data-bs-target="#matrixModal">
+            <i class="fas fa-plus me-2"></i>Create Custom Matrix
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="importMatrix()">
+            <i class="fas fa-file-import me-2"></i>Import
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="exportMatrix()">
+            <i class="fas fa-file-export me-2"></i>Export
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="refreshMatrices()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh
+        </button>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card-metric primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase" style="color: #64748b; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;">Total Matrices</h6>
+                        <h3 id="totalMatrices" style="font-size: 32px; font-weight: 700; color: #1e293b;">-</h3>
+                    </div>
+                    <div class="stats-icon" style="width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--primary-gradient); color: white;">
+                        <i class="fas fa-th-large" style="font-size: 24px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card-metric success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase" style="color: #64748b; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;">Active Matrices</h6>
+                        <h3 id="activeMatrices" style="font-size: 32px; font-weight: 700; color: #1e293b;">-</h3>
+                    </div>
+                    <div class="stats-icon" style="width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--success-gradient); color: white;">
+                        <i class="fas fa-check-circle" style="font-size: 24px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card-metric warning">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase" style="color: #64748b; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;">Default Matrix</h6>
+                        <h3 id="defaultMatrix" style="font-size: 32px; font-weight: 700; color: #1e293b;">-</h3>
+                    </div>
+                    <div class="stats-icon" style="width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--warning-gradient); color: white;">
+                        <i class="fas fa-star" style="font-size: 24px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card-metric info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase" style="color: #64748b; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;">Custom Matrices</h6>
+                        <h3 id="customMatrices" style="font-size: 32px; font-weight: 700; color: #1e293b;">-</h3>
+                    </div>
+                    <div class="stats-icon" style="width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--info-gradient); color: white;">
+                        <i class="fas fa-cogs" style="font-size: 24px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Matrices Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">Risk Matrices</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="matricesTable" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Dimensions</th>
+                                    <th>Status</th>
+                                    <th>Default</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Matrix Creation/Edit Modal -->
+<div class="modal fade" id="matrixModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Risk Matrix</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#basicConfig">Basic Configuration</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#matrixDesign">Matrix Design</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#riskLevels">Risk Levels</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#matrixPreview">Preview</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <!-- Basic Configuration -->
+                    <div class="tab-pane fade show active" id="basicConfig">
+                        <form id="matrixForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Matrix Name *</label>
+                                        <input type="text" name="name" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Matrix Type</label>
+                                        <select name="matrix_type" class="form-select">
+                                            <option value="standard">Standard</option>
+                                            <option value="custom">Custom</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Matrix Design -->
+                    <div class="tab-pane fade" id="matrixDesign">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold mb-3">Matrix Dimensions</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Likelihood Levels *</label>
+                                            <select name="likelihood_levels" class="form-select" onchange="updateLabels('likelihood')">
+                                                <option value="3">3 Levels</option>
+                                                <option value="4">4 Levels</option>
+                                                <option value="5" selected>5 Levels</option>
+                                                <option value="6">6 Levels</option>
+                                                <option value="7">7 Levels</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Impact Levels *</label>
+                                            <select name="impact_levels" class="form-select" onchange="updateLabels('impact')">
+                                                <option value="3">3 Levels</option>
+                                                <option value="4">4 Levels</option>
+                                                <option value="5" selected>5 Levels</option>
+                                                <option value="6">6 Levels</option>
+                                                <option value="7">7 Levels</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h6 class="fw-bold mb-3">Likelihood Labels</h6>
+                                <div id="likelihoodLabels">
+                                </div>
+                                
+                                <h6 class="fw-bold mb-3 mt-4">Impact Labels</h6>
+                                <div id="impactLabels">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold mb-3">Matrix Preview</h6>
+                                <div id="matrixPreviewDesign" class="matrix-preview">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Levels -->
+                    <div class="tab-pane fade" id="riskLevels">
+                        <h6 class="fw-bold mb-3">Configure Risk Levels and Colors</h6>
+                        <div id="riskLevelsConfig">
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="tab-pane fade" id="matrixPreview">
+                        <div class="text-center">
+                            <h6 class="fw-bold mb-3">Final Matrix Preview</h6>
+                            <div id="finalMatrixPreview" class="matrix-preview">
+                            </div>
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-outline-secondary me-2" onclick="validateMatrix()">
+                                    <i class="fas fa-check me-1"></i>Validate Configuration
+                                </button>
+                            </div>
+                            <div id="validationResult" class="mt-3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-gradient" onclick="saveMatrix()">
+                    <i class="fas fa-save me-1"></i>Save Matrix
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Matrix View Modal -->
+<div class="modal fade" id="viewMatrixModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewMatrixTitle">Matrix Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="matrixDetailsView"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="editFromViewBtn" onclick="">
+                    <i class="fas fa-edit me-1"></i>Edit Matrix
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template Selection Modal -->
+<div class="modal fade" id="templateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Matrix from Template</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Matrix Name *</label>
+                    <input type="text" id="templateMatrixName" class="form-control" placeholder="Enter matrix name">
+                </div>
+                <h6 class="fw-bold mb-3">Select Template</h6>
+                <div id="templatesContainer">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-gradient" onclick="createFromTemplate()" disabled id="createTemplateBtn">
+                    <i class="fas fa-plus me-1"></i>Create Matrix
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let selectedTemplate = null;
+let currentMatrix = null;
+let editMode = false;
+
+$(document).ready(function() {
+    initializeDataTable();
+    loadMatrices();
+    loadTemplates();
+    updateLabels('likelihood');
+    updateLabels('impact');
+    updateRiskLevelsConfig();
+    updateMatrixPreview();
+});
+
+function initializeDataTable() {
+    $('#matricesTable').DataTable({
+        responsive: true,
+        pageLength: 10,
+        order: [[5, 'desc']],
+        select: {
+            style: 'single'
+        },
+        columns: [
+            { data: 'name' },
+            { 
+                data: 'matrix_type',
+                render: function(data) {
+                    return data === 'standard' ? 
+                        '<span class="badge" data-color-type="status" data-color-value="approved">Standard</span>' : 
+                        '<span class="badge" data-color-type="status" data-color-value="pending">Custom</span>';
+                }
+            },
+            { 
+                data: null,
+                render: function(data) {
+                    return `${data.likelihood_levels}×${data.impact_levels}`;
+                }
+            },
+            { 
+                data: 'is_active',
+                render: function(data) {
+                    return data ? 
+                        '<span class="badge" data-color-type="status" data-color-value="active">Active</span>' : 
+                        '<span class="badge" data-color-type="status" data-color-value="inactive">Inactive</span>';
+                }
+            },
+            { 
+                data: 'is_default',
+                render: function(data) {
+                    return data ? 
+                        '<i class="fas fa-star text-warning"></i>' : 
+                        '<i class="far fa-star text-muted"></i>';
+                }
+            },
+            { 
+                data: 'created_at',
+                render: function(data) {
+                    return new Date(data).toLocaleDateString();
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                render: function(data, type, row) {
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="viewMatrix('${row.id}')" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="editMatrix('${row.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-info" onclick="duplicateMatrix('${row.id}')" title="Duplicate">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            ${!row.is_default ? `
+                                <button class="btn btn-outline-warning" onclick="setDefaultMatrix('${row.id}')" title="Set as Default">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteMatrix('${row.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            }
+        ],
+        drawCallback: function() {
+            // Apply color coding after table is drawn
+            if (window.ColorCoding) {
+                window.ColorCoding.initializePageColors();
+            }
+        }
+    });
+}
+
+function loadMatrices() {
+    fetch('/matrix/api/matrices')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const table = $('#matricesTable').DataTable();
+                table.clear();
+                table.rows.add(data.data);
+                table.draw();
+                
+                updateStats(data.data);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading matrices:', error);
+            showAlert('Error loading matrices', 'error');
+        });
+}
+
+function refreshMatrices() {
+    loadMatrices();
+    showAlert('Matrices refreshed successfully', 'success');
+}
+
+function updateStats(matrices) {
+    const total = matrices.length;
+    const active = matrices.filter(m => m.is_active).length;
+    const custom = matrices.filter(m => m.matrix_type === 'custom').length;
+    const defaultMatrix = matrices.find(m => m.is_default);
+    
+    $('#totalMatrices').text(total);
+    $('#activeMatrices').text(active);
+    $('#customMatrices').text(custom);
+    $('#defaultMatrix').text(defaultMatrix ? defaultMatrix.name.substring(0, 10) + '...' : 'None');
+}
+
+function loadTemplates() {
+    fetch('/matrix/api/templates')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderTemplates(data.data);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading templates:', error);
+        });
+}
+
+function renderTemplates(templates) {
+    const container = $('#templatesContainer');
+    container.empty();
+    
+    templates.forEach(template => {
+        const card = $(`
+            <div class="template-card" data-template-id="${template.id}">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="mb-1">${template.name}</h6>
+                        <p class="mb-1 text-muted small">${template.description}</p>
+                        <span class="badge bg-light text-dark">${template.industry}</span>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        card.click(function() {
+            $('.template-card').removeClass('selected');
+            $(this).addClass('selected');
+            selectedTemplate = template.id;
+            $('#createTemplateBtn').prop('disabled', false);
+        });
+        
+        container.append(card);
+    });
+}
+
+function updateLabels(type) {
+    const levels = parseInt($(`select[name="${type}_levels"]`).val());
+    const container = $(`#${type}Labels`);
+    container.empty();
+    
+    const defaultLabels = {
+        likelihood: ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain', 'Very Likely', 'Certain'],
+        impact: ['Insignificant', 'Minor', 'Moderate', 'Major', 'Catastrophic', 'Severe', 'Critical']
+    };
+    
+    for (let i = 0; i < levels; i++) {
+        const label = defaultLabels[type][i] || `${type.charAt(0).toUpperCase() + type.slice(1)} ${i + 1}`;
+        container.append(`
+            <div class="mb-2">
+                <input type="text" name="${type}_labels_${i}" class="form-control label-input" 
+                       value="${label}" placeholder="Level ${i + 1} label">
+            </div>
+        `);
+    }
+    
+    updateMatrixPreview();
+}
+
+function updateRiskLevelsConfig() {
+    const container = $('#riskLevelsConfig');
+    container.empty();
+    
+    const riskLevels = [
+        { key: 'low', name: 'Low', color: '#28a745' },
+        { key: 'medium', name: 'Medium', color: '#ffc107' },
+        { key: 'high', name: 'High', color: '#fd7e14' },
+        { key: 'very_high', name: 'Very High', color: '#dc3545' },
+        { key: 'critical', name: 'Critical', color: '#6f42c1' }
+    ];
+    
+    riskLevels.forEach(level => {
+        container.append(`
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label">${level.name} Risk</label>
+                    <div class="d-flex align-items-center">
+                        <input type="color" name="risk_color_${level.key}" value="${level.color}" class="form-control form-control-color me-2">
+                        <span class="badge" style="background-color: ${level.color}">${level.name}</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Min Score</label>
+                    <input type="number" name="risk_min_${level.key}" class="form-control" min="1" max="25">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Max Score</label>
+                    <input type="number" name="risk_max_${level.key}" class="form-control" min="1" max="25">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Treatment Strategy</label>
+                    <input type="text" name="risk_treatment_${level.key}" class="form-control" 
+                           value="${level.key === 'low' ? 'Accept' : level.key === 'medium' ? 'Monitor' : 'Mitigate'}">
+                </div>
+            </div>
+        `);
+    });
+}
+
+function updateMatrixPreview() {
+    const likelihoodLevels = parseInt($('select[name="likelihood_levels"]').val());
+    const impactLevels = parseInt($('select[name="impact_levels"]').val());
+    
+    renderMatrix('#matrixPreviewDesign', likelihoodLevels, impactLevels);
+    renderMatrix('#finalMatrixPreview', likelihoodLevels, impactLevels);
+}
+
+function renderMatrix(container, likelihoodLevels, impactLevels) {
+    const $container = $(container);
+    $container.empty();
+    
+    const matrix = $('<div class="matrix-grid"></div>');
+    matrix.css('grid-template-columns', `repeat(${impactLevels + 1}, 1fr)`);
+    
+    // Header row
+    matrix.append('<div class="matrix-cell matrix-header"></div>');
+    for (let i = 0; i < impactLevels; i++) {
+        const impactLabel = $(`input[name="impact_labels_${i}"]`).val() || `Impact ${i + 1}`;
+        matrix.append(`<div class="matrix-cell matrix-header">${impactLabel}</div>`);
+    }
+    
+    // Data rows
+    for (let l = likelihoodLevels - 1; l >= 0; l--) {
+        const likelihoodLabel = $(`input[name="likelihood_labels_${l}"]`).val() || `Likelihood ${l + 1}`;
+        matrix.append(`<div class="matrix-cell matrix-header">${likelihoodLabel}</div>`);
+        
+        for (let i = 0; i < impactLevels; i++) {
+            const score = (l + 1) * (i + 1);
+            const riskClass = getRiskClass(score);
+            matrix.append(`<div class="matrix-cell ${riskClass}" data-score="${score}">${score}</div>`);
+        }
+    }
+    
+    $container.append(matrix);
+}
+
+function getRiskClass(score) {
+    if (score <= 4) return 'risk-level-low';
+    if (score <= 9) return 'risk-level-medium';
+    if (score <= 14) return 'risk-level-high';
+    if (score <= 19) return 'risk-level-very-high';
+    return 'risk-level-critical';
+}
+
+function validateMatrix() {
+    const formData = getFormData();
+    
+    fetch('/matrix/api/matrices/validate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultDiv = $('#validationResult');
+        resultDiv.empty();
+        
+        if (data.success && data.data.is_valid) {
+            resultDiv.html('<div class="validation-success"><i class="fas fa-check-circle me-1"></i>Matrix configuration is valid!</div>');
+        } else {
+            let html = '<div class="validation-error"><i class="fas fa-exclamation-circle me-1"></i>Validation failed:</div><ul class="validation-error">';
+            data.data.errors.forEach(error => {
+                html += `<li>${error}</li>`;
+            });
+            html += '</ul>';
+            resultDiv.html(html);
+        }
+    })
+    .catch(error => {
+        console.error('Validation error:', error);
+        $('#validationResult').html('<div class="validation-error"><i class="fas fa-exclamation-circle me-1"></i>Validation failed. Please try again.</div>');
+    });
+}
+
+function getFormData() {
+    const form = $('#matrixForm')[0];
+    const formData = new FormData(form);
+    const data = {};
+    
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+    
+    // Collect labels
+    const likelihoodLevels = parseInt(data.likelihood_levels);
+    const impactLevels = parseInt(data.impact_levels);
+    
+    data.likelihood_labels = [];
+    data.impact_labels = [];
+    
+    for (let i = 0; i < likelihoodLevels; i++) {
+        data.likelihood_labels.push($(`input[name="likelihood_labels_${i}"]`).val());
+    }
+    
+    for (let i = 0; i < impactLevels; i++) {
+        data.impact_labels.push($(`input[name="impact_labels_${i}"]`).val());
+    }
+    
+    return data;
+}
+
+function saveMatrix() {
+    const formData = getFormData();
+    const url = editMode ? `/matrix/api/matrices/${currentMatrix.id}` : '/matrix/api/matrices';
+    const method = editMode ? 'PUT' : 'POST';
+    
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            $('#matrixModal').modal('hide');
+            loadMatrices();
+            resetForm();
+        } else {
+            showAlert(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Save error:', error);
+        showAlert('Failed to save matrix. Please try again.', 'error');
+    });
+}
+
+function createFromTemplate() {
+    const matrixName = $('#templateMatrixName').val().trim();
+    
+    if (!matrixName) {
+        showAlert('Please enter a matrix name', 'warning');
+        return;
+    }
+    
+    if (!selectedTemplate) {
+        showAlert('Please select a template', 'warning');
+        return;
+    }
+    
+    fetch(`/matrix/api/matrices/from-template/${selectedTemplate}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: matrixName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            $('#templateModal').modal('hide');
+            loadMatrices();
+            resetTemplateForm();
+        } else {
+            showAlert(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Template creation error:', error);
+        showAlert('Failed to create matrix from template. Please try again.', 'error');
+    });
+}
+
+function editMatrix(matrixId) {
+    fetch(`/matrix/api/matrices/${matrixId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                populateForm(data.data);
+                editMode = true;
+                currentMatrix = data.data;
+                $('.modal-title').text('Edit Risk Matrix');
+                $('#matrixModal').modal('show');
+            } else {
+                showAlert('Failed to load matrix details', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Edit matrix error:', error);
+            showAlert('Failed to load matrix details', 'error');
+        });
+}
+
+function populateForm(matrix) {
+    $('input[name="name"]').val(matrix.name);
+    $('select[name="matrix_type"]').val(matrix.matrix_type);
+    $('textarea[name="description"]').val(matrix.description);
+    $('select[name="likelihood_levels"]').val(matrix.likelihood_levels);
+    $('select[name="impact_levels"]').val(matrix.impact_levels);
+    
+    updateLabels('likelihood');
+    updateLabels('impact');
+    
+    // Populate labels
+    if (matrix.likelihood_labels) {
+        matrix.likelihood_labels.forEach((label, index) => {
+            $(`input[name="likelihood_labels_${index}"]`).val(label);
+        });
+    }
+    
+    if (matrix.impact_labels) {
+        matrix.impact_labels.forEach((label, index) => {
+            $(`input[name="impact_labels_${index}"]`).val(label);
+        });
+    }
+    
+    updateMatrixPreview();
+}
+
+function duplicateMatrix(matrixId) {
+    const matrixName = prompt('Enter name for duplicated matrix:');
+    if (!matrixName) return;
+    
+    fetch(`/matrix/api/matrices/${matrixId}/duplicate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: matrixName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            loadMatrices();
+        } else {
+            showAlert(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Duplicate matrix error:', error);
+        showAlert('Failed to duplicate matrix', 'error');
+    });
+}
+
+function setDefaultMatrix(matrixId) {
+    if (confirm('Set this matrix as the default for the organization?')) {
+        fetch(`/matrix/api/matrices/${matrixId}/set-default`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                loadMatrices();
+            } else {
+                showAlert(data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Set default matrix error:', error);
+            showAlert('Failed to set default matrix', 'error');
+        });
+    }
+}
+
+function deleteMatrix(matrixId) {
+    if (confirm('Are you sure you want to delete this matrix? This action cannot be undone.')) {
+        fetch(`/matrix/api/matrices/${matrixId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                loadMatrices();
+            } else {
+                showAlert(data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Delete matrix error:', error);
+            showAlert('Failed to delete matrix', 'error');
+        });
+    }
+}
+
+function viewMatrix(matrixId) {
+    fetch(`/matrix/api/matrices/${matrixId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMatrixDetails(data.data);
+            } else {
+                showAlert('Failed to load matrix details', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('View matrix error:', error);
+            showAlert('Failed to load matrix details', 'error');
+        });
+}
+
+function showMatrixDetails(matrix) {
+    // Update modal title
+    $('#viewMatrixTitle').text(matrix.name);
+    
+    // Create details HTML
+    let html = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="fw-bold mb-3">Basic Information</h6>
+                <table class="table table-sm">
+                    <tr><td class="text-muted">Type:</td><td>${matrix.matrix_type}</td></tr>
+                    <tr><td class="text-muted">Dimensions:</td><td>${matrix.likelihood_levels}×${matrix.impact_levels}</td></tr>
+                    <tr><td class="text-muted">Status:</td><td>${matrix.is_active ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>'}</td></tr>
+                    <tr><td class="text-muted">Default:</td><td>${matrix.is_default ? '<i class="fas fa-star text-warning"></i> Yes' : 'No'}</td></tr>
+                    <tr><td class="text-muted">Created:</td><td>${new Date(matrix.created_at).toLocaleString()}</td></tr>
+                </table>
+                ${matrix.description ? `<p class="text-muted"><strong>Description:</strong><br>${matrix.description}</p>` : ''}
+            </div>
+            <div class="col-md-6">
+                <h6 class="fw-bold mb-3">Matrix Preview</h6>
+                <div id="viewMatrixPreview" class="matrix-preview" style="max-width: 100%; transform: scale(0.8); transform-origin: top left;"></div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <h6 class="fw-bold mb-3">Risk Levels Configuration</h6>
+                <div class="row">
+    `;
+    
+    // Add risk levels if available
+    if (matrix.risk_levels) {
+        Object.keys(matrix.risk_levels).forEach(level => {
+            const config = matrix.risk_levels[level];
+            html += `
+                <div class="col-md-4 mb-2">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 20px; height: 20px; background-color: ${config.color}; border-radius: 4px; margin-right: 8px;"></div>
+                        <div>
+                            <strong>${config.name}</strong><br>
+                            <small class="text-muted">${config.treatment_strategy}</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += `
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Set the content
+    $('#matrixDetailsView').html(html);
+    
+    // Render mini matrix preview
+    if (matrix.likelihood_levels && matrix.impact_levels) {
+        renderMatrixForView(matrix);
+    }
+    
+    // Set edit button action
+    $('#editFromViewBtn').attr('onclick', `editMatrix('${matrix.id}')`);
+    
+    // Show modal
+    $('#viewMatrixModal').modal('show');
+}
+
+function renderMatrixForView(matrix) {
+    const container = $('#viewMatrixPreview');
+    container.empty();
+    
+    const grid = $('<div class="matrix-grid"></div>');
+    grid.css('grid-template-columns', `repeat(${matrix.impact_levels + 1}, 1fr)`);
+    
+    // Header row
+    grid.append('<div class="matrix-cell matrix-header" style="font-size: 0.6rem;"></div>');
+    for (let i = 0; i < matrix.impact_levels; i++) {
+        const label = matrix.impact_labels ? matrix.impact_labels[i] : `I${i + 1}`;
+        grid.append(`<div class="matrix-cell matrix-header" style="font-size: 0.6rem;">${label}</div>`);
+    }
+    
+    // Data rows
+    for (let l = matrix.likelihood_levels - 1; l >= 0; l--) {
+        const label = matrix.likelihood_labels ? matrix.likelihood_labels[l] : `L${l + 1}`;
+        grid.append(`<div class="matrix-cell matrix-header" style="font-size: 0.6rem;">${label}</div>`);
+        
+        for (let i = 0; i < matrix.impact_levels; i++) {
+            const score = (l + 1) * (i + 1);
+            const riskClass = getRiskClass(score);
+            grid.append(`<div class="matrix-cell ${riskClass}" style="font-size: 0.7rem; min-height: 25px;">${score}</div>`);
+        }
+    }
+    
+    container.append(grid);
+}
+
+function resetForm() {
+    $('#matrixForm')[0].reset();
+    editMode = false;
+    currentMatrix = null;
+    $('.modal-title').text('Create Risk Matrix');
+    updateLabels('likelihood');
+    updateLabels('impact');
+    updateRiskLevelsConfig();
+    updateMatrixPreview();
+}
+
+function resetTemplateForm() {
+    $('#templateMatrixName').val('');
+    $('.template-card').removeClass('selected');
+    selectedTemplate = null;
+    $('#createTemplateBtn').prop('disabled', true);
+}
+
+function showAlert(message, type = 'info') {
+    const alertClass = type === 'error' ? 'alert-danger' : 
+                      type === 'success' ? 'alert-success' : 
+                      type === 'warning' ? 'alert-warning' : 'alert-info';
+    
+    const alert = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('body').append(alert);
+    
+    setTimeout(() => {
+        alert.alert('close');
+    }, 5000);
+}
+
+function importMatrix() {
+    // Create file input
+    const fileInput = $('<input type="file" accept=".json" style="display:none">');
+    
+    fileInput.on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const matrixData = JSON.parse(event.target.result);
+                    
+                    // Send to backend
+                    fetch('/matrix/api/matrices', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(matrixData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert('Matrix imported successfully', 'success');
+                            loadMatrices();
+                        } else {
+                            showAlert('Failed to import matrix: ' + data.error, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Import error:', error);
+                        showAlert('Failed to import matrix', 'error');
+                    });
+                } catch (error) {
+                    showAlert('Invalid JSON file', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+    
+    fileInput.click();
+}
+
+function exportMatrix() {
+    // Get the selected matrix or prompt user to select
+    const table = $('#matricesTable').DataTable();
+    const selectedData = table.rows('.selected').data();
+    
+    if (selectedData.length === 0) {
+        showAlert('Please select a matrix to export', 'warning');
+        return;
+    }
+    
+    const matrix = selectedData[0];
+    
+    // Fetch full matrix details
+    fetch(`/matrix/api/matrices/${matrix.id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Create and download JSON file
+                const jsonStr = JSON.stringify(data.data, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${data.data.name.replace(/\s+/g, '_')}_matrix.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showAlert('Matrix exported successfully', 'success');
+            } else {
+                showAlert('Failed to export matrix', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Export error:', error);
+            showAlert('Failed to export matrix', 'error');
+        });
+}
+
+// Form change handlers
+$('select[name="likelihood_levels"], select[name="impact_levels"]').on('change', function() {
+    updateMatrixPreview();
+});
+
+$(document).on('input', 'input[name^="likelihood_labels_"], input[name^="impact_labels_"]', function() {
+    updateMatrixPreview();
+});
+</script>
+{% endblock %}

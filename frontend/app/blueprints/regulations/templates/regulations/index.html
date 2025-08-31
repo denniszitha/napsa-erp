@@ -1,0 +1,1210 @@
+{% extends "layouts/base.html" %}
+{% block title %}Regulatory Compliance - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+        --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .btn-primary, .btn-secondary, .btn-outline-primary, .btn-outline-secondary {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover, .btn-secondary:hover, .btn-outline-primary:hover, .btn-outline-secondary:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .col-md-3:nth-child(1) .stat-card::before {
+        background: var(--gradient-1);
+    }
+
+    .col-md-3:nth-child(2) .stat-card::before {
+        background: var(--gradient-2);
+    }
+
+    .col-md-3:nth-child(3) .stat-card::before {
+        background: var(--gradient-3);
+    }
+
+    .col-md-3:nth-child(4) .stat-card::before {
+        background: var(--gradient-4);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .col-md-3:nth-child(1) .stat-icon {
+        background: var(--gradient-1);
+    }
+
+    .col-md-3:nth-child(2) .stat-icon {
+        background: var(--gradient-2);
+    }
+
+    .col-md-3:nth-child(3) .stat-icon {
+        background: var(--gradient-3);
+    }
+
+    .col-md-3:nth-child(4) .stat-icon {
+        background: var(--gradient-4);
+    }
+
+    .stat-icon i {
+        color: white !important;
+    }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Action Buttons -->
+    <div class="mb-4">
+        <button class="btn btn-primary" onclick="performComplianceAssessment()">
+            <i class="fas fa-clipboard-check me-2"></i>Assess Compliance
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="generateComplianceReport()">
+            <i class="fas fa-file-pdf me-1"></i>Generate Report
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="refreshRegulations()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="exportComplianceData()">
+            <i class="fas fa-download me-1"></i>Export Data
+        </button>
+    </div>
+
+    <!-- Compliance Dashboard Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Overall Compliance</p>
+                            <h2 class="mb-0 text-success" id="overallCompliance" style="font-weight: 700;">--</h2>
+                            <small class="text-muted">Across all frameworks</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Active Regulations</p>
+                            <h2 class="mb-0" id="activeRegulations" style="font-weight: 700;">--</h2>
+                            <small class="text-muted">Monitored frameworks</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-gavel fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Compliance Gaps</p>
+                            <h2 class="mb-0 text-warning" id="complianceGaps" style="font-weight: 700;">--</h2>
+                            <small class="text-muted">Requiring attention</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Upcoming Deadlines</p>
+                            <h2 class="mb-0 text-danger" id="upcomingDeadlines" style="font-weight: 700;">--</h2>
+                            <small class="text-muted">Within 30 days</small>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regulatory Frameworks Tabs -->
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#zppa-tab" role="tab">
+                        <i class="fas fa-shield-alt"></i> ZPPA
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#boz-tab" role="tab">
+                        <i class="fas fa-university"></i> BOZ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#napsa-tab" role="tab">
+                        <i class="fas fa-briefcase"></i> NAPSA Act
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#employment-tab" role="tab">
+                        <i class="fas fa-users"></i> Employment Act
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#ccpc-tab" role="tab">
+                        <i class="fas fa-handshake"></i> CCPC
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#acc-tab" role="tab">
+                        <i class="fas fa-user-shield"></i> ACC Act
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#overview-tab" role="tab">
+                        <i class="fas fa-th-large"></i> Overview
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <!-- ZPPA Tab -->
+                <div class="tab-pane active" id="zppa-tab" role="tabpanel">
+                    <h4>Zambia Personal Data Protection Act (ZPPA)</h4>
+                    <p class="text-muted">Data protection and privacy regulations for personal information processing</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info"><i class="fas fa-check-circle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Compliance Score</span>
+                                    <span class="info-box-number">78%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning"><i class="fas fa-tasks"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Requirements</span>
+                                    <span class="info-box-number">45</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success"><i class="fas fa-shield-alt"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Controls Mapped</span>
+                                    <span class="info-box-number">35</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Gaps</span>
+                                    <span class="info-box-number">10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>Key Requirements</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Status</th>
+                                    <th>Control</th>
+                                    <th>Evidence</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Data Subject Consent Management</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Consent Management System</td>
+                                    <td><a href="#">3 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Data Breach Notification (72 hours)</td>
+                                    <td><span class="badge bg-warning">Partial</span></td>
+                                    <td>Incident Response Plan</td>
+                                    <td><a href="#">2 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Review</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Data Protection Impact Assessment</td>
+                                    <td><span class="badge bg-danger">Non-Compliant</span></td>
+                                    <td>Not Mapped</td>
+                                    <td>None</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger">Action Required</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Data Subject Rights Management</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Rights Management Portal</td>
+                                    <td><a href="#">5 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Cross-Border Data Transfer Controls</td>
+                                    <td><span class="badge bg-warning">Partial</span></td>
+                                    <td>Transfer Agreements</td>
+                                    <td><a href="#">1 document</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Update</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BOZ Tab -->
+                <div class="tab-pane" id="boz-tab" role="tabpanel">
+                    <h4>Bank of Zambia (BOZ) Regulations</h4>
+                    <p class="text-muted">Financial sector regulations and prudential requirements</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info"><i class="fas fa-check-circle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Compliance Score</span>
+                                    <span class="info-box-number">92%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning"><i class="fas fa-tasks"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Requirements</span>
+                                    <span class="info-box-number">68</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success"><i class="fas fa-shield-alt"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Controls Mapped</span>
+                                    <span class="info-box-number">63</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Gaps</span>
+                                    <span class="info-box-number">5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>Key Requirements</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Status</th>
+                                    <th>Control</th>
+                                    <th>Evidence</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Capital Adequacy Requirements</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Capital Management Framework</td>
+                                    <td><a href="#">4 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Liquidity Risk Management</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Liquidity Management System</td>
+                                    <td><a href="#">6 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>AML/CFT Compliance</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>AML Monitoring System</td>
+                                    <td><a href="#">8 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Regulatory Reporting</td>
+                                    <td><span class="badge bg-warning">Partial</span></td>
+                                    <td>Reporting Framework</td>
+                                    <td><a href="#">3 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Update</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- NAPSA Act Tab -->
+                <div class="tab-pane" id="napsa-tab" role="tabpanel">
+                    <h4>National Pension Scheme Act</h4>
+                    <p class="text-muted">Pension scheme administration and compliance requirements</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info"><i class="fas fa-check-circle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Compliance Score</span>
+                                    <span class="info-box-number">98%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning"><i class="fas fa-tasks"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Requirements</span>
+                                    <span class="info-box-number">82</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success"><i class="fas fa-shield-alt"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Controls Mapped</span>
+                                    <span class="info-box-number">80</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Gaps</span>
+                                    <span class="info-box-number">2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>Key Requirements</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Status</th>
+                                    <th>Control</th>
+                                    <th>Evidence</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Member Registration Process</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Registration Management System</td>
+                                    <td><a href="#">7 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Contribution Collection & Recording</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Contribution Management System</td>
+                                    <td><a href="#">10 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Benefits Administration</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Benefits Processing System</td>
+                                    <td><a href="#">12 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Investment Management Guidelines</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Investment Policy Framework</td>
+                                    <td><a href="#">8 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Actuarial Valuation Requirements</td>
+                                    <td><span class="badge bg-warning">Partial</span></td>
+                                    <td>Actuarial Framework</td>
+                                    <td><a href="#">4 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Update</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Employment Act Tab -->
+                <div class="tab-pane" id="employment-tab" role="tabpanel">
+                    <h4>Employment Act of Zambia</h4>
+                    <p class="text-muted">Labor law compliance and employee rights protection</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info"><i class="fas fa-check-circle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Compliance Score</span>
+                                    <span class="info-box-number">85%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning"><i class="fas fa-tasks"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Requirements</span>
+                                    <span class="info-box-number">54</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success"><i class="fas fa-shield-alt"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Controls Mapped</span>
+                                    <span class="info-box-number">46</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Gaps</span>
+                                    <span class="info-box-number">8</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>Key Requirements</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Status</th>
+                                    <th>Control</th>
+                                    <th>Evidence</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Employment Contracts</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>HR Management System</td>
+                                    <td><a href="#">5 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Working Hours & Overtime</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Time & Attendance System</td>
+                                    <td><a href="#">3 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Leave Entitlements</td>
+                                    <td><span class="badge bg-warning">Partial</span></td>
+                                    <td>Leave Management System</td>
+                                    <td><a href="#">2 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Review</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Termination Procedures</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>HR Policies & Procedures</td>
+                                    <td><a href="#">4 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CCPC Tab -->
+                <div class="tab-pane" id="ccpc-tab" role="tabpanel">
+                    <h4>Competition and Consumer Protection Commission (CCPC)</h4>
+                    <p class="text-muted">Competition law and consumer protection compliance</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info"><i class="fas fa-check-circle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Compliance Score</span>
+                                    <span class="info-box-number">88%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning"><i class="fas fa-tasks"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Requirements</span>
+                                    <span class="info-box-number">36</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success"><i class="fas fa-shield-alt"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Controls Mapped</span>
+                                    <span class="info-box-number">32</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Gaps</span>
+                                    <span class="info-box-number">4</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>Key Requirements</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Status</th>
+                                    <th>Control</th>
+                                    <th>Evidence</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Fair Competition Practices</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Competition Compliance Policy</td>
+                                    <td><a href="#">3 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Consumer Rights Protection</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Customer Service Framework</td>
+                                    <td><a href="#">5 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Merger & Acquisition Compliance</td>
+                                    <td><span class="badge bg-warning">Partial</span></td>
+                                    <td>M&A Guidelines</td>
+                                    <td><a href="#">2 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Update</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ACC Act Tab -->
+                <div class="tab-pane" id="acc-tab" role="tabpanel">
+                    <h4>Anti-Corruption Commission Act</h4>
+                    <p class="text-muted">Anti-corruption and integrity compliance requirements</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info"><i class="fas fa-check-circle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Compliance Score</span>
+                                    <span class="info-box-number">95%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning"><i class="fas fa-tasks"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Requirements</span>
+                                    <span class="info-box-number">28</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success"><i class="fas fa-shield-alt"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Controls Mapped</span>
+                                    <span class="info-box-number">27</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Gaps</span>
+                                    <span class="info-box-number">1</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>Key Requirements</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Status</th>
+                                    <th>Control</th>
+                                    <th>Evidence</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Anti-Corruption Policy</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Ethics & Integrity Framework</td>
+                                    <td><a href="#">6 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Whistleblower Protection</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>Whistleblower System</td>
+                                    <td><a href="#">4 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Conflict of Interest Management</td>
+                                    <td><span class="badge bg-success">Compliant</span></td>
+                                    <td>COI Declaration System</td>
+                                    <td><a href="#">5 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Gift & Entertainment Policy</td>
+                                    <td><span class="badge bg-warning">Partial</span></td>
+                                    <td>Gift Register</td>
+                                    <td><a href="#">2 documents</a></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">Update</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Overview Tab -->
+                <div class="tab-pane" id="overview-tab" role="tabpanel">
+                    <h4>Regulatory Compliance Overview</h4>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Compliance Status by Framework</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="complianceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Upcoming Deadlines</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        <div class="timeline-item">
+                                            <div class="timeline-badge bg-danger">
+                                                <i class="fas fa-exclamation"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <div class="timeline-heading">
+                                                    <h6>ZPPA Annual Report</h6>
+                                                    <small class="text-muted">Due: Aug 31, 2025</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-badge bg-warning">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <div class="timeline-heading">
+                                                    <h6>BOZ Quarterly Filing</h6>
+                                                    <small class="text-muted">Due: Sep 15, 2025</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-badge bg-info">
+                                                <i class="fas fa-file"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <div class="timeline-heading">
+                                                    <h6>NAPSA Benefits Audit</h6>
+                                                    <small class="text-muted">Due: Sep 30, 2025</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Recent Regulatory Updates</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info" role="alert">
+                                        <h6 class="alert-heading">ZPPA Amendment - Data Localization</h6>
+                                        <p class="mb-0">New requirements for personal data storage within Zambian borders. Effective date: January 1, 2026.</p>
+                                        <hr>
+                                        <button class="btn btn-sm btn-info">Review Impact</button>
+                                    </div>
+                                    <div class="alert alert-warning" role="alert">
+                                        <h6 class="alert-heading">BOZ Circular - Enhanced KYC Requirements</h6>
+                                        <p class="mb-0">Updated customer due diligence requirements for pension schemes. Implementation deadline: October 31, 2025.</p>
+                                        <hr>
+                                        <button class="btn btn-sm btn-warning">Assess Readiness</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Compliance Assessment Modal -->
+<div class="modal fade" id="complianceAssessmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Compliance Assessment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assessmentForm">
+                    <div class="mb-3">
+                        <label class="form-label">Select Framework</label>
+                        <select class="form-select" id="assessmentFramework">
+                            <option value="">Choose framework...</option>
+                            <option value="ZPPA">ZPPA - Data Protection Act</option>
+                            <option value="BOZ">BOZ - Bank of Zambia</option>
+                            <option value="NAPSA">NAPSA Act</option>
+                            <option value="Employment">Employment Act</option>
+                            <option value="CCPC">CCPC</option>
+                            <option value="ACC">ACC Act</option>
+                            <option value="ALL">All Frameworks</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assessment Type</label>
+                        <select class="form-select" id="assessmentType">
+                            <option value="quick">Quick Assessment</option>
+                            <option value="detailed">Detailed Assessment</option>
+                            <option value="gap">Gap Analysis</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" id="assessmentNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="runComplianceAssessment()">Run Assessment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadRegulationsStats();
+    loadRegulatoryDashboard();
+    initializeComplianceChart();
+});
+
+// Load regulations statistics
+function loadRegulationsStats() {
+    fetch('/regulations/api/regulations/dashboard')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.data;
+                document.getElementById('overallCompliance').textContent = (stats.overall_compliance || 0) + '%';
+                document.getElementById('activeRegulations').textContent = stats.active_regulations || 0;
+                document.getElementById('complianceGaps').textContent = stats.compliance_gaps || 0;
+                document.getElementById('upcomingDeadlines').textContent = stats.upcoming_deadlines || 0;
+            }
+        })
+        .catch(error => console.error('Error loading stats:', error));
+}
+
+// Load regulatory dashboard
+function loadRegulatoryDashboard() {
+    fetch('/regulations/api/regulations')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Process and display regulations data
+                console.log('Regulations loaded:', data.data);
+            }
+        })
+        .catch(error => console.error('Error loading regulations:', error));
+}
+
+// Initialize compliance chart
+function initializeComplianceChart() {
+    const ctx = document.getElementById('complianceChart');
+    if (ctx) {
+        // Chart.js implementation would go here
+        // For now, just a placeholder
+        console.log('Chart initialized');
+    }
+}
+
+// Perform compliance assessment
+function performComplianceAssessment() {
+    const modal = new bootstrap.Modal(document.getElementById('complianceAssessmentModal'));
+    modal.show();
+}
+
+// Run compliance assessment
+function runComplianceAssessment() {
+    const framework = document.getElementById('assessmentFramework').value;
+    const type = document.getElementById('assessmentType').value;
+    const notes = document.getElementById('assessmentNotes').value;
+    
+    if (!framework) {
+        alert('Please select a framework');
+        return;
+    }
+    
+    fetch('/regulations/api/regulations/compliance-assessment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            framework: framework,
+            assessment_type: type,
+            notes: notes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Assessment completed successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('complianceAssessmentModal')).hide();
+            loadRegulationsStats();
+        }
+    })
+    .catch(error => {
+        console.error('Error running assessment:', error);
+        showNotification('Error running assessment', 'danger');
+    });
+}
+
+// Generate compliance report
+function generateComplianceReport() {
+    if (confirm('Generate compliance report for all frameworks?')) {
+        fetch('/regulations/api/regulations/reporting', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                framework: 'ALL',
+                report_type: 'comprehensive',
+                period: 'current_quarter',
+                format: 'pdf'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Report generated successfully', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error generating report:', error);
+            showNotification('Error generating report', 'danger');
+        });
+    }
+}
+
+// Refresh regulations
+function refreshRegulations() {
+    loadRegulationsStats();
+    loadRegulatoryDashboard();
+    showNotification('Regulations data refreshed', 'info');
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+</script>
+
+<style>
+.info-box {
+    display: flex;
+    margin-bottom: 20px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.info-box-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    font-size: 30px;
+    color: white;
+}
+
+.info-box-content {
+    padding: 10px;
+    flex: 1;
+}
+
+.info-box-text {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 12px;
+    color: #777;
+}
+
+.info-box-number {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    color: white;
+}
+
+.timeline-panel {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.timeline-heading h6 {
+    margin: 0;
+    font-weight: bold;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Export compliance data
+function exportComplianceData() {
+    console.log('Exporting compliance data...');
+    // Implementation for exporting compliance data
+    alert('Compliance data export initiated');
+}
+
+// Add other existing functions if they're not already defined
+if (typeof performComplianceAssessment === 'undefined') {
+    function performComplianceAssessment() {
+        console.log('Performing compliance assessment...');
+    }
+}
+
+if (typeof generateComplianceReport === 'undefined') {
+    function generateComplianceReport() {
+        console.log('Generating compliance report...');
+    }
+}
+
+if (typeof refreshRegulations === 'undefined') {
+    function refreshRegulations() {
+        location.reload();
+    }
+}
+</script>
+{% endblock %}

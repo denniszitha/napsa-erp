@@ -1,0 +1,96 @@
+{% extends "layouts/base.html" %}
+{% block title %}Performance Metrics - NAPSA ERM{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h1 class="page-title">
+            <i class="fas fa-chart-pie"></i> Performance Metrics
+        </h1>
+        <div class="page-actions">
+            <button class="btn btn-primary" onclick="addNewMetrics()">
+                <i class="fas fa-plus"></i> New Item
+            </button>
+            <button class="btn btn-outline-primary" onclick="refreshMetrics()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Total Items</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0" id="totalItems">0</h2>
+                        <i class="fas fa-chart-pie ms-auto text-primary fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Active</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-success" id="activeItems">0</h2>
+                        <i class="fas fa-check-circle ms-auto text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Pending</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-warning" id="pendingItems">0</h2>
+                        <i class="fas fa-clock ms-auto text-warning fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Issues</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-danger" id="issueItems">0</h2>
+                        <i class="fas fa-exclamation-triangle ms-auto text-danger fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Performance Metrics Module</h3>
+        </div>
+        <div class="card-body text-center">
+            <i class="fas fa-chart-pie fa-5x text-muted mb-4"></i>
+            <h4>Welcome to Performance Metrics</h4>
+            <p class="text-muted mb-4">This module is ready for implementation and will provide comprehensive performance metrics functionality.</p>
+            <button class="btn btn-primary btn-lg" onclick="addNewMetrics()">
+                <i class="fas fa-plus"></i> Get Started
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+function addNewMetrics() {
+    alert('Performance Metrics functionality will be implemented in the next phase');
+}
+
+function refreshMetrics() {
+    location.reload();
+}
+</script>
+{% endblock %}

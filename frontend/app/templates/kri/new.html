@@ -1,0 +1,611 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Create New KRI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="page-pretitle">Key Risk Indicators</div>
+                <h1 class="page-title">Create New KRI</h1>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('kri.index') }}" class="btn btn-secondary">
+                    <i class="ti ti-arrow-left"></i> Back to KRIs
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <form id="newKRIForm" method="POST" action="{{ url_for('kri.create') }}">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">KRI Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label required">KRI Name</label>
+                                    <input type="text" class="form-control" name="name" placeholder="Enter KRI name" required>
+                                    <small class="form-text text-muted">A descriptive name for the indicator</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label required">Category</label>
+                                    <select class="form-select" name="category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="operational">Operational</option>
+                                        <option value="financial">Financial</option>
+                                        <option value="compliance">Compliance</option>
+                                        <option value="security">Security</option>
+                                        <option value="strategic">Strategic</option>
+                                        <option value="reputational">Reputational</option>
+                                    </select>
+                                    <small class="form-text text-muted">The risk category this KRI belongs to</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" name="description" rows="3" placeholder="Describe the purpose and significance of this KRI"></textarea>
+                                    <small class="form-text text-muted">Provide details about what this KRI measures and why it's important</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Associated Risk</label>
+                                    <select class="form-select" name="risk_id">
+                                        <option value="">Select Associated Risk</option>
+                                    </select>
+                                    <small class="form-text text-muted">Link this KRI to a specific risk</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label required">Measurement Unit</label>
+                                    <input type="text" class="form-control" name="unit" placeholder="e.g., %, count, seconds, ZMW" required>
+                                    <small class="form-text text-muted">The unit of measurement for this indicator</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Threshold Configuration</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <div class="d-flex">
+                                <div>
+                                    <i class="ti ti-info-circle"></i>
+                                </div>
+                                <div class="ms-2">
+                                    <h4 class="alert-title">Threshold Guidelines</h4>
+                                    <div class="text-secondary">
+                                        Define threshold values that trigger different alert levels:
+                                        <ul class="mb-0 mt-2">
+                                            <li><strong>Green:</strong> Normal operating range - no action required</li>
+                                            <li><strong>Amber:</strong> Warning level - monitoring required</li>
+                                            <li><strong>Red:</strong> Critical level - immediate action required</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required">
+                                        <span class="badge bg-success me-1">Green</span> Threshold
+                                    </label>
+                                    <input type="number" class="form-control" name="threshold_green" step="0.01" required>
+                                    <small class="form-text text-muted">Acceptable value range</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required">
+                                        <span class="badge bg-warning me-1">Amber</span> Threshold
+                                    </label>
+                                    <input type="number" class="form-control" name="threshold_amber" step="0.01" required>
+                                    <small class="form-text text-muted">Warning value range</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required">
+                                        <span class="badge bg-danger me-1">Red</span> Threshold
+                                    </label>
+                                    <input type="number" class="form-control" name="threshold_red" step="0.01" required>
+                                    <small class="form-text text-muted">Critical value range</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label required">Threshold Direction</label>
+                                    <select class="form-select" name="threshold_direction" required>
+                                        <option value="">Select Direction</option>
+                                        <option value="ascending">Ascending (Higher is worse)</option>
+                                        <option value="descending">Descending (Lower is worse)</option>
+                                    </select>
+                                    <small class="form-text text-muted">Determines how thresholds are evaluated</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Target Value</label>
+                                    <input type="number" class="form-control" name="target_value" step="0.01">
+                                    <small class="form-text text-muted">Optional: The ideal target value for this KRI</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Monitoring Configuration</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label required">Monitoring Frequency</label>
+                                    <select class="form-select" name="frequency" required>
+                                        <option value="">Select Frequency</option>
+                                        <option value="realtime">Real-time</option>
+                                        <option value="hourly">Hourly</option>
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                    </select>
+                                    <small class="form-text text-muted">How often this KRI should be monitored</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label required">Data Source</label>
+                                    <input type="text" class="form-control" name="data_source" placeholder="e.g., System logs, Oracle DB, Manual input" required>
+                                    <small class="form-text text-muted">Where the data for this KRI comes from</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Data Collection Method</label>
+                                    <select class="form-select" name="collection_method">
+                                        <option value="">Select Method</option>
+                                        <option value="automated">Automated</option>
+                                        <option value="manual">Manual</option>
+                                        <option value="semi-automated">Semi-Automated</option>
+                                    </select>
+                                    <small class="form-text text-muted">How data is collected for this KRI</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Responsible Department</label>
+                                    <select class="form-select" name="department" id="departmentSelect" onchange="loadUsersByDepartment()">
+                                        <option value="">Select Department</option>
+                                    </select>
+                                    <small class="form-text text-muted">Department responsible for monitoring</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Owner</label>
+                                    <select class="form-select" name="owner" id="ownerSelect">
+                                        <option value="">Select Owner</option>
+                                    </select>
+                                    <small class="form-text text-muted">Person responsible for this KRI</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Review Frequency</label>
+                                    <select class="form-select" name="review_frequency">
+                                        <option value="">Select Review Frequency</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                        <option value="semi-annually">Semi-Annually</option>
+                                        <option value="annually">Annually</option>
+                                    </select>
+                                    <small class="form-text text-muted">How often the KRI configuration is reviewed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Alert Configuration</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Enable Email Alerts</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="email_alerts" id="emailAlerts" onchange="toggleEmailFields()">
+                                        <label class="form-check-label" for="emailAlerts">
+                                            Send email notifications when thresholds are breached
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Enable SMS Alerts</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="sms_alerts" id="smsAlerts" onchange="toggleSMSFields()">
+                                        <label class="form-check-label" for="smsAlerts">
+                                            Send SMS notifications for critical alerts
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3" id="emailFieldsSection" style="display: none;">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">Email Recipients</label>
+                                    <textarea class="form-control" name="email_recipients" rows="2" placeholder="Enter email addresses separated by commas&#10;e.g., john@napsa.co.zm, mary@napsa.co.zm"></textarea>
+                                    <small class="form-text text-muted">Email addresses to receive alerts (comma-separated)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3" id="smsFieldsSection" style="display: none;">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">SMS Recipients (Mobile Numbers)</label>
+                                    <textarea class="form-control" name="sms_recipients" rows="2" placeholder="Enter mobile numbers separated by commas&#10;e.g., +260971234567, +260965432100"></textarea>
+                                    <small class="form-text text-muted">Mobile numbers to receive SMS alerts (include country code, comma-separated)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Alert Frequency</label>
+                                    <select class="form-select" name="alert_frequency">
+                                        <option value="immediate">Immediate</option>
+                                        <option value="hourly">Hourly Summary</option>
+                                        <option value="daily">Daily Summary</option>
+                                        <option value="weekly">Weekly Summary</option>
+                                    </select>
+                                    <small class="form-text text-muted">How often to send alert notifications</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Alert Priority</label>
+                                    <select class="form-select" name="alert_priority">
+                                        <option value="all">All Breaches</option>
+                                        <option value="amber_red">Amber & Red Only</option>
+                                        <option value="red_only">Red Only (Critical)</option>
+                                    </select>
+                                    <small class="form-text text-muted">Which threshold breaches trigger alerts</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <div class="d-flex">
+                                <div>
+                                    <i class="ti ti-info-circle"></i>
+                                </div>
+                                <div class="ms-2">
+                                    <h4 class="alert-title">Alert Service Configuration</h4>
+                                    <div class="text-secondary">
+                                        <strong>Email Service:</strong> <span id="emailServiceStatus">Checking...</span><br>
+                                        <strong>SMS Service:</strong> <span id="smsServiceStatus">Checking...</span><br>
+                                        <small>Note: Alerts will only be sent if services are properly configured.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Additional Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">Calculation Formula</label>
+                                    <textarea class="form-control" name="calculation_formula" rows="2" placeholder="Describe how this KRI is calculated"></textarea>
+                                    <small class="form-text text-muted">Optional: Provide the formula or method used to calculate this KRI</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">Notes</label>
+                                    <textarea class="form-control" name="notes" rows="3" placeholder="Any additional notes or comments"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti ti-device-floppy"></i> Create KRI
+                                </button>
+                                <button type="button" class="btn btn-success ms-2" onclick="saveAndAddAnother()">
+                                    <i class="ti ti-plus"></i> Create & Add Another
+                                </button>
+                                <a href="{{ url_for('kri.index') }}" class="btn btn-secondary ms-2">
+                                    <i class="ti ti-x"></i> Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load initial data
+    loadRisks();
+    loadDepartments();
+    loadUsers();
+    
+    // Check notification services status
+    checkNotificationServices();
+    
+    // Form validation
+    document.getElementById('newKRIForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        createKRI();
+    });
+});
+
+function loadRisks() {
+    fetch('/api/risks')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const select = document.querySelector('select[name="risk_id"]');
+                data.data.forEach(risk => {
+                    const option = document.createElement('option');
+                    option.value = risk.id;
+                    option.textContent = risk.title;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading risks:', error));
+}
+
+function loadDepartments() {
+    // For now, use static departments. Later can fetch from API
+    const departments = [
+        'Risk Management',
+        'Operations', 
+        'Finance',
+        'Information Technology',
+        'Compliance',
+        'Investment',
+        'Human Resources',
+        'Legal',
+        'Audit'
+    ];
+    
+    const select = document.getElementById('departmentSelect');
+    departments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        select.appendChild(option);
+    });
+}
+
+function loadUsers(department = null) {
+    fetch('/api/users')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const select = document.getElementById('ownerSelect');
+                // Clear existing options except the first
+                select.innerHTML = '<option value="">Select Owner</option>';
+                
+                // Filter users by department if specified
+                let users = data.data;
+                if (department) {
+                    users = users.filter(user => user.department === department);
+                }
+                
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.email || user.id;
+                    option.textContent = `${user.full_name || user.email} (${user.department || 'No Dept'})`;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => console.error('Error loading users:', error));
+}
+
+function loadUsersByDepartment() {
+    const department = document.getElementById('departmentSelect').value;
+    loadUsers(department || null);
+}
+
+function toggleEmailFields() {
+    const emailChecked = document.getElementById('emailAlerts').checked;
+    document.getElementById('emailFieldsSection').style.display = emailChecked ? 'block' : 'none';
+}
+
+function toggleSMSFields() {
+    const smsChecked = document.getElementById('smsAlerts').checked;
+    document.getElementById('smsFieldsSection').style.display = smsChecked ? 'block' : 'none';
+}
+
+function checkNotificationServices() {
+    // Check email service status
+    fetch('/api/notifications/email/status')
+        .then(response => response.json())
+        .then(data => {
+            const statusEl = document.getElementById('emailServiceStatus');
+            if (data.configured && data.active) {
+                statusEl.innerHTML = '<span class="text-success">✓ Configured and Active</span>';
+            } else if (data.configured) {
+                statusEl.innerHTML = '<span class="text-warning">⚠ Configured but Inactive</span>';
+            } else {
+                statusEl.innerHTML = '<span class="text-danger">✗ Not Configured</span>';
+            }
+        })
+        .catch(error => {
+            document.getElementById('emailServiceStatus').innerHTML = '<span class="text-danger">✗ Service Unavailable</span>';
+        });
+    
+    // Check SMS service status
+    fetch('/api/notifications/sms/status')
+        .then(response => response.json())
+        .then(data => {
+            const statusEl = document.getElementById('smsServiceStatus');
+            if (data.configured && data.active) {
+                statusEl.innerHTML = '<span class="text-success">✓ Configured and Active</span>';
+            } else if (data.configured) {
+                statusEl.innerHTML = '<span class="text-warning">⚠ Configured but Inactive</span>';
+            } else {
+                statusEl.innerHTML = '<span class="text-danger">✗ Not Configured</span>';
+            }
+        })
+        .catch(error => {
+            document.getElementById('smsServiceStatus').innerHTML = '<span class="text-danger">✗ Service Unavailable</span>';
+        });
+}
+
+function createKRI() {
+    const form = document.getElementById('newKRIForm');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    
+    // Convert checkbox values
+    data.email_alerts = formData.get('email_alerts') ? true : false;
+    data.sms_alerts = formData.get('sms_alerts') ? true : false;
+    
+    // Parse recipient lists
+    if (data.email_recipients) {
+        data.email_recipients = data.email_recipients.split(',').map(email => email.trim()).filter(email => email);
+    }
+    if (data.sms_recipients) {
+        data.sms_recipients = data.sms_recipients.split(',').map(phone => phone.trim()).filter(phone => phone);
+    }
+    
+    fetch('/kri/api/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Show success message
+            showNotification('KRI created successfully!', 'success');
+            // Redirect to KRI list
+            setTimeout(() => {
+                window.location.href = '{{ url_for("kri.index") }}';
+            }, 1500);
+        } else {
+            showNotification('Error creating KRI: ' + (result.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error creating KRI', 'error');
+    });
+}
+
+function saveAndAddAnother() {
+    const form = document.getElementById('newKRIForm');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    
+    // Convert checkbox values
+    data.email_alerts = formData.get('email_alerts') ? true : false;
+    data.sms_alerts = formData.get('sms_alerts') ? true : false;
+    
+    fetch('/kri/api/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Show success message
+            showNotification('KRI created successfully! Add another one.', 'success');
+            // Reset form
+            form.reset();
+            // Reload risks dropdown
+            loadRisks();
+        } else {
+            showNotification('Error creating KRI: ' + (result.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error creating KRI', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible position-fixed top-0 end-0 m-3`;
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

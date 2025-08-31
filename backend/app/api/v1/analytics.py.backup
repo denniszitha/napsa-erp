@@ -1,0 +1,373 @@
+from typing import Optional
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from uuid import UUID
+from datetime import datetime, timezone
+
+from app.api.deps import get_db, get_current_active_user
+from app.models.user import User
+from app.services.analytics import analytics_service
+from app.services.correlation import correlation_service
+
+router = APIRouter()
+
+@router.get("/risk-heatmap")
+def get_risk_heatmap(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    ):
+    """Get risk heatmap data"""
+    return analytics_service.calculate_risk_heatmap(db)
+
+@router.get("/risk-trends")
+def get_risk_trends(
+    days: int = Query(30, ge=7, le=365, description="Number of days to analyze"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    ):
+    """Get risk trends over time"""
+    return analytics_service.calculate_risk_trends(db, days)
+
+@router.get("/control-effectiveness")
+def get_control_effectiveness(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    ):
+    """Get control effectiveness analysis"""
+    return analytics_service.get_control_effectiveness_analysis(db)
+
+@router.get("/kri-analytics")
+def get_kri_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    ):
+    """Get comprehensive KRI analytics"""
+    return analytics_service.get_kri_analytics(db)
+
+@router.get("/risk-correlations")
+def get_risk_correlations(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    ):
+    """Get risk correlation analysis"""
+    return correlation_service.calculate_risk_correlations(db)
+
+@router.get("/risk-impact/{risk_id}")
+def get_risk_impact_analysis(
+    risk_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    ):
+    """Get cascade impact analysis for a specific risk"""
+    return correlation_service.get_risk_impact_analysis(db, str(risk_id))
+
+@router.get("/executive-summary")
+def get_executive_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    ):
+    """Get executive summary with key metrics"""
+    from app.models.risk import Risk, RiskStatus
+    from app.models.control import Control, ControlStatus
+    from app.models.kri import KeyRiskIndicator, KRIStatus
+    from app.models.incident import Incident, IncidentStatus
+    from typing import Dict, Any, List, Optional
+    from datetime import datetime, timedelta, timezone
+    from app.models.risk import Risk, RiskCategory, RiskStatus
+    from app.models.assessment import RiskAssessment
+    from app.models.control import RiskControl
+from fastapi import Query
+    
+    # Basic metrics
+    metrics = {
+        "total_risks": db.query(Risk).count(),
+        "active_risks": db.query(Risk).filter(Risk.status == RiskStatus.active).count(),
+        "total_controls": db.query(Control).count(),
+        "effective_controls": db.query(Control).filter(Control.status == ControlStatus.effective).count(),
+        "total_kris": db.query(KeyRiskIndicator).count(),
+        "breached_kris": db.query(KeyRiskIndicator).filter(
+            KeyRiskIndicator.status.in_([KRIStatus.warning, KRIStatus.critical])
+        ).count(),
+        "open_incidents": db.query(Incident).filter(
+            Incident.status.in_([IncidentStatus.open, IncidentStatus.investigating])
+        ).count()
+    }
+    
+    # Calculate percentages
+    metrics["control_effectiveness_rate"] = (
+        (metrics["effective_controls"] / metrics["total_controls"] * 100)
+        if metrics["total_controls"] > 0 else 0
+    )
+    
+    metrics["kri_health_rate"] = (
+        ((metrics["total_kris"] - metrics["breached_kris"]) / metrics["total_kris"] * 100)
+        if metrics["total_kris"] > 0 else 0
+    )
+    
+    # Get trends
+    risk_trends = analytics_service.calculate_risk_trends(db, 30)
+    
+    return {
+        "metrics": metrics,
+        "risk_trend": risk_trends["summary"]["trend_direction"],
+        "overall_risk_reduction": risk_trends["summary"]["risk_reduction"],
+        "generated_at": datetime.now(timezone.utc).isoformat()
+    }
+
+@router.get("/risk-summary", response_model=Dict[str, Any])
+def get_risk_summary_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+    ) -> Dict[str, Any]:
+    """Get comprehensive risk summary analytics"""
+    risks = db.query(Risk).all()
+    
+    # Calculate risk scores
+    risk_scores = []
+    for risk in risks:
+        score = (risk.likelihood or 0) * (risk.impact or 0)
+        risk_scores.append(score)
+    
+    # Get assessments for trend data
+    assessments = db.query(RiskAssessment).all()
+    
+    summary = {
+        "total_risks": len(risks),
+        "average_risk_score": round(sum(risk_scores) / len(risk_scores), 2) if risk_scores else 0,
+        "by_category": {},
+        "by_status": {},
+        "by_department": {},
+        "risk_distribution": {
+            "very_high": len([r for r in risks if (r.likelihood or 0) * (r.impact or 0) >= 20]),
+            "high": len([r for r in risks if 15 <= (r.likelihood or 0) * (r.impact or 0) < 20]),
+            "medium": len([r for r in risks if 10 <= (r.likelihood or 0) * (r.impact or 0) < 15]),
+            "low": len([r for r in risks if 5 <= (r.likelihood or 0) * (r.impact or 0) < 10]),
+            "very_low": len([r for r in risks if (r.likelihood or 0) * (r.impact or 0) < 5])
+        },
+        "top_risks": [],
+        "emerging_risks": []
+    }
+    
+    # Group by category
+    for category in RiskCategory:
+        category_risks = [r for r in risks if r.category == category]
+        if category_risks:
+            summary["by_category"][category.value] = {
+                "count": len(category_risks),
+                "average_score": round(sum((r.likelihood or 0) * (r.impact or 0) for r in category_risks) / len(category_risks), 2)
+            }
+    
+    # Group by status
+    for status in RiskStatus:
+        summary["by_status"][status.value] = len([r for r in risks if r.status == status])
+    
+    # Group by department
+    departments = set(r.department for r in risks if r.department)
+    for dept in departments:
+        dept_risks = [r for r in risks if r.department == dept]
+        summary["by_department"][dept] = {
+            "count": len(dept_risks),
+            "high_risks": len([r for r in dept_risks if (r.likelihood or 0) * (r.impact or 0) >= 15])
+        }
+    
+    # Get top 5 risks
+    sorted_risks = sorted(risks, key=lambda r: (r.likelihood or 0) * (r.impact or 0), reverse=True)[:5]
+    summary["top_risks"] = [
+        {
+            "id": str(r.id),
+            "title": r.title,
+            "score": (r.likelihood or 0) * (r.impact or 0),
+            "category": r.category.value if r.category else None,
+            "owner": r.owner.full_name if r.owner else None
+        } for r in sorted_risks
+    ]
+    
+    # Identify emerging risks (created in last 30 days)
+    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+    emerging = [r for r in risks if r.created_at >= thirty_days_ago]
+    summary["emerging_risks"] = len(emerging)
+    
+    return summary
+
+@router.get("/department-risks", response_model=Dict[str, Any])
+def get_department_risk_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    department: Optional[str] = Query(None)
+    ) -> Dict[str, Any]:
+    """Get risk analytics by department"""
+    query = db.query(Risk)
+    if department:
+        query = query.filter(Risk.department == department)
+    
+    risks = query.all()
+    
+    # Get all departments
+    all_departments = set(r.department for r in db.query(Risk).all() if r.department)
+    
+    analytics = {
+        "departments": {},
+        "comparison": {},
+        "risk_concentration": {}
+    }
+    
+    for dept in all_departments:
+        dept_risks = [r for r in risks if r.department == dept]
+        if dept_risks:
+            analytics["departments"][dept] = {
+                "total_risks": len(dept_risks),
+                "high_risks": len([r for r in dept_risks if (r.likelihood or 0) * (r.impact or 0) >= 15]),
+                "medium_risks": len([r for r in dept_risks if 10 <= (r.likelihood or 0) * (r.impact or 0) < 15]),
+                "low_risks": len([r for r in dept_risks if (r.likelihood or 0) * (r.impact or 0) < 10]),
+                "average_score": round(sum((r.likelihood or 0) * (r.impact or 0) for r in dept_risks) / len(dept_risks), 2),
+                "controlled_risks": len([r for r in dept_risks if any(rc.control_id for rc in r.risk_controls)]) if hasattr(dept_risks[0], 'risk_controls') else 0
+            }
+    
+    # Calculate risk concentration
+    total_risks = len(risks)
+    for dept, data in analytics["departments"].items():
+        analytics["risk_concentration"][dept] = round((data["total_risks"] / total_risks) * 100, 2) if total_risks else 0
+    
+    return analytics
+
+@router.get("/kri-status", response_model=Dict[str, Any])
+def get_kri_status_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+    ) -> Dict[str, Any]:
+    """Get KRI status analytics"""
+    kris = db.query(KeyRiskIndicator).all()
+    measurements = db.query(KRIMeasurement).all()
+    
+    analytics = {
+        "total_kris": len(kris),
+        "by_status": {},
+        "by_metric_type": {},
+        "measurement_compliance": {},
+        "threshold_analysis": {},
+        "recent_breaches": []
+    }
+    
+    # Group by status
+    for status in KRIStatus:
+        analytics["by_status"][status.value] = len([k for k in kris if k.status == status])
+    
+    # Group by metric type
+    metric_types = set(k.metric_type for k in kris if k.metric_type)
+    for metric_type in metric_types:
+        type_kris = [k for k in kris if k.metric_type == metric_type]
+        analytics["by_metric_type"][metric_type] = {
+            "count": len(type_kris),
+            "breached": len([k for k in type_kris if k.status == KRIStatus.breached])
+        }
+    
+    # Measurement compliance (how many KRIs are being measured regularly)
+    for kri in kris:
+        kri_measurements = [m for m in measurements if m.kri_id == kri.id]
+        if kri_measurements:
+            latest_measurement = max(kri_measurements, key=lambda m: m.measurement_date)
+            days_since_measurement = (datetime.now(timezone.utc) - latest_measurement.measurement_date).days
+            
+            if kri.frequency == "daily" and days_since_measurement <= 1:
+                compliance = "compliant"
+            elif kri.frequency == "weekly" and days_since_measurement <= 7:
+                compliance = "compliant"
+            elif kri.frequency == "monthly" and days_since_measurement <= 30:
+                compliance = "compliant"
+            else:
+                compliance = "non_compliant"
+            
+            if compliance not in analytics["measurement_compliance"]:
+                analytics["measurement_compliance"][compliance] = 0
+            analytics["measurement_compliance"][compliance] += 1
+    
+    # Threshold analysis
+    analytics["threshold_analysis"] = {
+        "within_threshold": len([k for k in kris if k.threshold_lower <= k.current_value <= k.threshold_upper]),
+        "above_threshold": len([k for k in kris if k.current_value > k.threshold_upper]),
+        "below_threshold": len([k for k in kris if k.current_value < k.threshold_lower])
+    }
+    
+    # Recent breaches
+    breached_kris = [k for k in kris if k.status == KRIStatus.breached]
+    analytics["recent_breaches"] = [
+        {
+            "id": str(k.id),
+            "name": k.name,
+            "current_value": k.current_value,
+            "threshold_breached": "upper" if k.current_value > k.threshold_upper else "lower",
+            "risk_id": str(k.risk_id)
+        } for k in breached_kris[:5]
+    ]
+    
+    return analytics
+
+@router.get("/compliance-score", response_model=Dict[str, Any])
+def get_compliance_score_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+    ) -> Dict[str, Any]:
+    """Get compliance score analytics"""
+    requirements = db.query(ComplianceRequirement).all()
+    mappings = db.query(ComplianceMapping).all()
+    assessments = db.query(ComplianceAssessment).all()
+    
+    analytics = {
+        "overall_score": 0,
+        "by_framework": {},
+        "by_category": {},
+        "gap_analysis": {},
+        "trend_data": [],
+        "compliance_strength": {}
+    }
+    
+    # Calculate overall compliance score
+    if requirements:
+        mapped_count = len(set(m.requirement_id for m in mappings))
+        analytics["overall_score"] = round((mapped_count / len(requirements)) * 100, 2)
+    
+    # Group by framework
+    frameworks = set(r.framework for r in requirements)
+    for framework in frameworks:
+        framework_reqs = [r for r in requirements if r.framework == framework]
+        framework_mapped = len([m for m in mappings if m.requirement_id in [r.id for r in framework_reqs]])
+        
+        analytics["by_framework"][framework] = {
+            "score": round((framework_mapped / len(framework_reqs)) * 100, 2) if framework_reqs else 0,
+            "total_requirements": len(framework_reqs),
+            "mapped": framework_mapped,
+            "gaps": len(framework_reqs) - framework_mapped
+        }
+    
+    # Group by category
+    categories = set(r.category for r in requirements if hasattr(r, 'category') and r.category)
+    for category in categories:
+        cat_reqs = [r for r in requirements if hasattr(r, 'category') and r.category == category]
+        cat_mapped = len([m for m in mappings if m.requirement_id in [r.id for r in cat_reqs]])
+        
+        analytics["by_category"][category] = {
+            "score": round((cat_mapped / len(cat_reqs)) * 100, 2) if cat_reqs else 0,
+            "requirements": len(cat_reqs)
+        }
+    
+    # Gap analysis
+    analytics["gap_analysis"] = {
+        "total_gaps": len(requirements) - len(set(m.requirement_id for m in mappings)),
+        "critical_gaps": len([r for r in requirements if hasattr(r, 'priority') and r.priority == 'critical' and r.id not in [m.requirement_id for m in mappings]]),
+        "by_framework": {}
+    }
+    
+    for framework, data in analytics["by_framework"].items():
+        analytics["gap_analysis"]["by_framework"][framework] = data["gaps"]
+    
+    # Trend data (last 6 assessments)
+    recent_assessments = sorted(assessments, key=lambda a: a.assessment_date, reverse=True)[:6]
+    analytics["trend_data"] = [
+        {
+            "date": a.assessment_date.isoformat(),
+            "score": a.compliance_score,
+            "framework": a.framework
+        } for a in reversed(recent_assessments)
+    ]
+    
+    return analytics

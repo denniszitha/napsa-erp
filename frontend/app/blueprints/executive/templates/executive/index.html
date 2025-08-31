@@ -1,0 +1,795 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Executive Dashboard - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --executive-primary: #1e3a8a;
+        --executive-gold: #fbbf24;
+        --executive-dark: #0f172a;
+        --executive-light: #f8fafc;
+        --executive-success: #10b981;
+        --executive-danger: #ef4444;
+        --executive-warning: #f59e0b;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+
+    /* Executive Header */
+    .executive-header {
+        background: linear-gradient(135deg, var(--executive-primary) 0%, var(--executive-dark) 100%);
+        color: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .executive-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .executive-header .badge-gold {
+        background: var(--executive-gold);
+        color: var(--executive-dark);
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-size: 0.875rem;
+        margin-left: 1rem;
+    }
+
+    /* KPI Cards */
+    .kpi-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        height: 100%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, var(--executive-primary), var(--executive-gold));
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--executive-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-label {
+        color: #64748b;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    .kpi-change {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .kpi-change.positive {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--executive-success);
+    }
+
+    .kpi-change.negative {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--executive-danger);
+    }
+
+    /* Executive Cards */
+    .executive-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .executive-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--executive-dark);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .executive-card h3 i {
+        margin-right: 0.75rem;
+        color: var(--executive-primary);
+    }
+
+    /* Strategic Initiative Cards */
+    .initiative-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--executive-primary);
+        transition: all 0.3s ease;
+    }
+
+    .initiative-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .initiative-card.at-risk {
+        border-left-color: var(--executive-warning);
+    }
+
+    .initiative-card.critical {
+        border-left-color: var(--executive-danger);
+    }
+
+    /* Progress Bar */
+    .progress-custom {
+        height: 10px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        margin: 0.5rem 0;
+    }
+
+    .progress-bar-custom {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, var(--executive-primary), var(--executive-gold));
+        transition: width 0.6s ease;
+    }
+
+    /* Executive Team Grid */
+    .executive-member {
+        text-align: center;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .executive-member:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .executive-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--executive-primary), var(--executive-gold));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .executive-name {
+        font-weight: 700;
+        color: var(--executive-dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .executive-title {
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    /* Risk Matrix Mini */
+    .risk-matrix-mini {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .risk-cell {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: white;
+        font-size: 0.875rem;
+    }
+
+    .risk-low { background: var(--executive-success); }
+    .risk-medium { background: var(--executive-warning); }
+    .risk-high { background: var(--executive-danger); }
+
+    /* Meeting Cards */
+    .meeting-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .meeting-card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .meeting-date {
+        background: var(--executive-primary);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 10px;
+        text-align: center;
+        min-width: 60px;
+    }
+
+    .meeting-date .day {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .meeting-date .month {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    /* Charts Container */
+    .chart-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.375rem 0.875rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.on-track {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--executive-success);
+    }
+
+    .status-badge.at-risk {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--executive-warning);
+    }
+
+    .status-badge.delayed {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--executive-danger);
+    }
+
+    /* Action Buttons */
+    .btn-executive {
+        background: var(--executive-primary);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-executive:hover {
+        background: var(--executive-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-executive-outline {
+        background: transparent;
+        color: var(--executive-primary);
+        border: 2px solid var(--executive-primary);
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-executive-outline:hover {
+        background: var(--executive-primary);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Executive Header -->
+    <div class="executive-header">
+        <h1>
+            Executive Dashboard
+            <span class="badge-gold">Board View</span>
+        </h1>
+        <p class="mb-0 opacity-90">Strategic Overview & Performance Monitoring</p>
+    </div>
+
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Assets (ZMW)</div>
+                <div class="kpi-value">128.5B</div>
+                <span class="kpi-change positive">
+                    <i class="bi bi-arrow-up me-1"></i>12.8%
+                </span>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Members</div>
+                <div class="kpi-value">1.85M</div>
+                <span class="kpi-change positive">
+                    <i class="bi bi-arrow-up me-1"></i>8.5%
+                </span>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card">
+                <div class="kpi-label">Investment Returns</div>
+                <div class="kpi-value">12.8%</div>
+                <span class="kpi-change positive">
+                    <i class="bi bi-arrow-up me-1"></i>0.8pp
+                </span>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card">
+                <div class="kpi-label">Compliance Rate</div>
+                <div class="kpi-value">94.5%</div>
+                <span class="kpi-change negative">
+                    <i class="bi bi-arrow-down me-1"></i>0.5pp
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row">
+        <!-- Strategic Initiatives -->
+        <div class="col-xl-6 mb-4">
+            <div class="executive-card">
+                <h3><i class="bi bi-bullseye"></i>Strategic Initiatives</h3>
+                <div id="strategicInitiatives">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Overview -->
+        <div class="col-xl-6 mb-4">
+            <div class="executive-card">
+                <h3><i class="bi bi-shield-exclamation"></i>Strategic Risk Overview</h3>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="risk-matrix-mini" id="riskMatrix">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div id="riskStats">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <div id="topRisks">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Board & Committees Row -->
+    <div class="row">
+        <!-- Board Activities -->
+        <div class="col-xl-4 mb-4">
+            <div class="executive-card">
+                <h3><i class="bi bi-people"></i>Board Activities</h3>
+                <div id="boardActivities">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Meetings -->
+        <div class="col-xl-4 mb-4">
+            <div class="executive-card">
+                <h3><i class="bi bi-calendar-event"></i>Upcoming Meetings</h3>
+                <div id="upcomingMeetings">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Resolutions -->
+        <div class="col-xl-4 mb-4">
+            <div class="executive-card">
+                <h3><i class="bi bi-clipboard-check"></i>Recent Resolutions</h3>
+                <div id="recentResolutions">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Team -->
+    <div class="row">
+        <div class="col-12">
+            <div class="executive-card">
+                <h3><i class="bi bi-person-badge"></i>Executive Management Team</h3>
+                <div class="row" id="executiveTeam">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Charts -->
+    <div class="row">
+        <div class="col-xl-8 mb-4">
+            <div class="chart-container">
+                <h3 class="mb-3">Performance Trends</h3>
+                <canvas id="performanceChart" height="100"></canvas>
+            </div>
+        </div>
+        <div class="col-xl-4 mb-4">
+            <div class="chart-container">
+                <h3 class="mb-3">Compliance Status</h3>
+                <canvas id="complianceChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+    loadExecutiveTeam();
+    loadMeetings();
+    loadResolutions();
+    initializeCharts();
+});
+
+function loadDashboardData() {
+    fetch('/executive/api/dashboard')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayStrategicInitiatives(data.data.strategic_initiatives);
+                displayRiskOverview(data.data.risk_overview);
+                displayBoardActivities(data.data.board_activities);
+            }
+        })
+        .catch(error => console.error('Error loading dashboard:', error));
+}
+
+function displayStrategicInitiatives(initiatives) {
+    const container = document.getElementById('strategicInitiatives');
+    let html = '';
+    
+    initiatives.forEach(initiative => {
+        const statusClass = initiative.status === 'at_risk' ? 'at-risk' : 
+                           initiative.status === 'delayed' ? 'critical' : '';
+        const statusBadge = initiative.status === 'on_track' ? 'on-track' :
+                           initiative.status === 'at_risk' ? 'at-risk' : 
+                           initiative.status === 'ahead' ? 'on-track' : 'delayed';
+        
+        html += `
+            <div class="initiative-card ${statusClass}">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="mb-0">${initiative.name}</h5>
+                    <span class="status-badge ${statusBadge}">${initiative.status.replace('_', ' ')}</span>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Progress: ${initiative.progress}%</small>
+                    <div class="progress-custom">
+                        <div class="progress-bar-custom" style="width: ${initiative.progress}%"></div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">Budget: ${initiative.budget_utilization}%</small>
+                    <small class="text-muted">Due: ${new Date(initiative.completion_date).toLocaleDateString()}</small>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function displayRiskOverview(riskData) {
+    // Display risk matrix
+    const matrix = document.getElementById('riskMatrix');
+    matrix.innerHTML = `
+        <div class="risk-cell risk-low">L</div>
+        <div class="risk-cell risk-medium">M</div>
+        <div class="risk-cell risk-medium">M</div>
+        <div class="risk-cell risk-medium">M</div>
+        <div class="risk-cell risk-high">H</div>
+        <div class="risk-cell risk-high">H</div>
+        <div class="risk-cell risk-high">H</div>
+        <div class="risk-cell risk-high">C</div>
+        <div class="risk-cell risk-high">C</div>
+    `;
+    
+    // Display risk stats
+    const stats = document.getElementById('riskStats');
+    stats.innerHTML = `
+        <div class="mb-2">
+            <span class="badge bg-danger">Critical: ${riskData.critical}</span>
+        </div>
+        <div class="mb-2">
+            <span class="badge bg-warning">High: ${riskData.high}</span>
+        </div>
+        <div class="mb-2">
+            <span class="badge bg-info">Medium: ${riskData.medium}</span>
+        </div>
+        <div class="mb-2">
+            <span class="badge bg-success">Low: ${riskData.low}</span>
+        </div>
+        <div class="mt-3">
+            <small class="text-muted">Risk Appetite Utilization</small>
+            <div class="progress-custom">
+                <div class="progress-bar-custom" style="width: ${riskData.risk_appetite_utilization}%"></div>
+            </div>
+            <small class="text-muted">${riskData.risk_appetite_utilization}%</small>
+        </div>
+    `;
+    
+    // Load and display top risks
+    fetch('/executive/api/strategic-risks')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const topRisks = document.getElementById('topRisks');
+                let html = '<h6 class="mt-3 mb-2">Top Strategic Risks</h6>';
+                
+                data.data.slice(0, 3).forEach(risk => {
+                    const trendIcon = risk.trend === 'increasing' ? 'arrow-up text-danger' :
+                                     risk.trend === 'decreasing' ? 'arrow-down text-success' :
+                                     'arrow-right text-warning';
+                    
+                    html += `
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                            <div>
+                                <strong class="d-block">${risk.title}</strong>
+                                <small class="text-muted">${risk.owner}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-${risk.risk_level === 'Critical' ? 'danger' : risk.risk_level === 'High' ? 'warning' : 'info'}">
+                                    ${risk.risk_level}
+                                </span>
+                                <i class="bi bi-${trendIcon} ms-2"></i>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                topRisks.innerHTML = html;
+            }
+        });
+}
+
+function displayBoardActivities(activities) {
+    const container = document.getElementById('boardActivities');
+    container.innerHTML = `
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-2">
+                <span>Next Board Meeting</span>
+                <strong>${new Date(activities.next_meeting).toLocaleDateString()}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Pending Decisions</span>
+                <strong>${activities.pending_decisions}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Recent Resolutions</span>
+                <strong>${activities.recent_resolutions}</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>Committee Meetings (Month)</span>
+                <strong>${activities.committee_meetings_this_month}</strong>
+            </div>
+        </div>
+    `;
+}
+
+function loadExecutiveTeam() {
+    fetch('/executive/api/executives')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const container = document.getElementById('executiveTeam');
+                let html = '';
+                
+                data.data.slice(0, 8).forEach(exec => {
+                    const initials = exec.name.split(' ').map(n => n[0]).join('');
+                    html += `
+                        <div class="col-xl-3 col-md-4 col-sm-6 mb-3">
+                            <div class="executive-member">
+                                <div class="executive-avatar">${initials}</div>
+                                <div class="executive-name">${exec.name}</div>
+                                <div class="executive-title">${exec.title}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+        });
+}
+
+function loadMeetings() {
+    fetch('/executive/api/meetings')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const container = document.getElementById('upcomingMeetings');
+                let html = '';
+                
+                data.data.filter(m => m.status === 'scheduled').slice(0, 3).forEach(meeting => {
+                    const date = new Date(meeting.date);
+                    const day = date.getDate();
+                    const month = date.toLocaleString('default', { month: 'short' });
+                    
+                    html += `
+                        <div class="meeting-card">
+                            <div class="d-flex align-items-center">
+                                <div class="meeting-date me-3">
+                                    <div class="day">${day}</div>
+                                    <div class="month">${month}</div>
+                                </div>
+                                <div>
+                                    <strong class="d-block">${meeting.title}</strong>
+                                    <small class="text-muted">${meeting.time} - ${meeting.venue}</small>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="badge bg-primary">${meeting.attendees} attendees</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+        });
+}
+
+function loadResolutions() {
+    fetch('/executive/api/resolutions')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const container = document.getElementById('recentResolutions');
+                let html = '';
+                
+                data.data.slice(0, 4).forEach(resolution => {
+                    const statusColor = resolution.implementation_status === 'completed' ? 'success' :
+                                       resolution.implementation_status === 'in_progress' ? 'warning' : 'secondary';
+                    
+                    html += `
+                        <div class="mb-3 p-2 border-start border-3 border-${statusColor}">
+                            <strong class="d-block small">${resolution.reference}</strong>
+                            <span class="text-muted small">${resolution.title}</span>
+                            <div class="mt-1">
+                                <span class="badge bg-${statusColor} small">
+                                    ${resolution.implementation_status.replace('_', ' ')}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+        });
+}
+
+function initializeCharts() {
+    // Performance Trends Chart
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(performanceCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+            datasets: [{
+                label: 'ROI %',
+                data: [10.5, 11.2, 11.8, 12.1, 12.3, 12.5, 12.7, 12.8],
+                borderColor: '#1e3a8a',
+                backgroundColor: 'rgba(30, 58, 138, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Collection %',
+                data: [92, 93, 93.5, 94, 94.2, 94.3, 94.4, 94.5],
+                borderColor: '#fbbf24',
+                backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+
+    // Compliance Chart
+    const complianceCtx = document.getElementById('complianceChart').getContext('2d');
+    new Chart(complianceCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Compliant', 'Minor Issues', 'Major Issues'],
+            datasets: [{
+                data: [94.5, 4.5, 1],
+                backgroundColor: ['#10b981', '#fbbf24', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

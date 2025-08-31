@@ -1,0 +1,1264 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Risk Assessments - NAPSA ERM{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* Modern Professional Design System */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --danger-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+    
+    /* Statistics Cards - Premium Design */
+    .stats-card {
+        background: white;
+        border: none;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary-gradient);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .stats-card:hover::before {
+        opacity: 1;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: var(--card-hover-shadow);
+    }
+    
+    .stats-card .stats-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .stats-card .stats-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stats-card.primary .stats-icon {
+        background: var(--primary-gradient);
+    }
+    
+    .stats-card.success .stats-icon {
+        background: var(--success-gradient);
+    }
+    
+    .stats-card.danger .stats-icon {
+        background: var(--danger-gradient);
+    }
+    
+    .stats-card.warning .stats-icon {
+        background: var(--info-gradient);
+    }
+    
+    .stats-card .stats-info {
+        flex: 1;
+        margin-left: 25px;
+    }
+    
+    .stats-card h3 {
+        font-size: 36px;
+        font-weight: 800;
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card.success h3 {
+        background: var(--success-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card.danger h3 {
+        background: var(--danger-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card.warning h3 {
+        background: var(--info-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stats-card p {
+        color: #718096;
+        font-size: 15px;
+        margin: 5px 0 0 0;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* Assessment Cards - Premium Design */
+    .assessment-card {
+        background: white;
+        border: none;
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    }
+    
+    .assessment-card::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: var(--primary-gradient);
+        border-radius: 24px;
+        opacity: 0;
+        z-index: -1;
+        transition: opacity 0.3s ease;
+    }
+    
+    .assessment-card:hover {
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+        transform: translateY(-8px) scale(1.01);
+    }
+    
+    .assessment-card:hover::after {
+        opacity: 0.1;
+    }
+    
+    .assessment-header {
+        border-bottom: 2px solid transparent;
+        background: linear-gradient(to right, #667eea, #764ba2) left bottom no-repeat;
+        background-size: 100% 2px;
+        padding-bottom: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .assessment-id {
+        display: inline-block;
+        font-size: 11px;
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        background: var(--primary-gradient);
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .assessment-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 12px 0;
+        line-height: 1.3;
+    }
+    
+    .assessment-meta {
+        display: flex;
+        gap: 20px;
+        color: #64748b;
+        font-size: 14px;
+    }
+    
+    .assessment-meta i {
+        color: #94a3b8;
+        width: 16px;
+    }
+    
+    .risk-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 16px;
+        margin: 16px 0;
+    }
+    
+    .metric-item {
+        text-align: center;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+    
+    .metric-label {
+        font-size: 11px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    
+    .metric-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    .risk-score {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .risk-score.low {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .risk-score.medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .risk-score.high {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-badge.within {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .status-badge.exceeds {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+    
+    /* Modern Action Buttons */
+    .btn-action {
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-action::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: left 0.3s ease;
+    }
+    
+    .btn-action:hover::before {
+        left: 100%;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+    }
+    
+    .btn-action.view {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.25);
+    }
+    
+    .btn-action.view:hover {
+        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.35);
+    }
+    
+    .btn-action.edit {
+        background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        box-shadow: 0 4px 15px rgba(86, 171, 47, 0.25);
+    }
+    
+    .btn-action.edit:hover {
+        box-shadow: 0 6px 20px rgba(86, 171, 47, 0.35);
+    }
+    
+    .btn-action.delete {
+        background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        box-shadow: 0 4px 15px rgba(242, 153, 74, 0.25);
+    }
+    
+    .btn-action.delete:hover {
+        box-shadow: 0 6px 20px rgba(242, 153, 74, 0.35);
+    }
+    
+    .score-selector {
+        display: flex;
+        gap: 10px;
+        margin: 10px 0;
+    }
+    
+    .score-option {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #e0e6ed;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+    }
+    
+    .score-option:hover {
+        border-color: #3b82f6;
+        background: #f0f9ff;
+    }
+    
+    .score-option.selected {
+        border-color: #3b82f6;
+        background: #3b82f6;
+        color: white;
+    }
+    
+    .control-slider-container {
+        margin: 20px 0;
+    }
+    
+    .control-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #3b82f6;
+    }
+    
+    .risk-calculation {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .calc-item {
+        text-align: center;
+        padding: 10px;
+    }
+    
+    .calc-value {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 5px 0;
+    }
+    
+    .calc-label {
+        color: #64748b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Page Header - Modern Design */
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 24px;
+        padding: 40px;
+        margin-bottom: 35px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 50%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(-15deg);
+    }
+    
+    .page-header h2 {
+        color: white !important;
+        font-weight: 700;
+        font-size: 32px;
+    }
+    
+    .page-header p {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-size: 16px;
+    }
+    
+    .page-header .btn {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border: none;
+        padding: 12px 24px;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .page-header .btn-primary {
+        background: white;
+        color: #667eea;
+    }
+    
+    .page-header .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .page-header .btn-outline-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+    
+    .page-header .btn-outline-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: white;
+        transform: translateY(-2px);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e0e6ed;
+    }
+    
+    .empty-state i {
+        font-size: 64px;
+        color: #cbd5e1;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h4 {
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .empty-state p {
+        color: #64748b;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-1">
+                    <i class="fas fa-clipboard-check text-primary me-2"></i>Risk Assessments
+                </h2>
+                <p class="text-muted mb-0">Evaluate and assess organizational risks with comprehensive analysis</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-primary" id="btnNewAssessment">
+                    <i class="fas fa-plus me-2"></i>New Assessment
+                </button>
+                <button class="btn btn-outline-secondary ms-2" id="btnRefresh">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                </button>
+                <button class="btn btn-outline-secondary ms-2" id="btnExport">
+                    <i class="fas fa-download me-2"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card primary">
+                <div class="stats-content">
+                    <div class="stats-info">
+                        <h3 id="statTotal">0</h3>
+                        <p>Total Assessments</p>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card success">
+                <div class="stats-content">
+                    <div class="stats-info">
+                        <h3 id="statWithin">0</h3>
+                        <p>Within Appetite</p>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card danger">
+                <div class="stats-content">
+                    <div class="stats-info">
+                        <h3 id="statExceeds">0</h3>
+                        <p>Exceeds Appetite</p>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card warning">
+                <div class="stats-content">
+                    <div class="stats-info">
+                        <h3 id="statAvgResidual">0</h3>
+                        <p>Average Risk</p>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assessments Container -->
+    <div id="assessmentsContainer">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading assessments...</p>
+        </div>
+    </div>
+</div>
+
+<!-- View Assessment Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Assessment Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="viewModalBody">
+                <!-- Content will be populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit/New Assessment Modal -->
+<div class="modal fade" id="assessmentModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-clipboard-check me-2"></i>
+                    <span id="modalTitle">New Risk Assessment</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assessmentForm">
+                    <input type="hidden" id="assessmentId" value="">
+                    
+                    <!-- Risk Selection -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select Risk <span class="text-danger">*</span></label>
+                        <select class="form-select" id="riskSelect" required>
+                            <option value="">-- Select a risk to assess --</option>
+                        </select>
+                        <small class="text-muted">Only active and under review risks are shown</small>
+                    </div>
+
+                    <!-- Likelihood Score -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Likelihood Score <span class="text-danger">*</span></label>
+                        <div class="score-selector" id="likelihoodSelector">
+                            <div class="score-option" data-value="1">
+                                <strong>1</strong><br>
+                                <small>Very Low</small>
+                            </div>
+                            <div class="score-option" data-value="2">
+                                <strong>2</strong><br>
+                                <small>Low</small>
+                            </div>
+                            <div class="score-option selected" data-value="3">
+                                <strong>3</strong><br>
+                                <small>Medium</small>
+                            </div>
+                            <div class="score-option" data-value="4">
+                                <strong>4</strong><br>
+                                <small>High</small>
+                            </div>
+                            <div class="score-option" data-value="5">
+                                <strong>5</strong><br>
+                                <small>Very High</small>
+                            </div>
+                        </div>
+                        <input type="hidden" id="likelihoodScore" value="3">
+                    </div>
+
+                    <!-- Impact Score -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Impact Score <span class="text-danger">*</span></label>
+                        <div class="score-selector" id="impactSelector">
+                            <div class="score-option" data-value="1">
+                                <strong>1</strong><br>
+                                <small>Minimal</small>
+                            </div>
+                            <div class="score-option" data-value="2">
+                                <strong>2</strong><br>
+                                <small>Minor</small>
+                            </div>
+                            <div class="score-option selected" data-value="3">
+                                <strong>3</strong><br>
+                                <small>Moderate</small>
+                            </div>
+                            <div class="score-option" data-value="4">
+                                <strong>4</strong><br>
+                                <small>Major</small>
+                            </div>
+                            <div class="score-option" data-value="5">
+                                <strong>5</strong><br>
+                                <small>Severe</small>
+                            </div>
+                        </div>
+                        <input type="hidden" id="impactScore" value="3">
+                    </div>
+
+                    <!-- Control Effectiveness -->
+                    <div class="control-slider-container mb-4">
+                        <label class="form-label fw-bold">
+                            Control Effectiveness <span class="text-danger">*</span>
+                        </label>
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <input type="range" class="form-range" id="controlSlider" 
+                                       min="0" max="100" value="50" step="5">
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <span class="control-value" id="controlValue">50</span>%
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Calculation Display -->
+                    <div class="risk-calculation">
+                        <div class="row">
+                            <div class="col-md-4 calc-item">
+                                <div class="calc-label">Inherent Risk</div>
+                                <div class="calc-value text-danger" id="inherentRiskValue">9</div>
+                                <small class="text-muted">(Likelihood × Impact)</small>
+                            </div>
+                            <div class="col-md-4 calc-item">
+                                <div class="calc-label">Residual Risk</div>
+                                <div class="calc-value text-warning" id="residualRiskValue">4.5</div>
+                                <small class="text-muted">(After Controls)</small>
+                            </div>
+                            <div class="col-md-4 calc-item">
+                                <div class="calc-label">Risk Status</div>
+                                <div class="calc-value text-success" id="riskStatusValue">Within</div>
+                                <small class="text-muted">(Threshold: 12)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Fields -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Next Review Date</label>
+                            <input type="date" class="form-control" id="nextReviewDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Assessment Notes</label>
+                            <textarea class="form-control" id="assessmentNotes" rows="3" 
+                                      placeholder="Enter assessment notes or justification..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSaveAssessment">
+                    <i class="fas fa-save me-2"></i>Save Assessment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let assessments = [];
+let risks = [];
+let currentLikelihood = 3;
+let currentImpact = 3;
+let currentControl = 50;
+let currentAssessmentId = null;
+let isEditMode = false;
+
+// Initialize on document ready
+$(document).ready(function() {
+    // Load initial data
+    loadAssessments();
+    loadStatistics();
+    loadRisks();
+    
+    // Setup event handlers
+    setupEventHandlers();
+    
+    // Set default review date (90 days from now)
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 90);
+    $('#nextReviewDate').val(futureDate.toISOString().split('T')[0]);
+    
+    // Set minimum date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    $('#nextReviewDate').attr('min', tomorrow.toISOString().split('T')[0]);
+});
+
+// Setup all event handlers
+function setupEventHandlers() {
+    // New Assessment button
+    $('#btnNewAssessment').click(function() {
+        openNewAssessment();
+    });
+    
+    // Refresh button
+    $('#btnRefresh').click(function() {
+        loadAssessments();
+        loadStatistics();
+        toastr.info('Data refreshed');
+    });
+    
+    // Export button
+    $('#btnExport').click(function() {
+        window.location.href = '/risk-assessments/api/export';
+    });
+    
+    // Likelihood selector
+    $('#likelihoodSelector .score-option').click(function() {
+        $('#likelihoodSelector .score-option').removeClass('selected');
+        $(this).addClass('selected');
+        currentLikelihood = parseInt($(this).data('value'));
+        $('#likelihoodScore').val(currentLikelihood);
+        calculateRiskScores();
+    });
+    
+    // Impact selector
+    $('#impactSelector .score-option').click(function() {
+        $('#impactSelector .score-option').removeClass('selected');
+        $(this).addClass('selected');
+        currentImpact = parseInt($(this).data('value'));
+        $('#impactScore').val(currentImpact);
+        calculateRiskScores();
+    });
+    
+    // Control slider
+    $('#controlSlider').on('input', function() {
+        currentControl = parseInt($(this).val());
+        $('#controlValue').text(currentControl);
+        calculateRiskScores();
+    });
+    
+    // Save Assessment button
+    $('#btnSaveAssessment').click(function() {
+        if (isEditMode) {
+            updateAssessment();
+        } else {
+            saveAssessment();
+        }
+    });
+    
+    // Risk select change
+    $('#riskSelect').change(function() {
+        if (!isEditMode && $(this).val()) {
+            // Enable form when risk is selected
+            $('#assessmentForm input, #assessmentForm textarea').prop('disabled', false);
+        }
+    });
+}
+
+// Load assessments from backend
+function loadAssessments() {
+    $.ajax({
+        url: '/risk-assessments/api/list',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                assessments = response.assessments || [];
+                displayAssessments();
+            } else {
+                showError('Failed to load assessments');
+            }
+        },
+        error: function(xhr) {
+            console.error('Error loading assessments:', xhr);
+            showError('Error connecting to backend service');
+        }
+    });
+}
+
+// Load statistics
+function loadStatistics() {
+    $.ajax({
+        url: '/risk-assessments/api/statistics',
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.statistics) {
+                $('#statTotal').text(response.statistics.total || 0);
+                $('#statWithin').text(response.statistics.within_appetite || 0);
+                $('#statExceeds').text(response.statistics.exceeds_appetite || 0);
+                $('#statAvgResidual').text(response.statistics.average_residual_risk || 0);
+            }
+        },
+        error: function(xhr) {
+            console.error('Error loading statistics:', xhr);
+        }
+    });
+}
+
+// Load risks for dropdown
+function loadRisks() {
+    $.ajax({
+        url: '/risk-assessments/api/risks',
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.risks) {
+                risks = response.risks;
+                populateRiskDropdown();
+            }
+        },
+        error: function(xhr) {
+            console.error('Error loading risks:', xhr);
+        }
+    });
+}
+
+// Display assessments
+function displayAssessments() {
+    const container = $('#assessmentsContainer');
+    container.empty();
+    
+    if (assessments.length === 0) {
+        container.html(`
+            <div class="empty-state">
+                <i class="fas fa-clipboard-check"></i>
+                <h4>No Assessments Found</h4>
+                <p>Start by creating your first risk assessment</p>
+                <button class="btn btn-primary" onclick="openNewAssessment()">
+                    <i class="fas fa-plus me-2"></i>Create Assessment
+                </button>
+            </div>
+        `);
+        return;
+    }
+    
+    // Create assessment cards
+    assessments.forEach(function(assessment) {
+        const date = new Date(assessment.assessment_date || assessment.created_at);
+        const dateStr = date.toLocaleDateString();
+        
+        // Determine risk level for styling
+        const residualRisk = parseFloat(assessment.residual_risk) || 0;
+        let riskClass = 'low';
+        if (residualRisk > 15) riskClass = 'high';
+        else if (residualRisk > 8) riskClass = 'medium';
+        
+        // Status badge
+        const statusClass = assessment.risk_appetite_status === 'within' ? 'within' : 'exceeds';
+        const statusText = assessment.risk_appetite_status === 'within' ? 'Within Appetite' : 'Exceeds Appetite';
+        
+        const card = `
+            <div class="assessment-card">
+                <div class="assessment-header">
+                    <div class="row align-items-start">
+                        <div class="col-md-8">
+                            <div class="assessment-id">${assessment.id || 'N/A'}</div>
+                            <h5 class="assessment-title">${assessment.risk_title || assessment.risk_id || 'Unknown Risk'}</h5>
+                            <div class="assessment-meta">
+                                <span><i class="fas fa-calendar"></i> ${dateStr}</span>
+                                <span><i class="fas fa-user"></i> ${assessment.assessor_name || 'Unknown'}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="risk-metrics">
+                    <div class="metric-item">
+                        <div class="metric-label">Likelihood</div>
+                        <div class="metric-value">${assessment.likelihood_score || 0}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Impact</div>
+                        <div class="metric-value">${assessment.impact_score || 0}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Control</div>
+                        <div class="metric-value">${assessment.control_effectiveness || 0}%</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Inherent</div>
+                        <div class="metric-value risk-score ${riskClass}">${(assessment.inherent_risk || 0).toFixed(1)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Residual</div>
+                        <div class="metric-value risk-score ${riskClass}">${residualRisk.toFixed(1)}</div>
+                    </div>
+                </div>
+                
+                ${assessment.notes ? `<div class="mt-3 p-3 bg-light rounded"><small class="text-muted">${assessment.notes}</small></div>` : ''}
+                
+                <div class="action-buttons mt-3">
+                    <button class="btn-action view" onclick="viewAssessment('${assessment.id}')">
+                        <i class="fas fa-eye me-1"></i> View
+                    </button>
+                    <button class="btn-action edit" onclick="editAssessment('${assessment.id}')">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </button>
+                    <button class="btn-action delete" onclick="deleteAssessment('${assessment.id}')">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        container.append(card);
+    });
+}
+
+// Populate risk dropdown
+function populateRiskDropdown() {
+    const select = $('#riskSelect');
+    select.empty();
+    select.append('<option value="">-- Select a risk to assess --</option>');
+    
+    if (risks && risks.length > 0) {
+        risks.forEach(function(risk) {
+            const option = `<option value="${risk.id}">${risk.id} - ${risk.title}</option>`;
+            select.append(option);
+        });
+    }
+}
+
+// Calculate risk scores
+function calculateRiskScores() {
+    const inherent = currentLikelihood * currentImpact;
+    const residual = inherent * (1 - currentControl / 100);
+    
+    // Update display
+    $('#inherentRiskValue').text(inherent.toFixed(0));
+    $('#residualRiskValue').text(residual.toFixed(1));
+    
+    // Update status
+    const status = residual <= 12 ? 'Within' : 'Exceeds';
+    const statusColor = residual <= 12 ? 'text-success' : 'text-danger';
+    
+    $('#riskStatusValue')
+        .removeClass('text-success text-danger')
+        .addClass(statusColor)
+        .text(status);
+}
+
+// Open new assessment modal
+function openNewAssessment() {
+    isEditMode = false;
+    currentAssessmentId = null;
+    $('#modalTitle').text('New Risk Assessment');
+    $('#assessmentId').val('');
+    $('#assessmentForm')[0].reset();
+    $('#riskSelect').prop('disabled', false);
+    resetScoreSelectors();
+    $('#assessmentModal').modal('show');
+    calculateRiskScores();
+}
+
+// View assessment details
+function viewAssessment(id) {
+    const assessment = assessments.find(a => a.id === id);
+    if (!assessment) {
+        toastr.error('Assessment not found');
+        return;
+    }
+    
+    const modalBody = `
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Assessment ID:</strong> ${assessment.id}</p>
+                <p><strong>Risk:</strong> ${assessment.risk_title || assessment.risk_id}</p>
+                <p><strong>Assessor:</strong> ${assessment.assessor_name || 'Unknown'}</p>
+                <p><strong>Date:</strong> ${new Date(assessment.assessment_date || assessment.created_at).toLocaleDateString()}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Likelihood Score:</strong> ${assessment.likelihood_score}</p>
+                <p><strong>Impact Score:</strong> ${assessment.impact_score}</p>
+                <p><strong>Control Effectiveness:</strong> ${assessment.control_effectiveness}%</p>
+                <p><strong>Status:</strong> <span class="badge bg-${assessment.risk_appetite_status === 'within' ? 'success' : 'danger'}">${assessment.risk_appetite_status === 'within' ? 'Within Appetite' : 'Exceeds Appetite'}</span></p>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Inherent Risk</h6>
+                <h3 class="text-danger">${assessment.inherent_risk.toFixed(1)}</h3>
+            </div>
+            <div class="col-md-6">
+                <h6>Residual Risk</h6>
+                <h3 class="text-warning">${assessment.residual_risk.toFixed(1)}</h3>
+            </div>
+        </div>
+        ${assessment.notes ? `<hr><p><strong>Notes:</strong><br>${assessment.notes}</p>` : ''}
+    `;
+    
+    $('#viewModalBody').html(modalBody);
+    $('#viewModal').modal('show');
+}
+
+// Edit assessment
+function editAssessment(id) {
+    const assessment = assessments.find(a => a.id === id);
+    if (!assessment) {
+        toastr.error('Assessment not found');
+        return;
+    }
+    
+    isEditMode = true;
+    currentAssessmentId = id;
+    $('#modalTitle').text('Edit Risk Assessment');
+    $('#assessmentId').val(id);
+    
+    // Populate form
+    $('#riskSelect').val(assessment.risk_id).prop('disabled', true);
+    $('#assessmentNotes').val(assessment.notes || '');
+    
+    if (assessment.next_review_date) {
+        const reviewDate = new Date(assessment.next_review_date);
+        $('#nextReviewDate').val(reviewDate.toISOString().split('T')[0]);
+    }
+    
+    // Set scores
+    currentLikelihood = assessment.likelihood_score;
+    currentImpact = assessment.impact_score;
+    currentControl = assessment.control_effectiveness;
+    
+    // Update UI
+    $('#likelihoodSelector .score-option').removeClass('selected');
+    $(`#likelihoodSelector .score-option[data-value="${currentLikelihood}"]`).addClass('selected');
+    $('#likelihoodScore').val(currentLikelihood);
+    
+    $('#impactSelector .score-option').removeClass('selected');
+    $(`#impactSelector .score-option[data-value="${currentImpact}"]`).addClass('selected');
+    $('#impactScore').val(currentImpact);
+    
+    $('#controlSlider').val(currentControl);
+    $('#controlValue').text(currentControl);
+    
+    calculateRiskScores();
+    $('#assessmentModal').modal('show');
+}
+
+// Save new assessment
+function saveAssessment() {
+    const riskId = $('#riskSelect').val();
+    if (!riskId) {
+        toastr.error('Please select a risk to assess');
+        return;
+    }
+    
+    const data = {
+        risk_id: riskId,
+        likelihood_score: currentLikelihood,
+        impact_score: currentImpact,
+        control_effectiveness: currentControl,
+        notes: $('#assessmentNotes').val() || null,
+        next_review_date: $('#nextReviewDate').val() || null
+    };
+    
+    $.ajax({
+        url: '/risk-assessments/api/create',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            if (response.success) {
+                toastr.success('Assessment created successfully');
+                $('#assessmentModal').modal('hide');
+                loadAssessments();
+                loadStatistics();
+            } else {
+                toastr.error(response.error || 'Failed to save assessment');
+            }
+        },
+        error: function(xhr) {
+            const error = xhr.responseJSON?.error || 'Error saving assessment';
+            toastr.error(error);
+        }
+    });
+}
+
+// Update existing assessment
+function updateAssessment() {
+    if (!currentAssessmentId) {
+        toastr.error('No assessment selected for update');
+        return;
+    }
+    
+    const data = {
+        likelihood_score: currentLikelihood,
+        impact_score: currentImpact,
+        control_effectiveness: currentControl,
+        notes: $('#assessmentNotes').val() || null,
+        next_review_date: $('#nextReviewDate').val() || null
+    };
+    
+    $.ajax({
+        url: `/risk-assessments/api/update/${currentAssessmentId}`,
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            if (response.success) {
+                toastr.success('Assessment updated successfully');
+                $('#assessmentModal').modal('hide');
+                loadAssessments();
+                loadStatistics();
+            } else {
+                toastr.error(response.error || 'Failed to update assessment');
+            }
+        },
+        error: function(xhr) {
+            const error = xhr.responseJSON?.error || 'Error updating assessment';
+            toastr.error(error);
+        }
+    });
+}
+
+// Delete assessment
+window.deleteAssessment = function(id) {
+    if (!confirm('Are you sure you want to delete this assessment? This action cannot be undone.')) {
+        return;
+    }
+    
+    $.ajax({
+        url: `/risk-assessments/api/delete/${id}`,
+        method: 'DELETE',
+        success: function(response) {
+            if (response.success) {
+                toastr.success('Assessment deleted successfully');
+                loadAssessments();
+                loadStatistics();
+            } else {
+                toastr.error(response.error || 'Failed to delete assessment');
+            }
+        },
+        error: function(xhr) {
+            const error = xhr.responseJSON?.error || 'Error deleting assessment';
+            toastr.error(error);
+        }
+    });
+};
+
+// Reset score selectors to default
+function resetScoreSelectors() {
+    // Reset likelihood to 3
+    $('#likelihoodSelector .score-option').removeClass('selected');
+    $('#likelihoodSelector .score-option[data-value="3"]').addClass('selected');
+    currentLikelihood = 3;
+    $('#likelihoodScore').val(3);
+    
+    // Reset impact to 3
+    $('#impactSelector .score-option').removeClass('selected');
+    $('#impactSelector .score-option[data-value="3"]').addClass('selected');
+    currentImpact = 3;
+    $('#impactScore').val(3);
+    
+    // Reset control to 50
+    $('#controlSlider').val(50);
+    $('#controlValue').text('50');
+    currentControl = 50;
+}
+
+// Show error message
+function showError(message) {
+    $('#assessmentsContainer').html(`
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}
+        </div>
+    `);
+}
+
+// Make functions available globally
+window.viewAssessment = viewAssessment;
+window.editAssessment = editAssessment;
+window.openNewAssessment = openNewAssessment;
+</script>
+{% endblock %}

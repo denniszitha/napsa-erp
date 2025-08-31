@@ -1,0 +1,734 @@
+{% extends "layouts/base.html" %}
+{% block title %}Notifications - NAPSA ERM{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-bell"></i> Notification Management
+        </h1>
+        <div class="page-actions">
+            <button class="btn btn-primary" onclick="showComposeModal()">
+                <i class="fas fa-paper-plane"></i> Send Notification
+            </button>
+            <button class="btn btn-outline-primary" onclick="testNotificationSystem()">
+                <i class="fas fa-vial"></i> Test System
+            </button>
+            <button class="btn btn-outline-primary" onclick="refreshNotifications()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Sent Today</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0" id="sentToday">0</h2>
+                        <i class="fas fa-paper-plane ms-auto text-primary fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Email Status</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-success" id="emailStatus">Active</h2>
+                        <i class="fas fa-envelope ms-auto text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">SMS Status</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-success" id="smsStatus">Active</h2>
+                        <i class="fas fa-sms ms-auto text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Failed</h5>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0 text-danger" id="failedCount">0</h2>
+                        <i class="fas fa-exclamation-triangle ms-auto text-danger fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Types Tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#general">General</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#kri">KRI Alerts</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#incident">Incident Alerts</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#aml">AML Screening</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#policy">Policy Updates</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#history">History</a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content mt-3">
+        <!-- General Tab -->
+        <div id="general" class="tab-pane fade show active">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Send General Notification</h5>
+                    <form id="generalNotificationForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Recipients (Email)</label>
+                                    <textarea class="form-control" id="emailRecipients" rows="2" 
+                                        placeholder="Enter email addresses separated by commas"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Recipients (SMS)</label>
+                                    <textarea class="form-control" id="smsRecipients" rows="2" 
+                                        placeholder="Enter phone numbers separated by commas"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="notificationSubject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-control" id="notificationMessage" rows="4" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Priority</label>
+                                    <select class="form-select" id="notificationPriority">
+                                        <option value="low">Low</option>
+                                        <option value="normal" selected>Normal</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Notification Type</label>
+                                    <select class="form-select" id="notificationType">
+                                        <option value="general">General</option>
+                                        <option value="alert">Alert</option>
+                                        <option value="reminder">Reminder</option>
+                                        <option value="update">Update</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Send Notification
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- KRI Alerts Tab -->
+        <div id="kri" class="tab-pane fade">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">KRI Breach Alert</h5>
+                    <form id="kriAlertForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">KRI Name</label>
+                                    <input type="text" class="form-control" id="kriName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Risk Title</label>
+                                    <input type="text" class="form-control" id="riskTitle" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Current Value</label>
+                                    <input type="number" class="form-control" id="currentValue" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Threshold</label>
+                                    <input type="number" class="form-control" id="threshold" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" id="kriStatus">
+                                        <option value="warning">Warning</option>
+                                        <option value="critical">Critical</option>
+                                        <option value="breach">Breach</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email Recipients</label>
+                                    <textarea class="form-control" id="kriEmailRecipients" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">SMS Recipients</label>
+                                    <textarea class="form-control" id="kriSmsRecipients" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Send KRI Alert
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incident Alerts Tab -->
+        <div id="incident" class="tab-pane fade">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Incident Alert</h5>
+                    <form id="incidentAlertForm">
+                        <div class="mb-3">
+                            <label class="form-label">Incident Title</label>
+                            <input type="text" class="form-control" id="incidentTitle" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Severity</label>
+                                    <select class="form-select" id="incidentSeverity">
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="critical">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Incident Type</label>
+                                    <select class="form-select" id="incidentType">
+                                        <option value="security">Security</option>
+                                        <option value="operational">Operational</option>
+                                        <option value="compliance">Compliance</option>
+                                        <option value="financial">Financial</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="incidentDescription" rows="4" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email Recipients</label>
+                                    <textarea class="form-control" id="incidentEmailRecipients" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">SMS Recipients</label>
+                                    <textarea class="form-control" id="incidentSmsRecipients" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-exclamation-circle"></i> Send Incident Alert
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- AML Screening Tab -->
+        <div id="aml" class="tab-pane fade">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">AML Screening Alert</h5>
+                    <form id="amlAlertForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Customer Name</label>
+                                    <input type="text" class="form-control" id="customerName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Match Type</label>
+                                    <select class="form-select" id="matchType">
+                                        <option value="sanction">Sanctions List</option>
+                                        <option value="pep">PEP</option>
+                                        <option value="watchlist">Watchlist</option>
+                                        <option value="adverse_media">Adverse Media</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Risk Score</label>
+                                    <input type="number" class="form-control" id="riskScore" min="0" max="100" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Alert Level</label>
+                                    <select class="form-select" id="alertLevel">
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="critical">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Match Details</label>
+                            <textarea class="form-control" id="matchDetails" rows="3" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email Recipients</label>
+                                    <textarea class="form-control" id="amlEmailRecipients" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">SMS Recipients</label>
+                                    <textarea class="form-control" id="amlSmsRecipients" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-shield-alt"></i> Send AML Alert
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy Updates Tab -->
+        <div id="policy" class="tab-pane fade">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Policy Update Notification</h5>
+                    <form id="policyNotificationForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Policy Title</label>
+                                    <input type="text" class="form-control" id="policyTitle" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Action</label>
+                                    <select class="form-select" id="policyAction">
+                                        <option value="created">Created</option>
+                                        <option value="updated">Updated</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="published">Published</option>
+                                        <option value="review_required">Review Required</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Approver/Reviewer</label>
+                            <input type="text" class="form-control" id="policyApprover">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email Recipients</label>
+                                    <textarea class="form-control" id="policyEmailRecipients" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">SMS Recipients</label>
+                                    <textarea class="form-control" id="policySmsRecipients" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-file-alt"></i> Send Policy Notification
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-pane fade">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Notification History</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="notificationHistory">
+                            <thead>
+                                <tr>
+                                    <th>Date/Time</th>
+                                    <th>Type</th>
+                                    <th>Subject</th>
+                                    <th>Recipients</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- History will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Test Notification Modal -->
+<div class="modal fade" id="testModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Test Notification System</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="testForm">
+                    <div class="mb-3">
+                        <label class="form-label">Test Email Address</label>
+                        <input type="email" class="form-control" id="testEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Test Phone Number (Optional)</label>
+                        <input type="tel" class="form-control" id="testPhone" placeholder="+260...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendTestNotification()">Send Test</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize on page load
+$(document).ready(function() {
+    loadNotificationStatus();
+    loadNotificationHistory();
+});
+
+// Load notification system status
+function loadNotificationStatus() {
+    $.ajax({
+        url: '/notifications/api/status',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                $('#emailStatus').text(response.data.email_status || 'Active');
+                $('#smsStatus').text(response.data.sms_status || 'Active');
+                $('#sentToday').text(response.data.sent_today || '0');
+                $('#failedCount').text(response.data.failed_count || '0');
+            }
+        },
+        error: function() {
+            console.error('Failed to load notification status');
+        }
+    });
+}
+
+// General notification form submission
+$('#generalNotificationForm').submit(function(e) {
+    e.preventDefault();
+    
+    const emailList = $('#emailRecipients').val().split(',').map(e => e.trim()).filter(e => e);
+    const smsList = $('#smsRecipients').val().split(',').map(s => s.trim()).filter(s => s);
+    
+    const data = {
+        recipients: {
+            email: emailList,
+            sms: smsList
+        },
+        subject: $('#notificationSubject').val(),
+        message: $('#notificationMessage').val(),
+        notification_type: $('#notificationType').val(),
+        priority: $('#notificationPriority').val()
+    };
+    
+    sendNotification('/notifications/api/send', data, 'Notification sent successfully');
+});
+
+// KRI Alert form submission
+$('#kriAlertForm').submit(function(e) {
+    e.preventDefault();
+    
+    const emailList = $('#kriEmailRecipients').val().split(',').map(e => e.trim()).filter(e => e);
+    const smsList = $('#kriSmsRecipients').val().split(',').map(s => s.trim()).filter(s => s);
+    
+    const data = {
+        kri_name: $('#kriName').val(),
+        current_value: $('#currentValue').val(),
+        threshold: $('#threshold').val(),
+        status: $('#kriStatus').val(),
+        risk_title: $('#riskTitle').val(),
+        recipients: {
+            email: emailList,
+            sms: smsList
+        }
+    };
+    
+    sendNotification('/notifications/api/kri-alert', data, 'KRI alert sent successfully');
+});
+
+// Incident Alert form submission
+$('#incidentAlertForm').submit(function(e) {
+    e.preventDefault();
+    
+    const emailList = $('#incidentEmailRecipients').val().split(',').map(e => e.trim()).filter(e => e);
+    const smsList = $('#incidentSmsRecipients').val().split(',').map(s => s.trim()).filter(s => s);
+    
+    const data = {
+        incident_title: $('#incidentTitle').val(),
+        severity: $('#incidentSeverity').val(),
+        description: $('#incidentDescription').val(),
+        recipients: {
+            email: emailList,
+            sms: smsList
+        }
+    };
+    
+    sendNotification('/notifications/api/incident-alert', data, 'Incident alert sent successfully');
+});
+
+// AML Alert form submission
+$('#amlAlertForm').submit(function(e) {
+    e.preventDefault();
+    
+    const emailList = $('#amlEmailRecipients').val().split(',').map(e => e.trim()).filter(e => e);
+    const smsList = $('#amlSmsRecipients').val().split(',').map(s => s.trim()).filter(s => s);
+    
+    const data = {
+        customer_name: $('#customerName').val(),
+        match_type: $('#matchType').val(),
+        risk_score: $('#riskScore').val(),
+        match_details: $('#matchDetails').val(),
+        recipients: {
+            email: emailList,
+            sms: smsList
+        }
+    };
+    
+    sendNotification('/notifications/api/aml-alert', data, 'AML alert sent successfully');
+});
+
+// Policy notification form submission
+$('#policyNotificationForm').submit(function(e) {
+    e.preventDefault();
+    
+    const emailList = $('#policyEmailRecipients').val().split(',').map(e => e.trim()).filter(e => e);
+    const smsList = $('#policySmsRecipients').val().split(',').map(s => s.trim()).filter(s => s);
+    
+    const data = {
+        policy_title: $('#policyTitle').val(),
+        action: $('#policyAction').val(),
+        approver: $('#policyApprover').val(),
+        recipients: {
+            email: emailList,
+            sms: smsList
+        }
+    };
+    
+    sendNotification('/notifications/api/policy-notification', data, 'Policy notification sent successfully');
+});
+
+// Generic send notification function
+function sendNotification(url, data, successMessage) {
+    $.ajax({
+        url: url,
+        method: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.success) {
+                toastr.success(successMessage);
+                // Clear form
+                $('form')[0].reset();
+                loadNotificationHistory();
+                loadNotificationStatus();
+            } else {
+                toastr.error('Failed to send notification: ' + (response.error || 'Unknown error'));
+            }
+        },
+        error: function() {
+            toastr.error('Failed to send notification');
+        }
+    });
+}
+
+// Test notification system
+function testNotificationSystem() {
+    $('#testModal').modal('show');
+}
+
+function sendTestNotification() {
+    const data = {
+        email: $('#testEmail').val(),
+        phone: $('#testPhone').val()
+    };
+    
+    $.ajax({
+        url: '/notifications/api/test',
+        method: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.success) {
+                toastr.success('Test notification sent successfully');
+                $('#testModal').modal('hide');
+            } else {
+                toastr.error('Test failed: ' + (response.error || 'Unknown error'));
+            }
+        },
+        error: function() {
+            toastr.error('Failed to send test notification');
+        }
+    });
+}
+
+// Load notification history
+function loadNotificationHistory() {
+    $.ajax({
+        url: '/notifications/api/history',
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.data) {
+                displayNotificationHistory(response.data.items || []);
+            }
+        },
+        error: function() {
+            console.error('Failed to load notification history');
+            // Fallback to empty state
+            displayNotificationHistory([]);
+        }
+    });
+}
+
+function displayNotificationHistory(history) {
+    const tbody = $('#historyTableBody');
+    tbody.empty();
+    
+    if (!history || history.length === 0) {
+        tbody.append('<tr><td colspan="6" class="text-center">No notification history available</td></tr>');
+        return;
+    }
+    
+    history.forEach(function(item) {
+        const date = new Date(item.date).toLocaleString();
+        const recipients = item.recipients.email.join(', ');
+        const statusBadge = item.status === 'sent' ? 'bg-success' : 'bg-danger';
+        const typeBadge = getTypeBadge(item.type);
+        
+        const row = `
+            <tr>
+                <td>${date}</td>
+                <td>${typeBadge}</td>
+                <td>${item.subject}</td>
+                <td>${recipients}</td>
+                <td><span class="badge ${statusBadge}">${item.status}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewNotificationDetails('${item.id}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="resendNotification('${item.id}')">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        tbody.append(row);
+    });
+}
+
+function getTypeBadge(type) {
+    const badges = {
+        'KRI Alert': '<span class="badge bg-warning">KRI Alert</span>',
+        'Policy Update': '<span class="badge bg-info">Policy Update</span>',
+        'Incident Alert': '<span class="badge bg-danger">Incident Alert</span>',
+        'AML Alert': '<span class="badge bg-danger">AML Alert</span>',
+        'General': '<span class="badge bg-secondary">General</span>'
+    };
+    return badges[type] || '<span class="badge bg-secondary">' + type + '</span>';
+}
+
+// Helper functions
+function showComposeModal() {
+    // Switch to general tab and focus on form
+    $('.nav-link[href="#general"]').tab('show');
+    $('#notificationSubject').focus();
+}
+
+function refreshNotifications() {
+    loadNotificationStatus();
+    loadNotificationHistory();
+    toastr.success('Notifications refreshed');
+}
+
+function viewNotificationDetails(notifId) {
+    toastr.info('Viewing notification details for ' + notifId);
+}
+
+function resendNotification(notifId) {
+    toastr.info('Resending notification ' + notifId);
+}
+</script>
+{% endblock %}

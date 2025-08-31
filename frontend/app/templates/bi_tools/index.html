@@ -1,0 +1,875 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Business Intelligence Tools - NAPSA ERM{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/bi-tools.css') }}" rel="stylesheet">
+<style>
+    .bi-dashboard {
+        padding: 2rem;
+        background: var(--background-color);
+        min-height: 100vh;
+    }
+
+    .bi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .bi-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .bi-subtitle {
+        color: var(--text-secondary);
+        margin: 0.5rem 0 0 0;
+        font-size: 1rem;
+    }
+
+    .bi-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .time-selector, .dept-selector {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: white;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+    }
+
+    .refresh-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: var(--transition);
+    }
+
+    .refresh-btn:hover {
+        background: var(--primary-hover);
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+    }
+
+    .metric-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    .metric-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .metric-title {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .metric-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-change {
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .metric-change.positive {
+        color: var(--success-color);
+    }
+
+    .metric-change.negative {
+        color: var(--danger-color);
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .chart-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px;
+        margin-top: 1rem;
+    }
+
+    .heatmap-cell {
+        aspect-ratio: 1;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
+    }
+
+    .heatmap-cell:hover {
+        transform: scale(1.1);
+        z-index: 10;
+    }
+
+    .heatmap-cell.risk-1 { background: #10b981; }
+    .heatmap-cell.risk-2 { background: #84cc16; }
+    .heatmap-cell.risk-3 { background: #eab308; }
+    .heatmap-cell.risk-4 { background: #f97316; }
+    .heatmap-cell.risk-5 { background: #ef4444; }
+
+    .sentiment-analysis {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .sentiment-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .sentiment-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .sentiment-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .sentiment-metric {
+        text-align: center;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+    }
+
+    .sentiment-score {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .sentiment-positive .sentiment-score { color: var(--success-color); }
+    .sentiment-neutral .sentiment-score { color: var(--warning-color); }
+    .sentiment-negative .sentiment-score { color: var(--danger-color); }
+
+    .sentiment-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .ai-insights {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .insight-item {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+        padding: 1rem;
+        border-left: 4px solid var(--primary-color);
+        background: rgba(108, 186, 206, 0.05);
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 1rem;
+    }
+
+    .insight-icon {
+        width: 24px;
+        height: 24px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .export-btn {
+        background: var(--success-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+
+    .export-btn:hover {
+        background: var(--success-hover);
+    }
+
+    @media (max-width: 768px) {
+        .bi-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sentiment-content {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bi-dashboard">
+    <!-- Header -->
+    <div class="bi-header">
+        <div>
+            <h1 class="bi-title">
+                <i class="fas fa-chart-line"></i>
+                Business Intelligence Dashboard
+            </h1>
+            <p class="bi-subtitle">Advanced analytics and AI-powered insights for NAPSA ERM</p>
+        </div>
+        <div class="bi-controls">
+            <select id="timeRange" class="time-selector">
+                <option value="7d">Last 7 days</option>
+                <option value="30d" selected>Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+                <option value="1y">Last year</option>
+            </select>
+            <select id="departmentFilter" class="dept-selector">
+                <option value="">All Departments</option>
+                <option value="1">Finance</option>
+                <option value="2">Operations</option>
+                <option value="3">IT</option>
+                <option value="4">HR</option>
+            </select>
+            <button id="refreshBtn" class="refresh-btn">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+            <button id="exportBtn" class="export-btn">
+                <i class="fas fa-download"></i>
+                Export
+            </button>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="autoRefreshToggle" checked>
+                <label class="form-check-label" for="autoRefreshToggle">Auto-refresh</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI-Powered Sentiment Analysis -->
+    <div class="sentiment-analysis">
+        <div class="sentiment-header">
+            <div class="sentiment-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div>
+                <h2>AI-Powered Sentiment Analysis</h2>
+                <p class="bi-subtitle">Real-time sentiment analysis of risk assessments and incident reports</p>
+            </div>
+        </div>
+        <div class="sentiment-content">
+            <div class="sentiment-metric sentiment-positive">
+                <div class="sentiment-score" id="positiveScore">78%</div>
+                <div class="sentiment-label">Positive Sentiment</div>
+            </div>
+            <div class="sentiment-metric sentiment-neutral">
+                <div class="sentiment-score" id="neutralScore">15%</div>
+                <div class="sentiment-label">Neutral Sentiment</div>
+            </div>
+            <div class="sentiment-metric sentiment-negative">
+                <div class="sentiment-score" id="negativeScore">7%</div>
+                <div class="sentiment-label">Negative Sentiment</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">Total Risks</span>
+                <div class="metric-icon" style="background: var(--danger-color);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="totalRisks">{{ dashboard_data.get('summary', {}).get('total_risks', 0) }}</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +12% from last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">High Priority Risks</span>
+                <div class="metric-icon" style="background: var(--warning-color);">
+                    <i class="fas fa-fire"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="highRisks">{{ dashboard_data.get('summary', {}).get('high_risks', 0) }}</div>
+            <div class="metric-change negative">
+                <i class="fas fa-arrow-down"></i>
+                -5% from last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">Assessments Completed</span>
+                <div class="metric-icon" style="background: var(--success-color);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="completedAssessments">{{ dashboard_data.get('summary', {}).get('completed_assessments', 0) }}</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +8% from last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">Control Effectiveness</span>
+                <div class="metric-icon" style="background: var(--primary-color);">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="controlEffectiveness">{{ "%.1f"|format(metrics_data.get('control_effectiveness_ratio', 0)) }}%</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +3% from last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">Compliance Score</span>
+                <div class="metric-icon" style="background: var(--info-color);">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="complianceScore">{{ "%.1f"|format(dashboard_data.get('summary', {}).get('compliance_score', 0)) }}%</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +2% from last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-header">
+                <span class="metric-title">Risk Velocity</span>
+                <div class="metric-icon" style="background: var(--secondary-color);">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+            </div>
+            <div class="metric-value" id="riskVelocity">{{ "%.1f"|format(metrics_data.get('risk_velocity', 0)) }}</div>
+            <div class="metric-change neutral">
+                <i class="fas fa-minus"></i>
+                No change
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-grid">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title">Risk Trends Over Time</h3>
+                <div>
+                    <button class="btn btn-sm btn-outline" onclick="changeChartPeriod('daily')">Daily</button>
+                    <button class="btn btn-sm btn-outline active" onclick="changeChartPeriod('weekly')">Weekly</button>
+                    <button class="btn btn-sm btn-outline" onclick="changeChartPeriod('monthly')">Monthly</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title">Risk Distribution by Category</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Heatmap -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Risk Heatmap (Probability vs Impact)</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                Interactive heatmap showing risk distribution by probability and impact levels
+            </p>
+        </div>
+        <div id="riskHeatmap" class="heatmap-grid"></div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="ai-insights">
+        <div class="chart-header">
+            <h3 class="chart-title">
+                <i class="fas fa-robot"></i>
+                AI-Generated Insights
+            </h3>
+        </div>
+        <div id="aiInsights">
+            <div class="insight-item">
+                <div class="insight-icon"><i class="fas fa-lightbulb"></i></div>
+                <div>
+                    <strong>Risk Concentration Alert:</strong> 
+                    Technology category risks have increased by 25% this month. Consider implementing additional IT security controls.
+                </div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-icon"><i class="fas fa-trend-up"></i></div>
+                <div>
+                    <strong>Positive Trend:</strong> 
+                    Assessment completion rates have improved significantly. Current pace suggests 95% completion by month-end.
+                </div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-icon"><i class="fas fa-exclamation-circle"></i></div>
+                <div>
+                    <strong>Action Required:</strong> 
+                    Three high-impact risks in Finance department require immediate attention and mitigation planning.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+<script src="{{ url_for('static', filename='js/bi-tools.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize charts
+    initializeTrendChart();
+    initializeCategoryChart();
+    initializeRiskHeatmap();
+    initializeSentimentAnalysis();
+
+    // Event listeners
+    document.getElementById('refreshBtn').addEventListener('click', refreshDashboard);
+    document.getElementById('timeRange').addEventListener('change', refreshDashboard);
+    document.getElementById('departmentFilter').addEventListener('change', refreshDashboard);
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+
+    // Auto-refresh every 5 minutes
+    setInterval(refreshDashboard, 300000);
+});
+
+function initializeTrendChart() {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const trendData = {{ dashboard_data.get('risk_trends', []) | tojson | safe }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: trendData.map(item => item.date),
+            datasets: [{
+                label: 'New Risks',
+                data: trendData.map(item => item.count),
+                borderColor: 'rgb(108, 186, 206)',
+                backgroundColor: 'rgba(108, 186, 206, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+function initializeCategoryChart() {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const categoryData = {{ dashboard_data.get('category_distribution', []) | tojson | safe }};
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categoryData.map(item => item.category),
+            datasets: [{
+                data: categoryData.map(item => item.count),
+                backgroundColor: [
+                    '#ef4444',
+                    '#f97316',
+                    '#eab308',
+                    '#84cc16',
+                    '#10b981',
+                    '#06b6d4',
+                    '#3b82f6',
+                    '#8b5cf6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+function initializeRiskHeatmap() {
+    const heatmapData = {{ heatmap_data | tojson | safe }};
+    const heatmapContainer = document.getElementById('riskHeatmap');
+    
+    // Create 5x5 grid for probability vs impact
+    for (let impact = 5; impact >= 1; impact--) {
+        for (let probability = 1; probability <= 5; probability++) {
+            const risks = heatmapData.filter(risk => 
+                risk.probability === probability && risk.impact === impact
+            );
+            
+            const cell = document.createElement('div');
+            cell.className = `heatmap-cell risk-${probability * impact > 20 ? 5 : Math.ceil((probability * impact) / 5)}`;
+            cell.textContent = risks.length;
+            cell.title = `Probability: ${probability}, Impact: ${impact} - ${risks.length} risks`;
+            
+            if (risks.length > 0) {
+                cell.addEventListener('click', () => showRiskDetails(risks));
+            }
+            
+            heatmapContainer.appendChild(cell);
+        }
+    }
+}
+
+function initializeSentimentAnalysis() {
+    // Simulate AI sentiment analysis
+    fetchSentimentData();
+    
+    // Update sentiment every 30 seconds
+    setInterval(fetchSentimentData, 30000);
+}
+
+async function fetchSentimentData() {
+    try {
+        const timeRange = document.getElementById('timeRange').value;
+        const response = await fetch(`/bi-tools/api/sentiment-analysis?time_range=${timeRange}&category=overall`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            updateSentimentDisplay(data.sentiment);
+            updateAIInsights(data.insights);
+        } else {
+            throw new Error('API call failed');
+        }
+    } catch (error) {
+        console.log('Using mock sentiment data:', error);
+        // Fallback to mock data
+        updateSentimentDisplay({
+            positive: 68 + Math.random() * 20,
+            neutral: 15 + Math.random() * 10,
+            negative: 10 + Math.random() * 15
+        });
+    }
+}
+
+function updateSentimentDisplay(data) {
+    document.getElementById('positiveScore').textContent = `${Math.round(data.positive)}%`;
+    document.getElementById('neutralScore').textContent = `${Math.round(data.neutral)}%`;
+    document.getElementById('negativeScore').textContent = `${Math.round(data.negative)}%`;
+}
+
+function updateAIInsights(insights) {
+    const insightsContainer = document.getElementById('aiInsights');
+    
+    if (insights && insights.length > 0) {
+        insightsContainer.innerHTML = insights.map(insight => `
+            <div class="insight-item">
+                <div class="insight-icon"><i class="fas fa-lightbulb"></i></div>
+                <div>
+                    <strong>${insight}:</strong> 
+                    AI-powered analysis based on current system data and sentiment patterns.
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+async function refreshDashboard() {
+    const refreshBtn = document.getElementById('refreshBtn');
+    const originalContent = refreshBtn.innerHTML;
+    
+    refreshBtn.innerHTML = '<div class="loading-spinner"></div> Refreshing...';
+    refreshBtn.disabled = true;
+    
+    try {
+        const timeRange = document.getElementById('timeRange').value;
+        const departmentId = document.getElementById('departmentFilter').value;
+        
+        const params = new URLSearchParams({ time_range: timeRange });
+        if (departmentId) params.append('department_id', departmentId);
+        
+        const response = await fetch(`/bi-tools/api/dashboard-data?${params}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            updateDashboard(data);
+        } else {
+            throw new Error(data.error || 'Failed to refresh dashboard');
+        }
+    } catch (error) {
+        console.error('Error refreshing dashboard:', error);
+        alert('Failed to refresh dashboard. Please try again.');
+    } finally {
+        refreshBtn.innerHTML = originalContent;
+        refreshBtn.disabled = false;
+    }
+}
+
+function updateDashboard(data) {
+    // Update metric values
+    document.getElementById('totalRisks').textContent = data.summary.total_risks || 0;
+    document.getElementById('highRisks').textContent = data.summary.high_risks || 0;
+    document.getElementById('completedAssessments').textContent = data.summary.completed_assessments || 0;
+    document.getElementById('complianceScore').textContent = `${(data.summary.compliance_score || 0).toFixed(1)}%`;
+    
+    // Re-initialize charts with new data
+    // This would require chart.js update methods
+}
+
+function changeChartPeriod(period) {
+    // Update trend chart based on selected period
+    document.querySelectorAll('.chart-header button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Fetch and update trend data
+    fetchTrendData(period);
+}
+
+async function fetchTrendData(period) {
+    try {
+        const params = new URLSearchParams({
+            metric: 'risks',
+            period: period,
+            time_range: document.getElementById('timeRange').value
+        });
+        
+        const response = await fetch(`/bi-tools/api/trend-analysis?${params}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Update trend chart with new data
+            updateTrendChart(data.trends);
+        }
+    } catch (error) {
+        console.error('Error fetching trend data:', error);
+    }
+}
+
+function updateTrendChart(trendData) {
+    // This would update the existing chart with new data
+    // Implementation depends on chart.js update patterns
+}
+
+function showRiskDetails(risks) {
+    const riskList = risks.map(risk => 
+        `<li><strong>${risk.title}</strong> - ${risk.category} (${risk.department})</li>`
+    ).join('');
+    
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; max-height: 400px; overflow-y: auto;">
+                <h3>Risks in this Cell</h3>
+                <ul>${riskList}</ul>
+                <button onclick="this.closest('div').remove()" style="background: var(--primary-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function exportData() {
+    try {
+        const exportData = {
+            data_type: 'risks',
+            format: 'excel',
+            filters: {
+                time_range: document.getElementById('timeRange').value,
+                department_id: document.getElementById('departmentFilter').value
+            }
+        };
+        
+        const response = await fetch('/bi-tools/api/export', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(exportData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(`Export generated successfully: ${data.filename}`);
+            // In a real implementation, you would download the file
+        } else {
+            throw new Error(data.error || 'Export failed');
+        }
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Export failed. Please try again.');
+    }
+}
+</script>
+{% endblock %}

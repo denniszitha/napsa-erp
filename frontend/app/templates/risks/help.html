@@ -1,0 +1,785 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Risk Management Help Guide - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    /* Help Page Styles */
+    .help-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .help-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .help-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .help-header p {
+        margin-top: 10px;
+        font-size: 1.2rem;
+        opacity: 0.95;
+    }
+    
+    /* Interactive Guide Cards */
+    .guide-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid #667eea;
+    }
+    
+    .guide-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    }
+    
+    .guide-card h3 {
+        color: #333;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .guide-card h3 i {
+        margin-right: 10px;
+        color: #667eea;
+    }
+    
+    /* Step by Step Section */
+    .step-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+    }
+    
+    .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background: #667eea;
+        color: white;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+    
+    /* Interactive Tooltips */
+    .tooltip-trigger {
+        color: #667eea;
+        cursor: help;
+        text-decoration: underline dotted;
+        position: relative;
+    }
+    
+    .tooltip-content {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        white-space: nowrap;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s;
+        margin-bottom: 5px;
+    }
+    
+    .tooltip-content::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: #333;
+    }
+    
+    .tooltip-trigger:hover .tooltip-content {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Footnotes */
+    .footnote {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 10px;
+        padding: 10px;
+        background: #f0f4f8;
+        border-radius: 5px;
+        border-left: 3px solid #667eea;
+    }
+    
+    .footnote-ref {
+        color: #667eea;
+        font-weight: bold;
+        cursor: pointer;
+        vertical-align: super;
+        font-size: 0.8rem;
+    }
+    
+    /* Interactive Demo */
+    .demo-box {
+        background: linear-gradient(to right, #f0f4f8, #e8eef3);
+        border: 2px dashed #667eea;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        position: relative;
+    }
+    
+    .demo-label {
+        position: absolute;
+        top: -12px;
+        left: 20px;
+        background: white;
+        padding: 0 10px;
+        color: #667eea;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    /* Quick Actions */
+    .quick-action {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 5px;
+        background: #667eea;
+        color: white;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .quick-action:hover {
+        background: #5a67d8;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Video Tutorial Placeholder */
+    .video-placeholder {
+        background: #f0f4f8;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .video-placeholder i {
+        font-size: 3rem;
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+    
+    /* Collapsible Sections */
+    .collapsible {
+        cursor: pointer;
+        padding: 15px;
+        background: #f8f9fa;
+        border: none;
+        border-radius: 8px;
+        width: 100%;
+        text-align: left;
+        margin: 10px 0;
+        transition: background 0.3s;
+    }
+    
+    .collapsible:hover {
+        background: #e9ecef;
+    }
+    
+    .collapsible::after {
+        content: '\002B';
+        float: right;
+        font-weight: bold;
+    }
+    
+    .collapsible.active::after {
+        content: '\2212';
+    }
+    
+    .collapsible-content {
+        padding: 0 15px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        background: white;
+        border-radius: 0 0 8px 8px;
+    }
+    
+    .collapsible-content.show {
+        max-height: 1000px;
+        padding: 15px;
+    }
+    
+    /* Risk Matrix Guide */
+    .risk-matrix-guide {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin: 20px 0;
+    }
+    
+    .matrix-cell {
+        padding: 15px;
+        text-align: center;
+        border-radius: 5px;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .matrix-cell.very-low { background: #28a745; }
+    .matrix-cell.low { background: #7cb342; }
+    .matrix-cell.medium { background: #ffc107; }
+    .matrix-cell.high { background: #ff9800; }
+    .matrix-cell.very-high { background: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <!-- Header -->
+    <div class="help-header">
+        <h1><i class="fas fa-question-circle"></i> Risk Management Help Guide</h1>
+        <p>Interactive guide to help you effectively manage risks in the NAPSA ERM system</p>
+    </div>
+    
+    <!-- Quick Navigation -->
+    <div class="guide-card">
+        <h3><i class="fas fa-compass"></i> Quick Navigation</h3>
+        <div>
+            <a href="#getting-started" class="quick-action">Getting Started</a>
+            <a href="#create-risk" class="quick-action">Create Risk</a>
+            <a href="#assess-risk" class="quick-action">Assess Risk</a>
+            <a href="#manage-controls" class="quick-action">Manage Controls</a>
+            <a href="#treatments" class="quick-action">Treatment Plans</a>
+            <a href="#reporting" class="quick-action">Reporting</a>
+        </div>
+    </div>
+    
+    <!-- Getting Started -->
+    <div class="guide-card" id="getting-started">
+        <h3><i class="fas fa-rocket"></i> Getting Started with Risk Management</h3>
+        
+        <div class="step-section">
+            <h4>What is Risk Management?</h4>
+            <p>
+                Risk management is the process of identifying, assessing, and controlling threats to an organization's capital and earnings<span class="footnote-ref" onclick="showFootnote(1)">¹</span>. 
+                These risks stem from various sources including financial uncertainties, legal liabilities, technology issues, strategic management errors, accidents, and natural disasters.
+            </p>
+            
+            <div class="footnote" id="footnote-1" style="display: none;">
+                <strong>¹ Note:</strong> NAPSA follows the ISO 31000:2018 Risk Management Guidelines and COSO ERM Framework for comprehensive risk management.
+            </div>
+        </div>
+        
+        <div class="demo-box">
+            <span class="demo-label">Interactive Demo</span>
+            <p><strong>Try this:</strong> Click on any 
+                <span class="tooltip-trigger">
+                    risk category
+                    <span class="tooltip-content">Categories include: Operational, Financial, Compliance, Strategic, and Reputational</span>
+                </span>
+                to see examples of risks in that category.
+            </p>
+        </div>
+    </div>
+    
+    <!-- Creating a Risk -->
+    <div class="guide-card" id="create-risk">
+        <h3><i class="fas fa-plus-circle"></i> How to Create a New Risk</h3>
+        
+        <button class="collapsible">Step-by-Step Instructions</button>
+        <div class="collapsible-content">
+            <div class="step-section">
+                <p><span class="step-number">1</span> Navigate to the Risk Register by clicking <strong>Risk Management</strong> in the sidebar</p>
+                <p><span class="step-number">2</span> Click the <strong>"Add New Risk"</strong> button in the top-right corner</p>
+                <p><span class="step-number">3</span> Fill in the required fields:</p>
+                <ul>
+                    <li><strong>Risk Title:</strong> A brief, descriptive name for the risk<span class="footnote-ref" onclick="showFootnote(2)">²</span></li>
+                    <li><strong>Description:</strong> Detailed explanation of the risk and its potential impact</li>
+                    <li><strong>Category:</strong> Select from 
+                        <span class="tooltip-trigger">
+                            predefined categories
+                            <span class="tooltip-content">Operational, Financial, Compliance, Strategic, Reputational</span>
+                        </span>
+                    </li>
+                    <li><strong>Department:</strong> The department primarily affected by this risk</li>
+                    <li><strong>Risk Owner:</strong> Person responsible for managing this risk</li>
+                </ul>
+                <p><span class="step-number">4</span> Assess the initial risk level using the 
+                    <span class="tooltip-trigger">
+                        likelihood and impact scales
+                        <span class="tooltip-content">Both use a 1-5 scale where 1 is lowest and 5 is highest</span>
+                    </span>
+                </p>
+                <p><span class="step-number">5</span> Click <strong>"Save Risk"</strong> to add it to the register</p>
+            </div>
+        </div>
+        
+        <div class="footnote" id="footnote-2" style="display: none;">
+            <strong>² Best Practice:</strong> Risk titles should be clear and specific. Example: "Data Breach Due to Inadequate Cybersecurity" rather than just "Security Risk".
+        </div>
+        
+        <div class="demo-box">
+            <span class="demo-label">Example Risk Entry</span>
+            <p><strong>Title:</strong> Pension Payment System Downtime</p>
+            <p><strong>Category:</strong> Operational</p>
+            <p><strong>Likelihood:</strong> 3 (Possible)</p>
+            <p><strong>Impact:</strong> 4 (Major)</p>
+            <p><strong>Risk Score:</strong> 12 (High Risk)</p>
+        </div>
+    </div>
+    
+    <!-- Risk Assessment -->
+    <div class="guide-card" id="assess-risk">
+        <h3><i class="fas fa-chart-line"></i> Risk Assessment Guide</h3>
+        
+        <button class="collapsible">Understanding Risk Scoring</button>
+        <div class="collapsible-content">
+            <h4>Risk Score Calculation</h4>
+            <p>Risk Score = Likelihood × Impact<span class="footnote-ref" onclick="showFootnote(3)">³</span></p>
+            
+            <div class="risk-matrix-guide">
+                <div class="matrix-cell very-low">1-5<br>Very Low</div>
+                <div class="matrix-cell low">6-10<br>Low</div>
+                <div class="matrix-cell medium">11-15<br>Medium</div>
+                <div class="matrix-cell high">16-20<br>High</div>
+                <div class="matrix-cell very-high">21-25<br>Very High</div>
+            </div>
+            
+            <h5>Likelihood Scale:</h5>
+            <ul>
+                <li><strong>1 - Very Unlikely:</strong> Less than 5% chance per year</li>
+                <li><strong>2 - Unlikely:</strong> 5-25% chance per year</li>
+                <li><strong>3 - Possible:</strong> 25-50% chance per year</li>
+                <li><strong>4 - Likely:</strong> 50-75% chance per year</li>
+                <li><strong>5 - Very Likely:</strong> More than 75% chance per year</li>
+            </ul>
+            
+            <h5>Impact Scale:</h5>
+            <ul>
+                <li><strong>1 - Minimal:</strong> Minor impact, less than ZMW 1M</li>
+                <li><strong>2 - Minor:</strong> Limited impact, ZMW 1-5M</li>
+                <li><strong>3 - Moderate:</strong> Significant impact, ZMW 5-20M</li>
+                <li><strong>4 - Major:</strong> Major disruption, ZMW 20-50M</li>
+                <li><strong>5 - Severe:</strong> Critical impact, over ZMW 50M</li>
+            </ul>
+        </div>
+        
+        <div class="footnote" id="footnote-3" style="display: none;">
+            <strong>³ Important:</strong> Both inherent risk (before controls) and residual risk (after controls) should be assessed. The difference shows control effectiveness.
+        </div>
+    </div>
+    
+    <!-- Controls Management -->
+    <div class="guide-card" id="manage-controls">
+        <h3><i class="fas fa-shield-alt"></i> Managing Risk Controls</h3>
+        
+        <button class="collapsible">Control Types and Implementation</button>
+        <div class="collapsible-content">
+            <h4>Types of Controls</h4>
+            <div class="step-section">
+                <p><strong>Preventive Controls:</strong> Stop risks from occurring<span class="footnote-ref" onclick="showFootnote(4)">⁴</span></p>
+                <ul>
+                    <li>Access controls and authentication</li>
+                    <li>Segregation of duties</li>
+                    <li>Authorization limits</li>
+                </ul>
+                
+                <p><strong>Detective Controls:</strong> Identify when risks occur</p>
+                <ul>
+                    <li>Monitoring and alerts</li>
+                    <li>Reconciliations</li>
+                    <li>Performance reviews</li>
+                </ul>
+                
+                <p><strong>Corrective Controls:</strong> Fix issues after occurrence</p>
+                <ul>
+                    <li>Incident response procedures</li>
+                    <li>Business continuity plans</li>
+                    <li>Recovery processes</li>
+                </ul>
+            </div>
+            
+            <h4>Linking Controls to Risks</h4>
+            <ol>
+                <li>Select a risk from the Risk Register</li>
+                <li>Click "Manage Controls" button</li>
+                <li>Choose existing controls or create new ones</li>
+                <li>Assess control effectiveness (0-100%)</li>
+                <li>Save the control mapping</li>
+            </ol>
+        </div>
+        
+        <div class="footnote" id="footnote-4" style="display: none;">
+            <strong>⁴ Control Effectiveness:</strong> Regularly test controls to ensure they're working as designed. Document testing results and remediation actions.
+        </div>
+    </div>
+    
+    <!-- Treatment Plans -->
+    <div class="guide-card" id="treatments">
+        <h3><i class="fas fa-procedures"></i> Risk Treatment Plans</h3>
+        
+        <button class="collapsible">Treatment Strategies</button>
+        <div class="collapsible-content">
+            <div class="step-section">
+                <h4>Four Treatment Strategies (The 4 T's)</h4>
+                
+                <p><strong>1. Treat (Mitigate):</strong> Reduce the risk through controls<span class="footnote-ref" onclick="showFootnote(5)">⁵</span></p>
+                <p><strong>2. Transfer:</strong> Share risk with third parties (insurance, outsourcing)</p>
+                <p><strong>3. Tolerate (Accept):</strong> Accept the risk within appetite levels</p>
+                <p><strong>4. Terminate (Avoid):</strong> Eliminate the risk by stopping the activity</p>
+                
+                <h4>Creating a Treatment Plan</h4>
+                <ol>
+                    <li>Identify high-priority risks needing treatment</li>
+                    <li>Select appropriate treatment strategy</li>
+                    <li>Define specific actions and timelines</li>
+                    <li>Assign responsible parties</li>
+                    <li>Estimate costs and expected risk reduction</li>
+                    <li>Monitor implementation progress</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="footnote" id="footnote-5" style="display: none;">
+            <strong>⁵ Decision Criteria:</strong> Consider cost-benefit analysis, risk appetite, regulatory requirements, and organizational capabilities when selecting treatment strategies.
+        </div>
+    </div>
+    
+    <!-- Reporting -->
+    <div class="guide-card" id="reporting">
+        <h3><i class="fas fa-file-alt"></i> Risk Reporting</h3>
+        
+        <button class="collapsible">Available Reports</button>
+        <div class="collapsible-content">
+            <h4>Standard Risk Reports</h4>
+            <ul>
+                <li><strong>Risk Register Report:</strong> Complete list of all identified risks</li>
+                <li><strong>Risk Heat Map:</strong> Visual representation of risk distribution</li>
+                <li><strong>Top Risks Report:</strong> Focus on highest-scoring risks</li>
+                <li><strong>Risk Movement Report:</strong> Changes in risk levels over time</li>
+                <li><strong>Control Effectiveness Report:</strong> Assessment of control performance</li>
+                <li><strong>Treatment Progress Report:</strong> Status of risk treatment plans</li>
+            </ul>
+            
+            <h4>Generating Reports</h4>
+            <ol>
+                <li>Navigate to Reports section</li>
+                <li>Select report type</li>
+                <li>Choose date range and filters</li>
+                <li>Click "Generate Report"</li>
+                <li>Export to PDF, Excel, or CSV format</li>
+            </ol>
+        </div>
+    </div>
+    
+    <!-- Video Tutorial Section -->
+    <div class="guide-card">
+        <h3><i class="fas fa-video"></i> Video Tutorials</h3>
+        <div class="video-placeholder">
+            <i class="fas fa-play-circle"></i>
+            <h4>Quick Start Video Guide</h4>
+            <p>5-minute introduction to Risk Management in NAPSA ERM</p>
+            <button class="btn btn-primary" onclick="playVideo()">Watch Tutorial</button>
+        </div>
+    </div>
+    
+    <!-- Frequently Asked Questions -->
+    <div class="guide-card">
+        <h3><i class="fas fa-comments"></i> Frequently Asked Questions</h3>
+        
+        <button class="collapsible">How often should risks be reviewed?</button>
+        <div class="collapsible-content">
+            <p>Risk reviews should be conducted:</p>
+            <ul>
+                <li><strong>High risks:</strong> Monthly review</li>
+                <li><strong>Medium risks:</strong> Quarterly review</li>
+                <li><strong>Low risks:</strong> Annual review</li>
+                <li><strong>After significant events:</strong> Immediate review</li>
+            </ul>
+        </div>
+        
+        <button class="collapsible">Who can create and edit risks?</button>
+        <div class="collapsible-content">
+            <p>Risk management permissions:</p>
+            <ul>
+                <li><strong>Risk Managers:</strong> Full create, edit, delete permissions</li>
+                <li><strong>Department Heads:</strong> Create and edit risks for their department</li>
+                <li><strong>Risk Owners:</strong> Edit risks assigned to them</li>
+                <li><strong>Viewers:</strong> Read-only access to risk register</li>
+            </ul>
+        </div>
+        
+        <button class="collapsible">What's the difference between inherent and residual risk?</button>
+        <div class="collapsible-content">
+            <p><strong>Inherent Risk:</strong> The level of risk before any controls are applied.</p>
+            <p><strong>Residual Risk:</strong> The remaining risk level after controls are implemented.</p>
+            <p>The difference between these two values indicates the effectiveness of your controls.</p>
+        </div>
+    </div>
+    
+    <!-- Quick Reference Card -->
+    <div class="guide-card">
+        <h3><i class="fas fa-bookmark"></i> Quick Reference</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Keyboard Shortcuts</h5>
+                <ul>
+                    <li><kbd>Ctrl</kbd> + <kbd>N</kbd> - New Risk</li>
+                    <li><kbd>Ctrl</kbd> + <kbd>S</kbd> - Save Changes</li>
+                    <li><kbd>Ctrl</kbd> + <kbd>F</kbd> - Search Risks</li>
+                    <li><kbd>Esc</kbd> - Close Dialog</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5>Important Links</h5>
+                <ul>
+                    <li><a href="/risks/">Risk Register</a></li>
+                    <li><a href="/assessments/">Risk Assessments</a></li>
+                    <li><a href="/controls/">Control Library</a></li>
+                    <li><a href="/treatments/">Treatment Plans</a></li>
+                    <li><a href="/reports/">Risk Reports</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Support -->
+    <div class="guide-card">
+        <h3><i class="fas fa-headset"></i> Need More Help?</h3>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                    <h5>Email Support</h5>
+                    <p>riskmanagement@napsa.co.zm</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-phone fa-3x text-primary mb-3"></i>
+                    <h5>Call Support</h5>
+                    <p>+260 211 254 000</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                    <h5>Documentation</h5>
+                    <p><a href="/docs">Full Documentation</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back to Top Button -->
+<button onclick="topFunction()" id="backToTop" class="btn btn-primary" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 99;">
+    <i class="fas fa-arrow-up"></i> Top
+</button>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Collapsible sections
+document.addEventListener('DOMContentLoaded', function() {
+    const collapsibles = document.getElementsByClassName('collapsible');
+    
+    for (let i = 0; i < collapsibles.length; i++) {
+        collapsibles[i].addEventListener('click', function() {
+            this.classList.toggle('active');
+            const content = this.nextElementSibling;
+            content.classList.toggle('show');
+        });
+    }
+});
+
+// Show/hide footnotes
+function showFootnote(id) {
+    const footnote = document.getElementById('footnote-' + id);
+    if (footnote.style.display === 'none') {
+        // Hide all other footnotes
+        document.querySelectorAll('.footnote').forEach(fn => {
+            fn.style.display = 'none';
+        });
+        // Show this footnote
+        footnote.style.display = 'block';
+        // Scroll to footnote
+        footnote.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        footnote.style.display = 'none';
+    }
+}
+
+// Back to top button
+window.onscroll = function() {
+    const backToTopBtn = document.getElementById("backToTop");
+    if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+        backToTopBtn.style.display = "block";
+    } else {
+        backToTopBtn.style.display = "none";
+    }
+};
+
+function topFunction() {
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+}
+
+// Play video function (placeholder)
+function playVideo() {
+    toastr.info('Video tutorials will be available soon!', 'Coming Soon');
+}
+
+// Interactive tooltips enhancement
+document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
+    trigger.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tooltip = this.querySelector('.tooltip-content');
+        if (tooltip) {
+            tooltip.style.opacity = tooltip.style.opacity === '1' ? '0' : '1';
+            tooltip.style.visibility = tooltip.style.visibility === 'visible' ? 'hidden' : 'visible';
+        }
+    });
+});
+
+// Smooth scroll to sections
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Add interactive help tour
+function startTour() {
+    const tour = new Shepherd.Tour({
+        useModalOverlay: true,
+        defaultStepOptions: {
+            cancelIcon: {
+                enabled: true
+            },
+            scrollTo: { behavior: 'smooth', block: 'center' }
+        }
+    });
+    
+    tour.addStep({
+        title: 'Welcome to Risk Management Help',
+        text: 'This guide will help you understand how to use the Risk Management module effectively.',
+        buttons: [
+            {
+                text: 'Next',
+                action: tour.next
+            }
+        ]
+    });
+    
+    tour.addStep({
+        title: 'Quick Navigation',
+        text: 'Use these quick links to jump to specific topics.',
+        attachTo: {
+            element: '.quick-action',
+            on: 'bottom'
+        },
+        buttons: [
+            {
+                text: 'Back',
+                action: tour.back
+            },
+            {
+                text: 'Next',
+                action: tour.next
+            }
+        ]
+    });
+    
+    tour.addStep({
+        title: 'Interactive Elements',
+        text: 'Click on any underlined text to see additional information and hover for tooltips.',
+        attachTo: {
+            element: '.tooltip-trigger',
+            on: 'bottom'
+        },
+        buttons: [
+            {
+                text: 'Back',
+                action: tour.back
+            },
+            {
+                text: 'Finish',
+                action: tour.complete
+            }
+        ]
+    });
+    
+    tour.start();
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+H for help
+    if (e.ctrlKey && e.key === 'h') {
+        e.preventDefault();
+        startTour();
+    }
+    
+    // Escape to close footnotes
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.footnote').forEach(fn => {
+            fn.style.display = 'none';
+        });
+    }
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if first time user
+    if (!localStorage.getItem('helpTourCompleted')) {
+        setTimeout(function() {
+            if (confirm('Would you like a quick tour of the help guide?')) {
+                startTour();
+                localStorage.setItem('helpTourCompleted', 'true');
+            }
+        }, 1000);
+    }
+});
+</script>
+
+<!-- Include Shepherd.js for guided tours (optional) -->
+<script src="https://cdn.jsdelivr.net/npm/shepherd.js@11.0.1/dist/js/shepherd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@11.0.1/dist/css/shepherd.css"/>
+{% endblock %}

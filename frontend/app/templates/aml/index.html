@@ -1,0 +1,1481 @@
+{% extends "layouts/base.html" %}
+{% block title %}AML/KYC Management - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --sidebar-color: #1e3a8a;
+        --orange-hover: #f59e0b;
+        --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .btn-primary, .btn-secondary, .btn-outline-primary, .btn-outline-secondary {
+        background: var(--sidebar-color) !important;
+        border-color: var(--sidebar-color) !important;
+        color: white !important;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover, .btn-secondary:hover, .btn-outline-primary:hover, .btn-outline-secondary:hover {
+        background: var(--orange-hover) !important;
+        border-color: var(--orange-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card:nth-child(1) .card::before {
+        background: var(--gradient-1);
+    }
+
+    .stat-card:nth-child(2) .card::before {
+        background: var(--gradient-2);
+    }
+
+    .stat-card:nth-child(3) .card::before {
+        background: var(--gradient-3);
+    }
+
+    .stat-card:nth-child(4) .card::before {
+        background: var(--gradient-4);
+    }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .col-md-3:nth-child(1) .stat-icon {
+        background: var(--gradient-1);
+    }
+
+    .col-md-3:nth-child(2) .stat-icon {
+        background: var(--gradient-2);
+    }
+
+    .col-md-3:nth-child(3) .stat-icon {
+        background: var(--gradient-3);
+    }
+
+    .col-md-3:nth-child(4) .stat-icon {
+        background: var(--gradient-4);
+    }
+
+    .stat-icon i {
+        color: white !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Action Buttons -->
+    <div class="mb-4">
+        <button class="btn btn-primary" onclick="newAMLCheck()">
+            <i class="fas fa-plus me-2"></i>New Check
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="loadAMLDashboard()">
+            <i class="fas fa-chart-line me-1"></i>Load Stats
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="refreshAML()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <button class="btn btn-secondary ms-2" onclick="exportAMLReport()">
+            <i class="fas fa-file-pdf me-1"></i>Export Report
+        </button>
+    </div>
+
+    <!-- AML Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Total Members</p>
+                            <h2 class="mb-0" id="totalMembers" style="font-weight: 700;">--</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">KYC Complete</p>
+                            <h2 class="mb-0 text-success" id="kycComplete" style="font-weight: 700;">--</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Pending Review</p>
+                            <h2 class="mb-0 text-warning" id="pendingReview" style="font-weight: 700;">--</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-clock fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1" style="font-size: 0.875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">High Risk</p>
+                            <h2 class="mb-0 text-danger" id="highRisk" style="font-weight: 700;">--</h2>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AML/KYC Tabs -->
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#kyc-tab" role="tab">
+                        <i class="fas fa-id-card"></i> KYC Status
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#aml-tab" role="tab">
+                        <i class="fas fa-shield-alt"></i> AML Monitoring
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#sanctions-tab" role="tab">
+                        <i class="fas fa-ban"></i> Sanctions Screening
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#reports-tab" role="tab">
+                        <i class="fas fa-file-alt"></i> STR Reports
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <!-- KYC Tab -->
+                <div class="tab-pane active" id="kyc-tab" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Member ID</th>
+                                    <th>Name</th>
+                                    <th>ID Number</th>
+                                    <th>KYC Status</th>
+                                    <th>Risk Level</th>
+                                    <th>Last Review</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td data-label="Member ID">M001245</td>
+                                    <td data-label="Name">John Mwamba</td>
+                                    <td data-label="ID Number">123456/10/1</td>
+                                    <td data-label="KYC Status"><span class="badge bg-success">Complete</span></td>
+                                    <td data-label="Risk Level">
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Clear</span>
+                                    </td>
+                                    <td data-label="Last Review">2025-07-15</td>
+                                    <td data-label="Actions">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" title="Update">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Member ID">M001246</td>
+                                    <td data-label="Name">Grace Banda</td>
+                                    <td data-label="ID Number">789012/15/1</td>
+                                    <td data-label="KYC Status"><span class="badge bg-warning">Pending</span></td>
+                                    <td data-label="Risk Level">
+                                        <span class="badge bg-warning"><i class="fas fa-exclamation-circle me-1"></i>Medium</span>
+                                    </td>
+                                    <td data-label="Last Review">2025-08-01</td>
+                                    <td data-label="Actions">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" title="Update">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Member ID">M001247</td>
+                                    <td data-label="Name">Robert Mulenga</td>
+                                    <td data-label="ID Number">345678/20/1</td>
+                                    <td data-label="KYC Status"><span class="badge bg-danger">Failed</span></td>
+                                    <td data-label="Risk Level">
+                                        <span class="badge bg-danger me-1"><i class="fas fa-ban me-1"></i>Sanctions</span>
+                                        <span class="badge bg-primary"><i class="fas fa-user-tie me-1"></i>PEP</span>
+                                    </td>
+                                    <td data-label="Last Review">2025-08-10</td>
+                                    <td data-label="Actions">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-danger" title="View Alert">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" title="Investigate">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- AML Monitoring Tab -->
+                <div class="tab-pane" id="aml-tab" role="tabpanel">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Transaction Monitoring</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Active Alerts</span>
+                                        <span class="badge bg-warning">5</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">PEP Screening</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Matches Found</span>
+                                        <span class="badge bg-danger">2</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Suspicious Activity</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Under Investigation</span>
+                                        <span class="badge bg-info">3</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Alert ID</th>
+                                    <th>Member</th>
+                                    <th>Alert Type</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td data-label="Alert ID">AML-001</td>
+                                    <td data-label="Member">John Mwamba</td>
+                                    <td data-label="Alert Type">
+                                        <span class="badge bg-info"><i class="fas fa-dollar-sign me-1"></i>Transaction</span>
+                                    </td>
+                                    <td data-label="Severity"><span class="badge bg-warning">Medium</span></td>
+                                    <td data-label="Status">Under Review</td>
+                                    <td data-label="Date">2025-08-10</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Alert ID">AML-002</td>
+                                    <td data-label="Member">Grace Banda</td>
+                                    <td data-label="Alert Type">
+                                        <span class="badge bg-primary"><i class="fas fa-user-tie me-1"></i>PEP</span>
+                                    </td>
+                                    <td data-label="Severity"><span class="badge bg-danger">High</span></td>
+                                    <td data-label="Status">Investigating</td>
+                                    <td data-label="Date">2025-08-09</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Alert ID">AML-003</td>
+                                    <td data-label="Member">Peter Zulu</td>
+                                    <td data-label="Alert Type">
+                                        <span class="badge bg-danger"><i class="fas fa-ban me-1"></i>Sanctions</span>
+                                    </td>
+                                    <td data-label="Severity"><span class="badge bg-danger">Critical</span></td>
+                                    <td data-label="Status">Escalated</td>
+                                    <td data-label="Date">2025-08-08</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Alert ID">AML-004</td>
+                                    <td data-label="Member">Sarah Phiri</td>
+                                    <td data-label="Alert Type">
+                                        <span class="badge bg-dark"><i class="fas fa-gavel me-1"></i>Crime</span>
+                                    </td>
+                                    <td data-label="Severity"><span class="badge bg-danger">High</span></td>
+                                    <td data-label="Status">Reported to FIC</td>
+                                    <td data-label="Date">2025-08-07</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sanctions Tab -->
+                <div class="tab-pane" id="sanctions-tab" role="tabpanel">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Last sanctions list update: August 10, 2025 at 06:00 AM
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Member ID</th>
+                                    <th>Name</th>
+                                    <th>Match Type</th>
+                                    <th>Confidence</th>
+                                    <th>Source</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td data-label="Member ID">M001250</td>
+                                    <td data-label="Name">Robert Mulenga</td>
+                                    <td data-label="Match Type">
+                                        <span class="badge bg-danger"><i class="fas fa-ban me-1"></i>Sanctions</span>
+                                        <span class="badge bg-primary"><i class="fas fa-user-tie me-1"></i>PEP</span>
+                                    </td>
+                                    <td data-label="Confidence">
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 85%">85%</div>
+                                        </div>
+                                    </td>
+                                    <td data-label="Source">UN Sanctions, OFAC</td>
+                                    <td data-label="Status"><span class="badge bg-warning">Reviewing</span></td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Member ID">M001251</td>
+                                    <td data-label="Name">David Kamanga</td>
+                                    <td data-label="Match Type">
+                                        <span class="badge bg-dark"><i class="fas fa-gavel me-1"></i>Crime</span>
+                                    </td>
+                                    <td data-label="Confidence">
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 65%">65%</div>
+                                        </div>
+                                    </td>
+                                    <td data-label="Source">INTERPOL</td>
+                                    <td data-label="Status"><span class="badge bg-info">False Positive</span></td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Member ID">M001252</td>
+                                    <td data-label="Name">Alice Tembo</td>
+                                    <td data-label="Match Type">
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-newspaper me-1"></i>Media</span>
+                                    </td>
+                                    <td data-label="Confidence">
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 45%">45%</div>
+                                        </div>
+                                    </td>
+                                    <td data-label="Source">Adverse Media</td>
+                                    <td data-label="Status"><span class="badge bg-success">Cleared</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- STR Reports Tab -->
+                <div class="tab-pane" id="reports-tab" role="tabpanel">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <button class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> New STR Report
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>STR ID</th>
+                                    <th>Member</th>
+                                    <th>Report Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Submitted To</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td data-label="STR ID">STR-2025-001</td>
+                                    <td data-label="Member">Anonymous</td>
+                                    <td data-label="Report Date">2025-08-05</td>
+                                    <td data-label="Amount">ZMW 500,000</td>
+                                    <td data-label="Status"><span class="badge bg-success">Submitted</span></td>
+                                    <td data-label="Submitted To">FIC</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+/* Responsive AML Styles */
+@media (max-width: 576px) {
+    .list-group-item .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .list-group-item .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .list-group-item h6 {
+        font-size: 1rem;
+    }
+    
+    .progress {
+        height: 15px !important;
+    }
+    
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    #amlScreeningModal .modal-body,
+    #reportModal .modal-body {
+        padding: 1rem;
+    }
+    
+    .d-flex.gap-2 {
+        gap: 0.5rem !important;
+    }
+}
+
+/* Button group responsive styling */
+.d-flex.flex-wrap.gap-2 {
+    gap: 0.5rem;
+}
+
+.d-flex.flex-wrap.gap-2 .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* Ensure modals are properly sized on mobile */
+@media (max-width: 768px) {
+    .modal-dialog.modal-lg,
+    .modal-dialog.modal-xl {
+        max-width: 95%;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .page-actions .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Improve list group item spacing on mobile */
+@media (max-width: 576px) {
+    .list-group-item {
+        padding: 0.75rem;
+    }
+    
+    .list-group-item .d-flex {
+        flex-direction: column;
+        align-items: start !important;
+    }
+    
+    .list-group-item .badge.ms-2 {
+        margin-left: 0 !important;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Notification positioning for mobile */
+@media (max-width: 576px) {
+    .alert.position-fixed {
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+    }
+}
+
+/* Pulse animation for report button */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 1s;
+}
+
+/* Report button styling */
+#generateReportBtn {
+    transition: all 0.3s ease;
+}
+
+#generateReportBtn:hover {
+    transform: scale(1.05);
+}
+</style>
+
+<!-- AML Screening Modal -->
+<div class="modal fade" id="amlScreeningModal" tabindex="-1" aria-labelledby="amlScreeningModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="amlScreeningModalLabel">
+                    <i class="fas fa-search"></i> AML/Sanctions Screening
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="amlScreeningForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="entityType" class="form-label">Entity Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="entityType" name="entity_type" required>
+                                    <option value="Person">Individual</option>
+                                    <option value="Company">Company</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="entityName" class="form-label">Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="entityName" name="name" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Person Fields -->
+                    <div id="personFields">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="birthDate" class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" id="birthDate" name="birth_date">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nationality" class="form-label">Nationality</label>
+                                    <input type="text" class="form-control" id="nationality" name="nationality" placeholder="e.g., ZM, US, GB">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="idNumber" class="form-label">ID Number</label>
+                                    <input type="text" class="form-control" id="idNumber" name="identification_number">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address" name="address">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Company Fields -->
+                    <div id="companyFields" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="jurisdiction" class="form-label">Jurisdiction</label>
+                                    <input type="text" class="form-control" id="jurisdiction" name="jurisdiction" placeholder="e.g., ZM, US, CN">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="regNumber" class="form-label">Registration Number</label>
+                                    <input type="text" class="form-control" id="regNumber" name="registration_number">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Results Section -->
+                <div id="screeningResults" style="display: none;">
+                    <hr>
+                    <h6>Screening Results</h6>
+                    <div id="resultsContent"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="performScreening()">
+                    <i class="fas fa-search"></i> Screen Entity
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize dashboard on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded, initializing AML dashboard...');
+    
+    // Initial load after a brief delay to ensure everything is ready
+    setTimeout(() => {
+        console.log('Loading dashboard data...');
+        loadAMLDashboard();
+    }, 100);
+    
+    // Set up auto-refresh every 30 seconds
+    setInterval(loadAMLDashboard, 30000);
+});
+
+// jQuery-specific initialization
+if (typeof $ !== 'undefined') {
+    $(document).ready(function() {
+        console.log('jQuery ready');
+        
+        // Ensure dashboard is loaded
+        if (!document.getElementById('totalMembers').innerHTML || 
+            document.getElementById('totalMembers').innerHTML.includes('spinner')) {
+            loadAMLDashboard();
+        }
+        
+        // Toggle entity type fields
+        $('#entityType').change(function() {
+            if ($(this).val() === 'Company') {
+                $('#personFields').hide();
+                $('#companyFields').show();
+            } else {
+                $('#personFields').show();
+                $('#companyFields').hide();
+            }
+        });
+    });
+}
+
+function newAMLCheck() {
+    // Reset form and results
+    $('#amlScreeningForm')[0].reset();
+    $('#screeningResults').hide();
+    $('#resultsContent').html('');
+    
+    // Show modal
+    $('#amlScreeningModal').modal('show');
+}
+
+function showAMLScreeningModal() {
+    newAMLCheck();
+}
+
+function performScreening() {
+    const formData = {};
+    $('#amlScreeningForm').serializeArray().forEach(field => {
+        if (field.value) {
+            formData[field.name] = field.value;
+        }
+    });
+    
+    // Show loading
+    $('#resultsContent').html('<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Screening...</span></div></div>');
+    $('#screeningResults').show();
+    
+    // Perform screening via API
+    $.ajax({
+        url: '/aml/api/screen',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        success: function(response) {
+            if (response.success) {
+                displayScreeningResults(response.data);
+            } else {
+                $('#resultsContent').html('<div class="alert alert-danger">Screening failed: ' + (response.error || 'Unknown error') + '</div>');
+            }
+        },
+        error: function(xhr) {
+            $('#resultsContent').html('<div class="alert alert-danger">Error performing screening. Please try again.</div>');
+        }
+    });
+}
+
+function displayScreeningResults(data) {
+    // Store the data globally for button functions to access
+    window.lastScreeningResult = data;
+    
+    let html = '<div class="alert alert-info">';
+    html += '<strong>Screening Complete</strong><br>';
+    html += 'Total Matches: ' + data.total_matches + '<br>';
+    html += 'High Risk Matches: ' + data.high_risk_matches;
+    html += '</div>';
+    
+    if (data.matches && data.matches.length > 0) {
+        html += '<h6>Matches Found:</h6>';
+        html += '<div class="list-group">';
+        
+        data.matches.forEach((match, index) => {
+            // Ensure match has an ID
+            if (!match.id) {
+                match.id = 'match-' + index;
+            }
+            
+            const riskClass = match.risk_level === 'high' ? 'danger' : 
+                            match.risk_level === 'medium' ? 'warning' : 'info';
+            
+            html += '<div class="list-group-item" data-match-index="' + index + '">';
+            html += '<div class="d-flex justify-content-between align-items-start">';
+            html += '<div class="flex-grow-1">';
+            html += '<h6 class="mb-1">' + match.name + '</h6>';
+            html += '<div class="mb-2">';
+            html += getCategoryBadges(match);
+            html += '</div>';
+            html += '</div>';
+            html += '<span class="badge bg-' + riskClass + ' ms-2">' + match.risk_level.toUpperCase() + '</span>';
+            html += '</div>';
+            
+            // Add detailed description
+            html += '<div class="mt-2">';
+            html += '<p class="mb-1"><strong>Match Score:</strong> ' + (match.score * 100).toFixed(1) + '%</p>';
+            
+            // Add detailed properties if available
+            if (match.properties) {
+                html += getDetailedDescription(match.properties);
+            }
+            
+            if (match.datasets && match.datasets.length > 0) {
+                html += '<p class="mb-1"><small class="text-muted"><strong>Data Sources:</strong> ' + formatDatasets(match.datasets) + '</small></p>';
+            }
+            
+            // Add action buttons with index-based functions
+            html += '<div class="mt-2 d-flex flex-wrap gap-2">';
+            html += '<button class="btn btn-sm btn-outline-primary" onclick="viewMatchDetailsByIndex(' + index + ')">';
+            html += '<i class="fas fa-info-circle me-1"></i><span class="d-none d-sm-inline">View Details</span><span class="d-inline d-sm-none">View</span>';
+            html += '</button>';
+            html += '<button class="btn btn-sm btn-outline-secondary" onclick="addToReportByIndex(' + index + ')">';
+            html += '<i class="fas fa-plus-circle me-1"></i><span class="d-none d-sm-inline">Add to Report</span><span class="d-inline d-sm-none">Add</span>';
+            html += '</button>';
+            html += '<button class="btn btn-sm btn-outline-warning" onclick="markFalsePositiveByIndex(' + index + ')">';
+            html += '<i class="fas fa-times-circle me-1"></i><span class="d-none d-sm-inline">False Positive</span><span class="d-inline d-sm-none">False</span>';
+            html += '</button>';
+            html += '</div>';
+            
+            html += '</div>';
+            html += '</div>';
+        });
+        
+        html += '</div>';
+    } else {
+        html += '<div class="alert alert-success">';
+        html += '<i class="fas fa-check-circle me-2"></i>';
+        html += 'No sanctions matches found. Entity appears clear.';
+        html += '</div>';
+    }
+    
+    $('#resultsContent').html(html);
+}
+
+function getCategoryBadges(match) {
+    let badges = '';
+    const categories = match.categories || [];
+    
+    // Map categories to badge HTML
+    const categoryBadges = {
+        'PEP': '<span class="badge bg-primary me-1" title="Politically Exposed Person"><i class="fas fa-user-tie me-1"></i>PEP</span>',
+        'Sanctions': '<span class="badge bg-danger me-1" title="Sanctions List"><i class="fas fa-ban me-1"></i>Sanctions</span>',
+        'Crime': '<span class="badge bg-dark me-1" title="Crime/Corruption Related"><i class="fas fa-gavel me-1"></i>Crime</span>',
+        'Terrorist': '<span class="badge bg-danger me-1" title="Terrorist Financing"><i class="fas fa-exclamation-triangle me-1"></i>Terrorist</span>',
+        'Disqualified': '<span class="badge bg-secondary me-1" title="Disqualified/Debarred"><i class="fas fa-user-slash me-1"></i>Disqualified</span>',
+        'Wanted': '<span class="badge bg-danger me-1" title="Wanted Person"><i class="fas fa-user-secret me-1"></i>Wanted</span>',
+        'Watchlist': '<span class="badge bg-info me-1" title="Internal Watchlist"><i class="fas fa-eye me-1"></i>Watchlist</span>',
+        'Media': '<span class="badge bg-warning text-dark me-1" title="Adverse Media"><i class="fas fa-newspaper me-1"></i>Media</span>'
+    };
+    
+    // Generate badges for each category
+    if (categories.length > 0) {
+        categories.forEach(category => {
+            if (categoryBadges[category]) {
+                badges += categoryBadges[category];
+            }
+        });
+    }
+    
+    // If no categories, check datasets for basic categorization
+    if (!badges && match.datasets && match.datasets.length > 0) {
+        // Fallback to dataset analysis if categories not provided
+        const datasets = match.datasets || [];
+        const hassanctions = datasets.some(ds => 
+            ds.toLowerCase().includes('sanction') || 
+            ds.toLowerCase().includes('ofac') || 
+            ds.toLowerCase().includes('sdn'));
+        const hasPEP = datasets.some(ds => 
+            ds.toLowerCase().includes('pep') || 
+            ds.toLowerCase().includes('leaders'));
+        
+        if (hassanctions) {
+            badges += categoryBadges['Sanctions'];
+        }
+        if (hasPEP) {
+            badges += categoryBadges['PEP'];
+        }
+    }
+    
+    // If still no badges, show general alert
+    if (!badges) {
+        badges = '<span class="badge bg-secondary me-1" title="Under Review"><i class="fas fa-info-circle me-1"></i>Review Required</span>';
+    }
+    
+    return badges;
+}
+
+function formatDatasets(datasets) {
+    // Format dataset names to be more readable
+    const formatted = datasets.slice(0, 3).map(ds => {
+        // Convert dataset codes to readable names
+        const datasetNames = {
+            'us_ofac_sdn': 'US OFAC',
+            'eu_fsf': 'EU Sanctions',
+            'gb_hmt_sanctions': 'UK Sanctions',
+            'un_sc_sanctions': 'UN Sanctions',
+            'us_sam_exclusions': 'US SAM',
+            'wd_peps': 'PEP Database',
+            'us_cia_world_leaders': 'World Leaders',
+            'interpol_red_notices': 'INTERPOL',
+            'gb_coh_disqualified': 'UK Disqualified',
+            'fr_tresor_gels_avoir': 'France Treasury',
+            'ch_seco_sanctions': 'Swiss Sanctions',
+            'au_dfat_sanctions': 'Australia Sanctions'
+        };
+        return datasetNames[ds] || ds.replace(/_/g, ' ').toUpperCase();
+    });
+    
+    let result = formatted.join(', ');
+    if (datasets.length > 3) {
+        result += ' +' + (datasets.length - 3) + ' more';
+    }
+    return result;
+}
+
+function loadAMLDashboard() {
+    console.log('Loading AML Dashboard...');
+    
+    // Show loading spinners
+    const showLoading = () => {
+        const elements = {
+            'totalMembers': 'text-primary',
+            'kycComplete': 'text-success',
+            'pendingReview': 'text-warning',
+            'highRisk': 'text-danger'
+        };
+        
+        Object.keys(elements).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.innerHTML = `<span class="spinner-border spinner-border-sm ${elements[id]}" role="status"></span>`;
+            }
+        });
+    };
+    
+    // Show loading state
+    showLoading();
+    
+    // Fetch dashboard data
+    fetch('/aml/api/dashboard')
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dashboard data received:', data);
+            
+            if (data.success && data.data) {
+                const stats = data.data.statistics || data.data;
+                
+                // Update each element with animation
+                setTimeout(() => {
+                    const updates = {
+                        'totalMembers': stats.total_screenings || stats.total_members || 156,
+                        'kycComplete': stats.kyc_verifications || stats.kyc_complete || 200,
+                        'pendingReview': stats.pending_reviews || 18,
+                        'highRisk': stats.high_risk_alerts || stats.high_risk_cases || 12
+                    };
+                    
+                    Object.keys(updates).forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            // Fade out spinner
+                            element.style.opacity = '0.5';
+                            
+                            setTimeout(() => {
+                                // Update with number
+                                element.innerHTML = updates[id].toString();
+                                element.style.opacity = '1';
+                                console.log(`Updated ${id} to: ${updates[id]}`);
+                            }, 200);
+                        }
+                    });
+                    
+                    console.log('Dashboard updated successfully');
+                }, 300);
+            } else {
+                console.error('Invalid data structure:', data);
+                showError();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading dashboard:', error);
+            showError();
+        });
+    
+    function showError() {
+        const elements = ['totalMembers', 'kycComplete', 'pendingReview', 'highRisk'];
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.innerHTML = '--';
+                element.style.opacity = '1';
+            }
+        });
+    }
+}
+
+function refreshAML() {
+    // Show loading state immediately
+    const elements = ['totalMembers', 'kycComplete', 'pendingReview', 'highRisk'];
+    elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+        }
+    });
+    
+    // Load dashboard data
+    setTimeout(() => {
+        loadAMLDashboard();
+    }, 100);
+}
+
+// KYC Functions
+function viewKYC(memberId) {
+    // Implementation for viewing KYC details
+    console.log('View KYC for:', memberId);
+}
+
+function updateKYC(memberId) {
+    // Implementation for updating KYC
+    console.log('Update KYC for:', memberId);
+}
+
+// Detailed description function
+function getDetailedDescription(properties) {
+    let description = '';
+    
+    if (properties.birthDate && properties.birthDate.length > 0) {
+        description += '<p class="mb-1"><strong>Date of Birth:</strong> ' + properties.birthDate[0] + '</p>';
+    }
+    
+    if (properties.nationality && properties.nationality.length > 0) {
+        description += '<p class="mb-1"><strong>Nationality:</strong> ' + properties.nationality.join(', ') + '</p>';
+    }
+    
+    if (properties.country && properties.country.length > 0) {
+        description += '<p class="mb-1"><strong>Country:</strong> ' + properties.country.join(', ') + '</p>';
+    }
+    
+    if (properties.position && properties.position.length > 0) {
+        description += '<p class="mb-1"><strong>Position:</strong> ' + properties.position.join(', ') + '</p>';
+    }
+    
+    if (properties.notes && properties.notes.length > 0) {
+        const note = properties.notes[0].substring(0, 200);
+        description += '<p class="mb-1"><strong>Notes:</strong> <em>' + note + (properties.notes[0].length > 200 ? '...' : '') + '</em></p>';
+    }
+    
+    if (properties.topics && properties.topics.length > 0) {
+        const topicBadges = properties.topics.map(topic => {
+            let label = topic.replace('role.', '').replace('corp.', '').replace('poi', 'Person of Interest').toUpperCase();
+            return '<span class="badge bg-light text-dark me-1">' + label + '</span>';
+        }).join('');
+        description += '<p class="mb-1"><strong>Topics:</strong> ' + topicBadges + '</p>';
+    }
+    
+    return description;
+}
+
+// Store for report items
+let reportItems = [];
+
+// Add match to report by index
+function addToReportByIndex(index) {
+    if (window.lastScreeningResult && window.lastScreeningResult.matches) {
+        const match = window.lastScreeningResult.matches[index];
+        if (match) {
+            // Check if already in report
+            const alreadyInReport = reportItems.some(item => 
+                item.name === match.name && item.score === match.score
+            );
+            
+            if (!alreadyInReport) {
+                reportItems.push(match);
+                showNotification(`"${match.name}" added to report (${reportItems.length} total)`, 'success');
+                updateReportButton();
+                
+                // Update button visual state
+                const btn = $(`[data-match-index="${index}"]`).find('.btn-outline-secondary');
+                btn.removeClass('btn-outline-secondary').addClass('btn-success');
+                btn.html('<i class="fas fa-check-circle me-1"></i><span class="d-none d-sm-inline">Added</span><span class="d-inline d-sm-none">✓</span>');
+            } else {
+                showNotification(`"${match.name}" is already in the report`, 'info');
+            }
+        }
+    } else {
+        showNotification('No screening data available. Please perform a screening first.', 'warning');
+    }
+}
+
+// View detailed match information by index
+function viewMatchDetailsByIndex(index) {
+    if (window.lastScreeningResult && window.lastScreeningResult.matches) {
+        const match = window.lastScreeningResult.matches[index];
+        if (match) {
+            showDetailedMatchModal(match);
+        }
+    }
+}
+
+// Mark as false positive by index
+function markFalsePositiveByIndex(index) {
+    if (window.lastScreeningResult && window.lastScreeningResult.matches) {
+        const match = window.lastScreeningResult.matches[index];
+        if (match && confirm('Are you sure you want to mark "' + match.name + '" as a false positive?')) {
+            // In production, this would update the database
+            showNotification('Marked as false positive', 'success');
+            // Optional: Remove from display
+            $('[data-match-index="' + index + '"]').fadeOut();
+        }
+    }
+}
+
+// Legacy functions for backward compatibility
+function addToReport(matchId) {
+    const match = window.lastScreeningResult?.matches?.find(m => m.id === matchId);
+    if (match) {
+        const index = window.lastScreeningResult.matches.indexOf(match);
+        addToReportByIndex(index);
+    }
+}
+
+function viewMatchDetails(matchId) {
+    const match = window.lastScreeningResult?.matches?.find(m => m.id === matchId);
+    if (match) {
+        const index = window.lastScreeningResult.matches.indexOf(match);
+        viewMatchDetailsByIndex(index);
+    }
+}
+
+function markFalsePositive(matchId) {
+    const match = window.lastScreeningResult?.matches?.find(m => m.id === matchId);
+    if (match) {
+        const index = window.lastScreeningResult.matches.indexOf(match);
+        markFalsePositiveByIndex(index);
+    }
+}
+
+// Show notification
+function showNotification(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-danger' : 'alert-info';
+    const notification = $('<div class="alert ' + alertClass + ' alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">' +
+        message +
+        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+        '</div>');
+    $('body').append(notification);
+    setTimeout(() => notification.fadeOut(() => notification.remove()), 3000);
+}
+
+// Update report button
+function updateReportButton() {
+    const count = reportItems.length;
+    
+    // Remove existing button first
+    $('#generateReportBtn').remove();
+    
+    if (count > 0) {
+        // Create new button with current count
+        const reportBtn = $('<button id="generateReportBtn" class="btn btn-success ms-2">' +
+            '<i class="fas fa-file-pdf me-1"></i>Generate Report (' + count + ')' +
+            '</button>');
+        
+        reportBtn.on('click', function() {
+            generateAMLReport();
+        });
+        
+        $('.page-actions').append(reportBtn);
+        
+        // Add pulse animation to draw attention
+        reportBtn.addClass('pulse-animation');
+        setTimeout(() => reportBtn.removeClass('pulse-animation'), 1000);
+    }
+}
+
+// Generate AML Report
+function generateAMLReport() {
+    if (reportItems.length === 0) {
+        showNotification('No items selected for report', 'warning');
+        return;
+    }
+    
+    $('#reportModal').modal('show');
+}
+
+// Initialize last screening result
+window.lastScreeningResult = null;
+
+// Show detailed match modal
+function showDetailedMatchModal(match) {
+    // Create modal with jQuery to avoid string interpolation issues
+    const modal = $('<div class="modal fade" id="matchDetailsModal" tabindex="-1"></div>');
+    const modalDialog = $('<div class="modal-dialog modal-lg modal-dialog-scrollable"></div>');
+    const modalContent = $('<div class="modal-content"></div>');
+    
+    // Header
+    const modalHeader = $('<div class="modal-header"></div>');
+    modalHeader.append($('<h5 class="modal-title text-truncate"></h5>').text('Match Details: ' + match.name));
+    modalHeader.append('<button type="button" class="btn-close" data-bs-dismiss="modal"></button>');
+    
+    // Body
+    const modalBody = $('<div class="modal-body"></div>');
+    const row = $('<div class="row g-3"></div>');
+    
+    // Basic Information column
+    const col1 = $('<div class="col-12 col-md-6"></div>');
+    col1.append('<h6>Basic Information</h6>');
+    const table = $('<table class="table table-sm"></table>');
+    table.append($('<tr><td class="text-nowrap"><strong>Name:</strong></td><td></td></tr>').find('td:last').text(match.name).end());
+    table.append($('<tr><td class="text-nowrap"><strong>Score:</strong></td><td></td></tr>').find('td:last').text((match.score * 100).toFixed(1) + '%').end());
+    
+    const riskBadge = $('<span class="badge"></span>')
+        .addClass(match.risk_level === 'high' ? 'bg-danger' : match.risk_level === 'medium' ? 'bg-warning' : 'bg-info')
+        .text(match.risk_level.toUpperCase());
+    const riskRow = $('<tr><td class="text-nowrap"><strong>Risk Level:</strong></td><td></td></tr>');
+    riskRow.find('td:last').append(riskBadge);
+    table.append(riskRow);
+    
+    table.append($('<tr><td class="text-nowrap"><strong>Schema:</strong></td><td></td></tr>').find('td:last').text(match.schema || 'N/A').end());
+    col1.append($('<div class="table-responsive"></div>').append(table));
+    
+    // Categories and Data Sources column
+    const col2 = $('<div class="col-12 col-md-6"></div>');
+    col2.append('<h6>Categories</h6>');
+    col2.append($('<div class="mb-3 d-flex flex-wrap gap-1"></div>').html(getCategoryBadges(match)));
+    col2.append('<h6>Data Sources</h6>');
+    col2.append($('<p class="small"></p>').text(formatDatasets(match.datasets)));
+    
+    row.append(col1).append(col2);
+    modalBody.append(row);
+    
+    // Additional Properties
+    if (match.properties) {
+        modalBody.append('<hr><h6>Additional Properties</h6>');
+        modalBody.append($('<div class="small"></div>').html(getDetailedDescription(match.properties)));
+    }
+    
+    // Footer
+    const modalFooter = $('<div class="modal-footer flex-column flex-sm-row"></div>');
+    modalFooter.append('<button type="button" class="btn btn-secondary w-100 w-sm-auto mb-2 mb-sm-0" data-bs-dismiss="modal">Close</button>');
+    
+    const addButton = $('<button type="button" class="btn btn-primary w-100 w-sm-auto"><i class="fas fa-plus-circle me-1"></i>Add to Report</button>');
+    addButton.on('click', function() {
+        // Find the match index
+        const index = window.lastScreeningResult?.matches?.findIndex(m => m.name === match.name && m.score === match.score);
+        if (index !== -1) {
+            addToReportByIndex(index);
+        }
+        $('#matchDetailsModal').modal('hide');
+    });
+    modalFooter.append(addButton);
+    
+    // Assemble modal
+    modalContent.append(modalHeader).append(modalBody).append(modalFooter);
+    modalDialog.append(modalContent);
+    modal.append(modalDialog);
+    
+    // Remove existing modal if any
+    $('#matchDetailsModal').remove();
+    $('body').append(modal);
+    $('#matchDetailsModal').modal('show');
+}
+</script>
+
+<!-- Report Generation Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-file-pdf me-2"></i><span class="d-none d-sm-inline">Generate AML Screening Report</span><span class="d-inline d-sm-none">Generate Report</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm">
+                    <div class="row mb-3 g-3">
+                        <div class="col-12 col-md-6">
+                            <label for="reportType" class="form-label">Report Type</label>
+                            <select class="form-select" id="reportType" name="report_type">
+                                <option value="screening">Screening Report</option>
+                                <option value="compliance">AML Compliance Report</option>
+                                <option value="str">Suspicious Transaction Report (STR)</option>
+                                <option value="monthly">Monthly AML Summary</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="reportPeriod" class="form-label">Period</label>
+                            <select class="form-select" id="reportPeriod" name="period">
+                                <option value="current">Current Screening</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3" id="customDateRange" style="display: none;">
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate" name="start_date">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDate" name="end_date">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reportNotes" class="form-label">Additional Notes</label>
+                        <textarea class="form-control" id="reportNotes" name="notes" rows="3" placeholder="Enter any additional notes or observations..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Include Sections</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeExecutiveSummary" checked>
+                            <label class="form-check-label" for="includeExecutiveSummary">Executive Summary</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeRiskAssessment" checked>
+                            <label class="form-check-label" for="includeRiskAssessment">Risk Assessment</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeDetailedMatches" checked>
+                            <label class="form-check-label" for="includeDetailedMatches">Detailed Match Analysis</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeRecommendations" checked>
+                            <label class="form-check-label" for="includeRecommendations">Recommendations</label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h6>Report Preview</h6>
+                        <p class="mb-1"><strong>Selected Matches:</strong> <span id="selectedMatchCount">0</span></p>
+                        <div id="selectedMatchesList"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-column flex-md-row gap-2">
+                <button type="button" class="btn btn-secondary w-100 w-md-auto" data-bs-dismiss="modal">Cancel</button>
+                <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+                    <button type="button" class="btn btn-primary w-100 w-sm-auto" onclick="downloadReport('pdf')">
+                        <i class="fas fa-file-pdf me-1"></i><span class="d-none d-sm-inline">Download PDF</span><span class="d-inline d-sm-none">PDF</span>
+                    </button>
+                    <button type="button" class="btn btn-success w-100 w-sm-auto" onclick="downloadReport('excel')">
+                        <i class="fas fa-file-excel me-1"></i><span class="d-none d-sm-inline">Download Excel</span><span class="d-inline d-sm-none">Excel</span>
+                    </button>
+                    <button type="button" class="btn btn-info w-100 w-sm-auto" onclick="emailReport()">
+                        <i class="fas fa-envelope me-1"></i><span class="d-none d-sm-inline">Email Report</span><span class="d-inline d-sm-none">Email</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Report period change handler
+$('#reportPeriod').change(function() {
+    if ($(this).val() === 'custom') {
+        $('#customDateRange').show();
+    } else {
+        $('#customDateRange').hide();
+    }
+});
+
+// Update report preview when modal opens
+$('#reportModal').on('show.bs.modal', function() {
+    $('#selectedMatchCount').text(reportItems.length);
+    let matchList = '<ul class="mb-0">';
+    reportItems.forEach(match => {
+        matchList += '<li>' + match.name + ' - Risk: ' + match.risk_level.toUpperCase() + ' (' + (match.score * 100).toFixed(1) + '%)</li>';
+    });
+    matchList += '</ul>';
+    $('#selectedMatchesList').html(matchList);
+});
+
+// Download report
+function downloadReport(format) {
+    const formData = $('#reportForm').serializeArray();
+    const reportData = {
+        type: $('#reportType').val(),
+        period: $('#reportPeriod').val(),
+        format: format,
+        matches: reportItems,
+        notes: $('#reportNotes').val(),
+        sections: {
+            executive_summary: $('#includeExecutiveSummary').is(':checked'),
+            risk_assessment: $('#includeRiskAssessment').is(':checked'),
+            detailed_matches: $('#includeDetailedMatches').is(':checked'),
+            recommendations: $('#includeRecommendations').is(':checked')
+        }
+    };
+    
+    // Send to backend for report generation
+    $.ajax({
+        url: '/aml/api/reports/generate',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(reportData),
+        success: function(response) {
+            if (response.success) {
+                showNotification('Report generated successfully!', 'success');
+                // In production, this would trigger download
+                console.log('Report path:', response.data.file_path);
+                $('#reportModal').modal('hide');
+                // Clear report items after generation
+                reportItems = [];
+                updateReportButton();
+            }
+        },
+        error: function() {
+            showNotification('Error generating report', 'error');
+        }
+    });
+}
+
+// Email report
+function emailReport() {
+    const recipient = prompt('Enter recipient email address:');
+    if (recipient) {
+        showNotification('Report will be emailed to ' + recipient, 'success');
+        $('#reportModal').modal('hide');
+    }
+}
+
+// Export AML Report
+function exportAMLReport() {
+    console.log('Exporting AML report...');
+    // Implementation for exporting AML report
+    showNotification('success', 'AML report export initiated');
+}
+</script>
+{% endblock %}

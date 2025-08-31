@@ -1,0 +1,256 @@
+/* NAPSA ERM - Comprehensive Color Coding System */
+
+:root {
+    /* Primary Risk Colors */
+    --risk-critical: #6366f1;      /* Purple - Immediate Action Required */
+    --risk-very-high: #ef4444;     /* Red - Urgent Action Required */
+    --risk-high: #fd7e14;          /* Orange - Mitigation Required */
+    --risk-medium: #f59e0b;        /* Yellow - Monitor & Review */
+    --risk-low: #10b981;           /* Green - Acceptable */
+    
+    /* Status Colors */
+    --status-active: #10b981;      /* Green */
+    --status-inactive: #6b7280;    /* Gray */
+    --status-pending: #f59e0b;     /* Yellow */
+    --status-overdue: #ef4444;     /* Red */
+    --status-completed: #059669;   /* Dark Green */
+    --status-draft: #94a3b8;       /* Light Gray */
+    --status-review: #3b82f6;      /* Blue */
+    --status-approved: #10b981;    /* Green */
+    --status-rejected: #dc2626;    /* Dark Red */
+    
+    /* Department Colors */
+    --dept-finance: #1e40af;       /* Blue */
+    --dept-operations: #7c3aed;    /* Purple */
+    --dept-it: #059669;            /* Teal */
+    --dept-hr: #dc2626;            /* Red */
+    --dept-legal: #374151;         /* Dark Gray */
+    --dept-compliance: #0891b2;    /* Cyan */
+    --dept-audit: #9333ea;         /* Violet */
+    --dept-credit: #ea580c;        /* Orange */
+    --dept-treasury: #0d9488;      /* Teal */
+    
+    /* Priority Colors */
+    --priority-critical: #7c2d12;  /* Dark Red */
+    --priority-high: #dc2626;      /* Red */
+    --priority-medium: #d97706;    /* Orange */
+    --priority-low: #16a34a;       /* Green */
+    --priority-info: #0284c7;      /* Blue */
+    
+    /* Compliance Colors */
+    --compliance-compliant: #059669;     /* Green */
+    --compliance-non-compliant: #dc2626; /* Red */
+    --compliance-partial: #d97706;       /* Orange */
+    --compliance-pending: #6b7280;       /* Gray */
+    --compliance-not-applicable: #94a3b8; /* Light Gray */
+    
+    /* Control Effectiveness Colors */
+    --control-effective: #059669;        /* Green */
+    --control-partially-effective: #d97706; /* Orange */
+    --control-ineffective: #dc2626;      /* Red */
+    --control-not-tested: #6b7280;       /* Gray */
+    --control-not-applicable: #94a3b8;   /* Light Gray */
+    
+    /* Incident Severity Colors */
+    --incident-critical: #7c2d12;   /* Dark Red */
+    --incident-major: #dc2626;      /* Red */
+    --incident-moderate: #d97706;   /* Orange */
+    --incident-minor: #16a34a;      /* Green */
+    --incident-negligible: #6b7280; /* Gray */
+    
+    /* AML Colors */
+    --aml-high-risk: #7c2d12;       /* Dark Red */
+    --aml-medium-risk: #d97706;     /* Orange */
+    --aml-low-risk: #16a34a;        /* Green */
+    --aml-suspicious: #dc2626;      /* Red */
+    --aml-cleared: #059669;         /* Green */
+    --aml-pending: #f59e0b;         /* Yellow */
+    
+    /* Audit Colors */
+    --audit-critical: #7c2d12;      /* Dark Red */
+    --audit-major: #dc2626;         /* Red */
+    --audit-moderate: #d97706;      /* Orange */
+    --audit-minor: #16a34a;         /* Green */
+    --audit-observation: #3b82f6;   /* Blue */
+    
+    /* KRI Traffic Light Colors */
+    --kri-red: #dc2626;             /* Above threshold */
+    --kri-amber: #f59e0b;           /* Near threshold */
+    --kri-green: #16a34a;           /* Within acceptable range */
+    
+    /* Progress Colors */
+    --progress-not-started: #94a3b8; /* Light Gray */
+    --progress-in-progress: #3b82f6; /* Blue */
+    --progress-near-completion: #f59e0b; /* Yellow */
+    --progress-completed: #16a34a;   /* Green */
+    --progress-overdue: #dc2626;     /* Red */
+}
+
+/* Risk Level Classes */
+.risk-critical { background-color: var(--risk-critical) !important; color: white !important; }
+.risk-very-high { background-color: var(--risk-very-high) !important; color: white !important; }
+.risk-high { background-color: var(--risk-high) !important; color: white !important; }
+.risk-medium { background-color: var(--risk-medium) !important; color: #000 !important; }
+.risk-low { background-color: var(--risk-low) !important; color: white !important; }
+
+.text-risk-critical { color: var(--risk-critical) !important; }
+.text-risk-very-high { color: var(--risk-very-high) !important; }
+.text-risk-high { color: var(--risk-high) !important; }
+.text-risk-medium { color: var(--risk-medium) !important; }
+.text-risk-low { color: var(--risk-low) !important; }
+
+.border-risk-critical { border-color: var(--risk-critical) !important; }
+.border-risk-very-high { border-color: var(--risk-very-high) !important; }
+.border-risk-high { border-color: var(--risk-high) !important; }
+.border-risk-medium { border-color: var(--risk-medium) !important; }
+.border-risk-low { border-color: var(--risk-low) !important; }
+
+/* Status Classes */
+.status-active { background-color: var(--status-active) !important; color: white !important; }
+.status-inactive { background-color: var(--status-inactive) !important; color: white !important; }
+.status-pending { background-color: var(--status-pending) !important; color: #000 !important; }
+.status-overdue { background-color: var(--status-overdue) !important; color: white !important; }
+.status-completed { background-color: var(--status-completed) !important; color: white !important; }
+.status-draft { background-color: var(--status-draft) !important; color: white !important; }
+.status-review { background-color: var(--status-review) !important; color: white !important; }
+.status-approved { background-color: var(--status-approved) !important; color: white !important; }
+.status-rejected { background-color: var(--status-rejected) !important; color: white !important; }
+
+/* Department Classes */
+.dept-finance { background-color: var(--dept-finance) !important; color: white !important; }
+.dept-operations { background-color: var(--dept-operations) !important; color: white !important; }
+.dept-it { background-color: var(--dept-it) !important; color: white !important; }
+.dept-hr { background-color: var(--dept-hr) !important; color: white !important; }
+.dept-legal { background-color: var(--dept-legal) !important; color: white !important; }
+.dept-compliance { background-color: var(--dept-compliance) !important; color: white !important; }
+.dept-audit { background-color: var(--dept-audit) !important; color: white !important; }
+.dept-credit { background-color: var(--dept-credit) !important; color: white !important; }
+.dept-treasury { background-color: var(--dept-treasury) !important; color: white !important; }
+
+/* Priority Classes */
+.priority-critical { background-color: var(--priority-critical) !important; color: white !important; }
+.priority-high { background-color: var(--priority-high) !important; color: white !important; }
+.priority-medium { background-color: var(--priority-medium) !important; color: white !important; }
+.priority-low { background-color: var(--priority-low) !important; color: white !important; }
+.priority-info { background-color: var(--priority-info) !important; color: white !important; }
+
+/* Compliance Classes */
+.compliance-compliant { background-color: var(--compliance-compliant) !important; color: white !important; }
+.compliance-non-compliant { background-color: var(--compliance-non-compliant) !important; color: white !important; }
+.compliance-partial { background-color: var(--compliance-partial) !important; color: white !important; }
+.compliance-pending { background-color: var(--compliance-pending) !important; color: white !important; }
+.compliance-not-applicable { background-color: var(--compliance-not-applicable) !important; color: white !important; }
+
+/* Control Effectiveness Classes */
+.control-effective { background-color: var(--control-effective) !important; color: white !important; }
+.control-partially-effective { background-color: var(--control-partially-effective) !important; color: white !important; }
+.control-ineffective { background-color: var(--control-ineffective) !important; color: white !important; }
+.control-not-tested { background-color: var(--control-not-tested) !important; color: white !important; }
+.control-not-applicable { background-color: var(--control-not-applicable) !important; color: white !important; }
+
+/* Incident Severity Classes */
+.incident-critical { background-color: var(--incident-critical) !important; color: white !important; }
+.incident-major { background-color: var(--incident-major) !important; color: white !important; }
+.incident-moderate { background-color: var(--incident-moderate) !important; color: white !important; }
+.incident-minor { background-color: var(--incident-minor) !important; color: white !important; }
+.incident-negligible { background-color: var(--incident-negligible) !important; color: white !important; }
+
+/* AML Classes */
+.aml-high-risk { background-color: var(--aml-high-risk) !important; color: white !important; }
+.aml-medium-risk { background-color: var(--aml-medium-risk) !important; color: white !important; }
+.aml-low-risk { background-color: var(--aml-low-risk) !important; color: white !important; }
+.aml-suspicious { background-color: var(--aml-suspicious) !important; color: white !important; }
+.aml-cleared { background-color: var(--aml-cleared) !important; color: white !important; }
+.aml-pending { background-color: var(--aml-pending) !important; color: #000 !important; }
+
+/* Audit Classes */
+.audit-critical { background-color: var(--audit-critical) !important; color: white !important; }
+.audit-major { background-color: var(--audit-major) !important; color: white !important; }
+.audit-moderate { background-color: var(--audit-moderate) !important; color: white !important; }
+.audit-minor { background-color: var(--audit-minor) !important; color: white !important; }
+.audit-observation { background-color: var(--audit-observation) !important; color: white !important; }
+
+/* KRI Traffic Light Classes */
+.kri-red { background-color: var(--kri-red) !important; color: white !important; }
+.kri-amber { background-color: var(--kri-amber) !important; color: #000 !important; }
+.kri-green { background-color: var(--kri-green) !important; color: white !important; }
+
+/* Progress Classes */
+.progress-not-started { background-color: var(--progress-not-started) !important; color: white !important; }
+.progress-in-progress { background-color: var(--progress-in-progress) !important; color: white !important; }
+.progress-near-completion { background-color: var(--progress-near-completion) !important; color: #000 !important; }
+.progress-completed { background-color: var(--progress-completed) !important; color: white !important; }
+.progress-overdue { background-color: var(--progress-overdue) !important; color: white !important; }
+
+/* Progress Bars */
+.progress-bar-critical { background-color: var(--risk-critical) !important; }
+.progress-bar-high { background-color: var(--risk-high) !important; }
+.progress-bar-medium { background-color: var(--risk-medium) !important; }
+.progress-bar-low { background-color: var(--risk-low) !important; }
+
+/* Icon Colors */
+.icon-risk-critical { color: var(--risk-critical) !important; }
+.icon-risk-high { color: var(--risk-high) !important; }
+.icon-risk-medium { color: var(--risk-medium) !important; }
+.icon-risk-low { color: var(--risk-low) !important; }
+
+/* Chart Colors for ApexCharts */
+.chart-colors-risk {
+    --chart-color-1: var(--risk-critical);
+    --chart-color-2: var(--risk-very-high);
+    --chart-color-3: var(--risk-high);
+    --chart-color-4: var(--risk-medium);
+    --chart-color-5: var(--risk-low);
+}
+
+/* Utility Classes */
+.bg-opacity-10 { background-color: rgba(var(--bg-color), 0.1) !important; }
+.bg-opacity-20 { background-color: rgba(var(--bg-color), 0.2) !important; }
+.border-left-thick { border-left: 4px solid !important; }
+.border-top-thick { border-top: 4px solid !important; }
+
+/* Hover Effects */
+.risk-hover:hover { opacity: 0.8; transform: scale(1.02); transition: all 0.2s ease; }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .badge { font-size: 0.65rem; padding: 0.35rem 0.6rem; }
+}
+
+/* Print Styles */
+@media print {
+    .risk-critical, .risk-very-high, .risk-high { 
+        background-color: #000 !important; 
+        color: white !important;
+    }
+    .risk-medium { 
+        background-color: #666 !important; 
+        color: white !important;
+    }
+    .risk-low { 
+        background-color: #333 !important; 
+        color: white !important;
+    }
+}
+
+/* Accessibility Enhancements */
+.sr-only { 
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .risk-medium { 
+        background-color: #000 !important; 
+        color: #fff !important; 
+        border: 2px solid #fff !important;
+    }
+}

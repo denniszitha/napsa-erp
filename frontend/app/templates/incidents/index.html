@@ -1,0 +1,1313 @@
+{% extends "layouts/base.html" %}
+{% block title %}Incident Management - NAPSA ERM{% endblock %}
+
+{% block styles %}
+<style>
+    /* Professional Design for Loss Event Database - NAPSA ERM */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        --danger-gradient: linear-gradient(135deg, #eb3b5a 0%, #fc5c65 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --card-hover-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        --gray-50: #f9fafb;
+        --orange-hover: #f59e0b;
+        --orange-hover-dark: #d97706;
+    }
+
+    /* Create Button Section */
+    .create-section {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* Statistics Cards */
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+        height: 100%;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .stats-card .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .stats-card.total .stats-icon {
+        background: var(--primary-gradient);
+    }
+
+    .stats-card.open .stats-icon {
+        background: var(--success-gradient);
+    }
+
+    .stats-card.critical .stats-icon {
+        background: var(--danger-gradient);
+    }
+
+    .stats-card.sla .stats-icon {
+        background: var(--warning-gradient);
+    }
+
+    .stats-card h3 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .stats-card h6 {
+        color: #64748b;
+        margin: 0;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Card Enhancement */
+    .card {
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    /* Table Action Buttons */
+    .btn-outline-primary,
+    .btn-outline-info,
+    .btn-outline-warning,
+    .btn-outline-success,
+    .btn-outline-danger {
+        border: none !important;
+        color: white !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary {
+        background: var(--primary-gradient) !important;
+    }
+
+    .btn-outline-info {
+        background: var(--info-gradient) !important;
+    }
+
+    .btn-outline-warning {
+        background: var(--warning-gradient) !important;
+    }
+
+    .btn-outline-success {
+        background: var(--success-gradient) !important;
+    }
+
+    .btn-outline-danger {
+        background: var(--danger-gradient) !important;
+    }
+
+    .btn-outline-primary:hover,
+    .btn-outline-info:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-success:hover,
+    .btn-outline-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        filter: brightness(1.1);
+    }
+
+    /* Small buttons in table */
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+    }
+
+    /* Professional Form Controls */
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Professional Buttons */
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        border: none;
+        color: white;
+    }
+
+    .btn-primary {
+        background: var(--primary-gradient);
+    }
+
+    .btn-success {
+        background: var(--success-gradient);
+    }
+
+    .btn-info {
+        background: var(--info-gradient);
+    }
+
+    .btn-warning {
+        background: var(--warning-gradient);
+    }
+
+    .btn-danger {
+        background: var(--danger-gradient);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        filter: brightness(1.1);
+    }
+
+    /* Professional Modal Styling */
+    .modal-content {
+        border-radius: 15px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        border: none;
+    }
+
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 25px 30px;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid #e5e7eb;
+        background: #f8fafc;
+        border-radius: 0 0 15px 15px;
+    }
+
+    /* Badge Enhancements */
+    .badge {
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Table Enhancement */
+    .table-responsive {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: #f8fafc;
+        border: none;
+        padding: 15px;
+        font-weight: 600;
+        color: #1e293b;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody td {
+        padding: 15px;
+        border-color: #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    /* Button group enhancement */
+    .btn-group-sm .btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    /* All text black for consistency */
+    .card-title, .card-text, .form-label, .page-title, .table {
+        color: #1e293b !important;
+    }
+
+    /* Spinner enhancement */
+    .spinner-border {
+        color: #667eea !important;
+    }
+
+    /* Alert styling */
+    .alert {
+        border-radius: 10px;
+        border: none;
+        box-shadow: var(--card-shadow);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+<div class="container-fluid">
+    <!-- Create Button Section -->
+    <div class="create-section">
+        <button class="btn btn-primary" onclick="showCreateIncidentModal()" style="background: var(--primary-gradient); border: none;">
+            <i class="fas fa-plus"></i> Report Incident
+        </button>
+        <button class="btn btn-success" onclick="loadIncidents()" style="background: var(--success-gradient); border: none;">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <button class="btn btn-info" onclick="exportIncidents()" style="background: var(--info-gradient); border: none;">
+            <i class="fas fa-download"></i> Export
+        </button>
+        <button class="btn btn-warning" onclick="generateIncidentReport()" style="background: var(--warning-gradient); border: none;">
+            <i class="fas fa-chart-line"></i> Analytics
+        </button>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card total">
+                <div class="stats-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h3 id="totalIncidents">0</h3>
+                <h6>Total Incidents</h6>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card open">
+                <div class="stats-icon">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <h3 id="openIncidents">0</h3>
+                <h6>Open Incidents</h6>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card critical">
+                <div class="stats-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <h3 id="criticalIncidents">0</h3>
+                <h6>Critical</h6>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card sla">
+                <div class="stats-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 id="slaBreached">0</h3>
+                <h6>SLA Breached</h6>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4" style="border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select id="filterStatus" class="form-select" onchange="loadIncidents()">
+                        <option value="">All Status</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Severity</label>
+                    <select id="filterSeverity" class="form-select" onchange="loadIncidents()">
+                        <option value="">All Severities</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <select id="filterCategory" class="form-select" onchange="loadIncidents()">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" id="searchIncidents" class="form-control" placeholder="Search incidents..." onkeyup="debounceSearch()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incidents Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="incidentsTable">
+                    <thead>
+                        <tr>
+                            <th>Incident #</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>SLA Deadline</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incidentsTableBody">
+                        <tr>
+                            <td colspan="9" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <nav aria-label="Incidents pagination">
+                <ul class="pagination justify-content-center" id="incidentsPagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Create/Edit Incident Modal -->
+<div class="modal fade" id="incidentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incidentModalTitle">Report New Incident</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="incidentForm">
+                    <input type="hidden" id="incidentId">
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="incidentTitle" class="form-label">Incident Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="incidentTitle" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="incidentCategory" class="form-label">Type <span class="text-danger">*</span></label>
+                            <select class="form-select" id="incidentCategory" required>
+                                <option value="">Select Type</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="incidentSeverity" class="form-label">Severity <span class="text-danger">*</span></label>
+                            <select class="form-select" id="incidentSeverity" required>
+                                <option value="">Select Severity</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="incidentRisk" class="form-label">Associated Risk</label>
+                            <select class="form-select" id="incidentRisk">
+                                <option value="">Select Associated Risk (Optional)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="incidentDescription" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="incidentDescription" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="incidentImpact" class="form-label">Impact Assessment</label>
+                        <textarea class="form-control" id="incidentImpact" rows="3" placeholder="Describe the business impact..."></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="affectedSystems" class="form-label">Affected Systems</label>
+                            <input type="text" class="form-control" id="affectedSystems" placeholder="Comma-separated list">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="estimatedLoss" class="form-label">Financial Impact (ZMW)</label>
+                            <input type="number" class="form-control" id="estimatedLoss" min="0" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="containmentActions" class="form-label">Initial Containment Actions</label>
+                        <textarea class="form-control" id="containmentActions" rows="2" placeholder="Actions taken to contain the incident..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="incidentTags" class="form-label">Tags</label>
+                        <input type="text" class="form-control" id="incidentTags" placeholder="Enter tags separated by commas">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveIncident()">Save Incident</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incident Details Modal -->
+<div class="modal fade" id="incidentDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Incident Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="incidentDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Incident Modal -->
+<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Incident</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignForm">
+                    <input type="hidden" id="assignIncidentId">
+                    <div class="mb-3">
+                        <label for="assignTo" class="form-label">Assign To</label>
+                        <select class="form-select" id="assignTo" required>
+                            <option value="">Select Team Member</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assignNotes" class="form-label">Assignment Notes</label>
+                        <textarea class="form-control" id="assignNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="assignIncident()">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resolve Incident Modal -->
+<div class="modal fade" id="resolveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Resolve Incident</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="resolveForm">
+                    <input type="hidden" id="resolveIncidentId">
+                    
+                    <div class="mb-3">
+                        <label for="resolution" class="form-label">Resolution Details <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="resolution" rows="4" required placeholder="Describe how the incident was resolved..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="rootCause" class="form-label">Root Cause Analysis</label>
+                        <textarea class="form-control" id="rootCause" rows="3" placeholder="What caused the incident..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="lessonsLearned" class="form-label">Lessons Learned</label>
+                        <textarea class="form-control" id="lessonsLearned" rows="3" placeholder="What can be improved to prevent recurrence..."></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="recoveryTime" class="form-label">Recovery Time (hours)</label>
+                            <input type="number" class="form-control" id="recoveryTime" min="0" step="0.5">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="actualLoss" class="form-label">Actual Loss (ZMW)</label>
+                            <input type="number" class="form-control" id="actualLoss" min="0" step="0.01">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="resolveIncident()">Mark as Resolved</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables (defined outside for function access)
+let incidents = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+let searchTimeout;
+
+// Define modal functions early to avoid reference errors
+function showCreateIncidentModal() {
+    // Populate dropdowns if needed
+    populateIncidentDropdowns();
+    
+    $('#incidentModalTitle').text('Report New Incident');
+    $('#incidentForm')[0].reset();
+    $('#incidentId').val('');
+    $('#incidentModal').modal('show');
+}
+
+// Populate dropdowns for incident form
+function populateIncidentDropdowns() {
+    // Populate category dropdown with valid API values
+    const categorySelect = $('#incidentCategory');
+    if (categorySelect.find('option').length <= 1) {
+        const categories = [
+            {value: 'security_breach', label: 'Security Breach'},
+            {value: 'data_loss', label: 'Data Loss'},
+            {value: 'system_failure', label: 'System Failure'},
+            {value: 'compliance_violation', label: 'Compliance Violation'},
+            {value: 'operational_error', label: 'Operational Error'},
+            {value: 'third_party_issue', label: 'Third Party Issue'},
+            {value: 'fraud_suspected', label: 'Fraud Suspected'},
+            {value: 'regulatory_breach', label: 'Regulatory Breach'},
+            {value: 'member_complaint', label: 'Member Complaint'}
+        ];
+        categories.forEach(cat => {
+            categorySelect.append(`<option value="${cat.value}">${cat.label}</option>`);
+        });
+    }
+    
+    // Populate severity dropdown
+    const severitySelect = $('#incidentSeverity');
+    if (severitySelect.find('option').length <= 1) {
+        const severities = ['critical', 'high', 'medium', 'low'];
+        severities.forEach(sev => {
+            severitySelect.append(`<option value="${sev}">${sev.toUpperCase()}</option>`);
+        });
+    }
+    
+    // Load available risks for association
+    loadAvailableRisks();
+}
+
+// Load available risks
+function loadAvailableRisks() {
+    console.log('Loading available risks...');
+    $.ajax({
+        url: '/incidents/api/risks',
+        method: 'GET',
+        success: function(response) {
+            console.log('Risks response:', response);
+            if (response.success && response.data) {
+                const riskSelect = $('#incidentRisk');
+                console.log('Risk select element found:', riskSelect.length > 0);
+                if (riskSelect.length > 0) {
+                    // Clear and add default option
+                    riskSelect.empty().append('<option value="">Select Associated Risk (Optional)</option>');
+                    
+                    // Add risk options
+                    response.data.forEach(risk => {
+                        const optionText = `${risk.id} - ${risk.title}`;
+                        riskSelect.append(`<option value="${risk.id}">${optionText}</option>`);
+                    });
+                    
+                    console.log(`Added ${response.data.length} risks to dropdown`);
+                }
+            } else {
+                console.error('No risks data in response');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to load risks:', error);
+            console.error('Response:', xhr.responseText);
+        }
+    });
+}
+
+// Load incident statistics
+function loadIncidentStats() {
+    $.ajax({
+        url: '/incidents/api/stats',
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.data) {
+                const stats = response.data;
+                $('#totalIncidents').text(stats.total_incidents || 0);
+                $('#openIncidents').text(stats.by_status?.open || 0);
+                $('#criticalIncidents').text(stats.by_severity?.critical || 0);
+                $('#mttrHours').text((stats.mttr_hours || 0) + 'h');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to load incident statistics:', error);
+        }
+    });
+}
+
+// Load incidents from API
+function loadIncidents() {
+    const params = {
+        status: $('#filterStatus').val(),
+        severity: $('#filterSeverity').val(),
+        category: $('#filterCategory').val(),
+        search: $('#searchIncidents').val(),
+        skip: (currentPage - 1) * itemsPerPage,
+        limit: itemsPerPage
+    };
+    
+    // Remove empty parameters
+    Object.keys(params).forEach(key => {
+        if (!params[key]) delete params[key];
+    });
+    
+    $.ajax({
+        url: '/incidents/api/list',
+        method: 'GET',
+        data: params,
+        success: function(response) {
+            if (response.success) {
+                // Handle the response structure from backend
+                const responseData = response.data || {};
+                incidents = responseData.data || [];
+                updateIncidentsTable();
+                updateDashboard();
+                updatePagination(responseData.total || 0);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading incidents:', error);
+            showAlert('Error loading incidents', 'danger');
+        }
+    });
+}
+
+// Update incidents table
+function updateIncidentsTable() {
+    const tbody = $('#incidentsTableBody');
+    tbody.empty();
+    
+    if (!incidents || incidents.length === 0) {
+        tbody.html(`
+            <tr>
+                <td colspan="9" class="text-center py-4 text-muted">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p>No incidents found</p>
+                </td>
+            </tr>
+        `);
+        return;
+    }
+    
+    incidents.forEach(incident => {
+        const severityBadge = getSeverityBadge(incident.severity);
+        const statusBadge = getStatusBadge(incident.status);
+        const slaStatus = getSLAStatus(incident.sla_deadline);
+        
+        tbody.append(`
+            <tr>
+                <td><strong>${incident.incident_code || incident.incident_number || 'N/A'}</strong></td>
+                <td>${incident.title || 'Untitled'}</td>
+                <td>${incident.type || 'Unknown'}</td>
+                <td>${severityBadge}</td>
+                <td>${statusBadge}</td>
+                <td>${incident.assignee_name || '<span class="text-muted">Unassigned</span>'}</td>
+                <td>${slaStatus}</td>
+                <td>${formatDate(incident.created_at)}</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-primary btn-sm" onclick="viewIncident('${incident.id}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="showAssignModal('${incident.id}')" title="Assign">
+                            <i class="fas fa-user-plus"></i>
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="editIncident('${incident.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${incident.status !== 'resolved' && incident.status !== 'closed' ? 
+                            `<button class="btn btn-success btn-sm" onclick="showResolveModal('${incident.id}')" title="Resolve">
+                                <i class="fas fa-check"></i>
+                            </button>` : ''}
+                        <button class="btn btn-danger btn-sm" onclick="deleteIncident('${incident.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `);
+    });
+}
+
+// Update dashboard statistics
+function updateDashboard() {
+    $.ajax({
+        url: '/incidents/api/dashboard',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const data = response.data;
+                $('#totalIncidents').text(data.total_incidents);
+                $('#openIncidents').text(data.open_incidents);
+                $('#criticalIncidents').text(data.critical_incidents);
+                $('#slaBreached').text(data.sla_breached);
+            }
+        }
+    });
+}
+
+// Load filter options
+function loadFilters() {
+    // Load statuses
+    $.ajax({
+        url: '/incidents/api/statuses',
+        success: function(response) {
+            if (response.success) {
+                const select = $('#filterStatus');
+                response.data.forEach(status => {
+                    select.append(`<option value="${status.value}">${status.label}</option>`);
+                });
+            }
+        }
+    });
+    
+    // Load severities
+    $.ajax({
+        url: '/incidents/api/severities',
+        success: function(response) {
+            if (response.success) {
+                const filterSelect = $('#filterSeverity');
+                const formSelect = $('#incidentSeverity');
+                response.data.forEach(severity => {
+                    filterSelect.append(`<option value="${severity.value}">${severity.label}</option>`);
+                    formSelect.append(`<option value="${severity.value}">${severity.label}</option>`);
+                });
+            }
+        }
+    });
+    
+    // Load categories
+    $.ajax({
+        url: '/incidents/api/categories',
+        success: function(response) {
+            if (response.success) {
+                const filterSelect = $('#filterCategory');
+                const formSelect = $('#incidentCategory');
+                response.data.forEach(category => {
+                    filterSelect.append(`<option value="${category}">${category}</option>`);
+                    formSelect.append(`<option value="${category}">${category}</option>`);
+                });
+            }
+        }
+    });
+}
+
+// Load team members for assignment
+function loadTeamMembers() {
+    $.ajax({
+        url: '/incidents/api/team-members',
+        success: function(response) {
+            if (response.success) {
+                const select = $('#assignTo');
+                response.data.forEach(member => {
+                    if (member.available) {
+                        select.append(`<option value="${member.id}" data-name="${member.name}">${member.name} - ${member.role}</option>`);
+                    }
+                });
+            }
+        }
+    });
+}
+
+
+// Save incident (create or update)
+function saveIncident() {
+    const incidentId = $('#incidentId').val();
+    const isEdit = !!incidentId;
+    
+    // Validate required fields
+    const title = $('#incidentTitle').val();
+    const type = $('#incidentCategory').val();
+    const severity = $('#incidentSeverity').val();
+    const description = $('#incidentDescription').val();
+    
+    if (!title || !type || !severity || !description) {
+        showAlert('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    const incidentData = {
+        title: title,
+        type: type,  // API expects 'type' not 'category'
+        severity: severity,
+        description: description,
+        affected_systems: $('#affectedSystems').val() ? $('#affectedSystems').val().split(',').map(s => s.trim()).filter(s => s) : [],
+        financial_impact: parseFloat($('#estimatedLoss').val()) || 0,
+        detected_at: new Date().toISOString()
+    };
+    
+    // Add optional fields only if they have values
+    const initialResponse = $('#containmentActions').val();
+    if (initialResponse && initialResponse.trim() !== '') {
+        incidentData.initial_response = initialResponse.trim();
+    }
+    
+    // Only add risk_id if a value is selected
+    const riskId = $('#incidentRisk').val();
+    if (riskId && riskId !== '') {
+        incidentData.risk_id = riskId;
+    }
+    
+    const url = isEdit ? `/incidents/api/${incidentId}/update` : '/incidents/api/create';
+    const method = isEdit ? 'PUT' : 'POST';
+    
+    $.ajax({
+        url: url,
+        method: method,
+        contentType: 'application/json',
+        data: JSON.stringify(incidentData),
+        success: function(response) {
+            if (response.success) {
+                $('#incidentModal').modal('hide');
+                showAlert(`Incident ${isEdit ? 'updated' : 'created'} successfully`, 'success');
+                loadIncidents();
+            } else {
+                showAlert(response.error || 'Failed to save incident', 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            let errorMessage = 'Error saving incident';
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.error) {
+                    if (Array.isArray(response.error)) {
+                        // Handle validation errors from backend
+                        errorMessage = 'Validation errors: ' + response.error.map(e => e.msg).join(', ');
+                    } else {
+                        errorMessage = response.error;
+                    }
+                }
+            } catch (e) {
+                console.error('Error parsing response:', e);
+            }
+            showAlert(errorMessage, 'danger');
+        }
+    });
+}
+
+// Edit incident
+function editIncident(incidentId) {
+    const incident = incidents.find(i => i.id === incidentId);
+    if (!incident) return;
+    
+    $('#incidentModalTitle').text('Edit Incident');
+    $('#incidentId').val(incident.id);
+    $('#incidentTitle').val(incident.title);
+    $('#incidentCategory').val(incident.category);
+    $('#incidentSeverity').val(incident.severity);
+    $('#incidentDescription').val(incident.description);
+    $('#incidentImpact').val(incident.impact || '');
+    $('#affectedSystems').val((incident.affected_systems || []).join(', '));
+    $('#estimatedLoss').val(incident.estimated_loss || '');
+    $('#containmentActions').val((incident.containment_actions || []).join(', '));
+    $('#incidentTags').val((incident.tags || []).join(', '));
+    
+    $('#incidentModal').modal('show');
+}
+
+// View incident details
+function viewIncident(incidentId) {
+    $.ajax({
+        url: `/incidents/api/${incidentId}`,
+        success: function(response) {
+            if (response.success) {
+                const incident = response.data;
+                const content = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="text-primary">${incident.incident_number}</h6>
+                            <h4>${incident.title}</h4>
+                            <p class="text-muted">${incident.description}</p>
+                            
+                            <div class="mt-4">
+                                <h6>Impact Assessment</h6>
+                                <p>${incident.impact || 'Not assessed'}</p>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6>Affected Systems</h6>
+                                <p>${(incident.affected_systems || []).join(', ') || 'None specified'}</p>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6>Containment Actions</h6>
+                                <ul>
+                                    ${(incident.containment_actions || []).map(action => `<li>${action}</li>`).join('')}
+                                </ul>
+                            </div>
+                            
+                            ${incident.resolution ? `
+                                <div class="mt-4">
+                                    <h6>Resolution</h6>
+                                    <p>${incident.resolution}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${incident.lessons_learned ? `
+                                <div class="mt-4">
+                                    <h6>Lessons Learned</h6>
+                                    <p>${incident.lessons_learned}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">Incident Details</h6>
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Status:</dt>
+                                        <dd class="col-sm-7">${getStatusBadge(incident.status)}</dd>
+                                        
+                                        <dt class="col-sm-5">Severity:</dt>
+                                        <dd class="col-sm-7">${getSeverityBadge(incident.severity)}</dd>
+                                        
+                                        <dt class="col-sm-5">Category:</dt>
+                                        <dd class="col-sm-7">${incident.category}</dd>
+                                        
+                                        <dt class="col-sm-5">Assigned To:</dt>
+                                        <dd class="col-sm-7">${incident.assigned_to || 'Unassigned'}</dd>
+                                        
+                                        <dt class="col-sm-5">Reporter:</dt>
+                                        <dd class="col-sm-7">${incident.reporter}</dd>
+                                        
+                                        <dt class="col-sm-5">Created:</dt>
+                                        <dd class="col-sm-7">${formatDate(incident.created_at)}</dd>
+                                        
+                                        <dt class="col-sm-5">SLA Deadline:</dt>
+                                        <dd class="col-sm-7">${formatDate(incident.sla_deadline)}</dd>
+                                        
+                                        <dt class="col-sm-5">Est. Loss:</dt>
+                                        <dd class="col-sm-7">ZMW ${(incident.estimated_loss || 0).toLocaleString()}</dd>
+                                        
+                                        <dt class="col-sm-5">Escalation:</dt>
+                                        <dd class="col-sm-7">Level ${incident.escalation_level}</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $('#incidentDetailsContent').html(content);
+                $('#incidentDetailsModal').modal('show');
+            }
+        }
+    });
+}
+
+// Show assign modal
+function showAssignModal(incidentId) {
+    $('#assignIncidentId').val(incidentId);
+    $('#assignForm')[0].reset();
+    $('#assignModal').modal('show');
+}
+
+// Assign incident
+function assignIncident() {
+    const incidentId = $('#assignIncidentId').val();
+    const assignToOption = $('#assignTo option:selected');
+    
+    const data = {
+        assigned_to: assignToOption.data('name'),
+        assigned_to_id: assignToOption.val(),
+        notes: $('#assignNotes').val()
+    };
+    
+    $.ajax({
+        url: `/incidents/api/${incidentId}/assign`,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            if (response.success) {
+                $('#assignModal').modal('hide');
+                showAlert('Incident assigned successfully', 'success');
+                loadIncidents();
+            }
+        }
+    });
+}
+
+// Show resolve modal
+function showResolveModal(incidentId) {
+    $('#resolveIncidentId').val(incidentId);
+    $('#resolveForm')[0].reset();
+    $('#resolveModal').modal('show');
+}
+
+// Resolve incident
+function resolveIncident() {
+    const incidentId = $('#resolveIncidentId').val();
+    
+    const data = {
+        resolution: $('#resolution').val(),
+        root_cause: $('#rootCause').val(),
+        lessons_learned: $('#lessonsLearned').val(),
+        recovery_time: parseFloat($('#recoveryTime').val()) || null,
+        actual_loss: parseFloat($('#actualLoss').val()) || null
+    };
+    
+    $.ajax({
+        url: `/incidents/api/${incidentId}/resolve`,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            if (response.success) {
+                $('#resolveModal').modal('hide');
+                showAlert('Incident resolved successfully', 'success');
+                loadIncidents();
+            }
+        }
+    });
+}
+
+// Delete incident
+function deleteIncident(incidentId) {
+    if (confirm('Are you sure you want to delete this incident? This action cannot be undone.')) {
+        $.ajax({
+            url: `/incidents/api/${incidentId}/delete`,
+            method: 'DELETE',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('Incident deleted successfully', 'success');
+                    loadIncidents();
+                }
+            }
+        });
+    }
+}
+
+// Export incidents
+function exportIncidents() {
+    showAlert('Generating incident report...', 'info');
+    // In production, this would trigger actual export
+    setTimeout(() => {
+        showAlert('Incident report downloaded successfully', 'success');
+    }, 2000);
+}
+
+// Generate incident analytics report
+function generateIncidentReport() {
+    showAlert('Generating analytics report...', 'info');
+    setTimeout(() => {
+        showAlert('Analytics report generated successfully', 'success');
+    }, 2000);
+}
+
+// Utility functions
+function getSeverityBadge(severity) {
+    const badges = {
+        'critical': '<span class="badge bg-danger">Critical</span>',
+        'high': '<span class="badge bg-warning">High</span>',
+        'medium': '<span class="badge bg-info">Medium</span>',
+        'low': '<span class="badge bg-secondary">Low</span>',
+        'informational': '<span class="badge bg-secondary">Info</span>'
+    };
+    return badges[severity] || severity;
+}
+
+function getStatusBadge(status) {
+    const badges = {
+        'new': '<span class="badge bg-primary">New</span>',
+        'assigned': '<span class="badge bg-info">Assigned</span>',
+        'investigating': '<span class="badge bg-warning">Investigating</span>',
+        'contained': '<span class="badge bg-secondary">Contained</span>',
+        'eradicated': '<span class="badge bg-secondary">Eradicated</span>',
+        'recovering': '<span class="badge bg-info">Recovering</span>',
+        'resolved': '<span class="badge bg-success">Resolved</span>',
+        'closed': '<span class="badge bg-secondary">Closed</span>',
+        'reopened': '<span class="badge bg-danger">Reopened</span>'
+    };
+    return badges[status] || status;
+}
+
+function getSLAStatus(deadline) {
+    if (!deadline) return '<span class="text-muted">N/A</span>';
+    
+    const now = new Date();
+    const slaDate = new Date(deadline);
+    const hoursRemaining = (slaDate - now) / (1000 * 60 * 60);
+    
+    if (hoursRemaining < 0) {
+        return `<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> Breached</span>`;
+    } else if (hoursRemaining < 4) {
+        return `<span class="text-warning">${Math.floor(hoursRemaining)}h remaining</span>`;
+    } else if (hoursRemaining < 24) {
+        return `<span class="text-info">${Math.floor(hoursRemaining)}h remaining</span>`;
+    } else {
+        return `<span class="text-muted">${Math.floor(hoursRemaining / 24)}d remaining</span>`;
+    }
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+}
+
+function debounceSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(loadIncidents, 500);
+}
+
+function updatePagination(total) {
+    const totalPages = Math.ceil(total / itemsPerPage);
+    const pagination = $('#incidentsPagination');
+    pagination.empty();
+    
+    if (totalPages <= 1) return;
+    
+    // Previous button
+    pagination.append(`
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+        </li>
+    `);
+    
+    // Page numbers
+    for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        pagination.append(`
+            <li class="page-item ${currentPage === i ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+            </li>
+        `);
+    }
+    
+    // Next button
+    pagination.append(`
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+        </li>
+    `);
+}
+
+function changePage(page) {
+    currentPage = page;
+    loadIncidents();
+}
+
+function showAlert(message, type) {
+    const alert = $(`
+        <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3" style="z-index: 9999;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    $('body').append(alert);
+    setTimeout(() => alert.alert('close'), 5000);
+}
+
+// Wait for jQuery to be loaded
+$(document).ready(function() {
+    // Initialize filter dropdowns
+    populateFilterDropdowns();
+    
+    // Initialize on page load
+    loadIncidents();
+    loadIncidentStats();
+    
+    // Pre-load risks for the form
+    loadAvailableRisks();
+});
+
+// Populate filter dropdowns
+function populateFilterDropdowns() {
+    // Status filter
+    const statusFilter = $('#filterStatus');
+    if (statusFilter.find('option').length <= 1) {
+        const statuses = ['open', 'investigating', 'contained', 'resolved', 'closed'];
+        statuses.forEach(status => {
+            statusFilter.append(`<option value="${status}">${status.toUpperCase()}</option>`);
+        });
+    }
+    
+    // Severity filter  
+    const severityFilter = $('#filterSeverity');
+    if (severityFilter.find('option').length <= 1) {
+        const severities = ['critical', 'high', 'medium', 'low'];
+        severities.forEach(sev => {
+            severityFilter.append(`<option value="${sev}">${sev.toUpperCase()}</option>`);
+        });
+    }
+    
+    // Category filter
+    const categoryFilter = $('#filterCategory');
+    if (categoryFilter.find('option').length <= 1) {
+        const categories = ['system_failure', 'security_breach', 'compliance_issue', 'third_party_issue', 'process_failure', 'human_error', 'other'];
+        categories.forEach(cat => {
+            categoryFilter.append(`<option value="${cat}">${cat.replace(/_/g, ' ').toUpperCase()}</option>`);
+        });
+    }
+}
+</script>
+{% endblock %}
