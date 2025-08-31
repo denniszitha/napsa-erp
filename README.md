@@ -1,226 +1,304 @@
-# NAPSA ERM System - Enterprise Risk Management
+# NAPSA Enterprise Risk Management System
 
-## Overview
-NAPSA ERM (National Pension Scheme Authority - Enterprise Risk Management) system for comprehensive risk management and compliance.
+A comprehensive Enterprise Risk Management (ERM) system built for the National Pension Scheme Authority (NAPSA) of Zambia. This system provides end-to-end risk management capabilities including risk assessment, incident tracking, compliance monitoring, and executive dashboards.
 
-**System Status**: ✅ Fully Operational  
-**Compliance**: 92% Overall (100% Mandatory Requirements Met)  
-**Last Updated**: August 29, 2025
+## 🚀 Features
 
-## Directory Structure
-```
-/var/napsa-erm/
-├── frontend/       # Flask frontend application (Port 58000)
-├── backend/        # FastAPI backend application (Port 58001)
-├── database/       # SQL scripts and migrations
-├── config/         # Configuration files and scripts
-├── logs/          # Application logs
-├── backups/       # Database backups
-├── docs/          # Documentation
-└── docker-compose.yml
-```
+### Core Modules
+- **Risk Management** - Comprehensive risk identification, assessment, and monitoring
+- **Incident Management** - Track and manage security incidents and breaches
+- **Compliance Tracking** - Monitor regulatory compliance and requirements
+- **Key Risk Indicators (KRI)** - Real-time risk metrics and thresholds
+- **Risk Control Self-Assessment (RCSA)** - Department-level risk assessments
+- **Executive Dashboard** - Board-level oversight and strategic risk views
+- **Audit Trail** - Complete audit logging for all system activities
 
-## Services & Access Points
+### Technical Features
+- JWT-based authentication with role-based access control
+- RESTful API architecture with FastAPI backend
+- Responsive web interface built with Flask and Bootstrap 5
+- PostgreSQL database with full backup/restore capabilities
+- Docker containerization for easy deployment
+- Real-time data visualization with Chart.js
 
-| Service | Port | URL | Status |
-|---------|------|-----|--------|
-| Frontend | 58000 | http://102.23.120.243:58000 | ✅ Running |
-| Backend API | 58001 | http://102.23.120.243:58001/docs | ✅ Running |
-| PostgreSQL | 58002 | localhost:58002 | ✅ Running |
-| Redis Cache | 58003 | localhost:58003 | ✅ Running |
+## 📋 Prerequisites
 
-### Default Credentials
-- **Username**: admin
-- **Password**: admin@123
+- Docker and Docker Compose
+- Python 3.12+
+- PostgreSQL 15
+- 4GB RAM minimum
+- 10GB free disk space
 
-## Architecture
-Three-tier architecture with strict separation:
-1. **Presentation Layer**: Flask Frontend (NO direct database access)
-2. **Application Layer**: FastAPI Backend (all business logic)
-3. **Data Layer**: PostgreSQL + Redis
+## 🛠️ Installation
 
-## System Statistics
+### Quick Start with Docker
 
-### Database
-- **56 tables** fully implemented
-- **74 risks** currently tracked
-- **79 risk categories** defined
-- **5 assessment periods** active
-- **Multiple departments** with full hierarchy
-
-### API Endpoints
-- **Backend**: 132 endpoints across 20 modules
-- **Frontend**: 271 routes with proper API proxying
-
-## Key Features Implemented
-
-### ✅ Core Risk Management
-- Risk Register with full CRUD operations
-- Risk Assessment (qualitative & quantitative)
-- Risk Categories (79 categories from database)
-- Risk Owners and Department assignment
-- Likelihood & Impact scoring (1-5 scale)
-- Automated risk score calculation
-
-### ✅ Compliance & Governance
-- RCSA (Risk Control Self-Assessment) scheduling
-- Assessment Periods management
-- Policy and regulation tracking
-- Audit trail functionality
-- Compliance monitoring
-
-### ✅ Incident Management
-- Complete incident lifecycle
-- Severity and priority tracking
-- Corrective action management
-- Automated notifications
-
-### ✅ Key Risk Indicators (KRI)
-- KRI monitoring and thresholds
-- Real-time breach alerts
-- Email & SMS notifications
-- Dashboard visualizations
-
-### ✅ Reporting & Analytics
-- Interactive dashboards
-- Risk heat maps
-- Trend analysis
-- Multiple export formats (PDF, Excel, CSV, JSON)
-- Scheduled report generation
-
-### ✅ User Management
-- JWT authentication (30-minute tokens)
-- Role-based access control (RBAC)
-- Session management with auto-expiry
-- Multi-department support
-
-### ✅ Notifications
-- Email notifications (SMTP configured)
-- SMS alerts (CloudService API)
-- Real-time notifications for:
-  - KRI breaches
-  - Incidents
-  - AML alerts
-  - Policy updates
-
-## Recent Fixes & Improvements
-
-### Session Management (Fixed)
-- Token expiry aligned with backend (30 minutes)
-- Automatic session cleanup on expiry
-- Middleware validates tokens on each request
-
-### Data Integration (Fixed)
-- All dropdowns now fetch from database:
-  - ✅ 79 Risk Categories (was 6 hardcoded)
-  - ✅ Dynamic Departments from DB
-  - ✅ Real Users as Risk Owners
-- Removed all mock/hardcoded data
-- Fixed backend API URLs (port 58001)
-
-### Dashboard Analytics (Fixed)
-- Displays correct risk count (74 total)
-- Real-time statistics from database
-- Proper field mapping (total_risks, not total)
-
-### Frontend Improvements
-- Added credentials: 'same-origin' for fetch requests
-- Fixed authentication token retrieval from cookies
-- Proper error handling for API failures
-
-## Security Features
-- Frontend has NO database credentials
-- All data access through authenticated API
-- JWT tokens with proper expiration
-- HTTP-only secure cookies
-- CSRF protection enabled
-- Complete audit logging
-- Input validation and sanitization
-
-## Quick Start
-
-### Start All Services
+1. Clone the repository:
 ```bash
-cd /var/napsa-erm
+git clone https://github.com/denniszitha/napsa-erp.git
+cd napsa-erp
+```
+
+2. Create environment file:
+```bash
+cat > .env << EOF
+DATABASE_URL=postgresql://napsa_admin:napsa2024@napsa-postgres:5432/napsa_erm
+SECRET_KEY=your-secret-key-here
+JWT_SECRET_KEY=your-jwt-secret-here
+EOF
+```
+
+3. Start the services:
+```bash
 docker-compose up -d
 ```
 
-### Check Service Status
+4. Access the application:
+- Frontend: http://localhost:58000
+- Backend API: http://localhost:58001
+- API Documentation: http://localhost:58001/docs
+
+### Manual Installation
+
+#### Backend Setup
+
 ```bash
-docker ps
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Set environment variables
+export DATABASE_URL=postgresql://napsa_admin:napsa2024@localhost:58002/napsa_erm
+export SECRET_KEY=your-secret-key
+export JWT_SECRET_KEY=your-jwt-secret
+
+# Run the backend
+uvicorn app.main:app --host 0.0.0.0 --port 58001 --reload
 ```
+
+#### Frontend Setup
+
+```bash
+cd frontend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Run the frontend
+FLASK_RUN_PORT=58000 python run.py
+```
+
+#### Database Setup
+
+```bash
+# Create database
+docker run -d \
+  --name napsa-postgres \
+  -e POSTGRES_USER=napsa_admin \
+  -e POSTGRES_PASSWORD=napsa2024 \
+  -e POSTGRES_DB=napsa_erm \
+  -p 58002:5432 \
+  postgres:15-alpine
+
+# Initialize database with sample data
+cd backend
+python seed_napsa_data.py
+```
+
+## 👥 Default Users
+
+The system comes with pre-configured users representing different roles:
+
+| Username | Password | Role | Department |
+|----------|----------|------|------------|
+| admin | admin123 | Admin | IT |
+| director.general | napsa2025 | Admin | Executive |
+| chief.risk | napsa2025 | Risk Manager | Risk and Compliance |
+| m.banda | napsa2025 | Risk Owner | Investments |
+| j.phiri | napsa2025 | Auditor | Internal Audit |
+
+## 📊 System Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    User Browser                         │
+└────────────────────┬────────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────────┐
+│          Frontend (Flask) - Port 58000                  │
+│  - Authentication & Session Management                  │
+│  - UI Components & Templates                            │
+│  - Real-time Dashboards                                │
+└────────────────────┬────────────────────────────────────┘
+                     │ REST API
+┌────────────────────▼────────────────────────────────────┐
+│          Backend (FastAPI) - Port 58001                 │
+│  - Business Logic                                       │
+│  - API Endpoints                                        │
+│  - Data Validation                                      │
+└────────────────────┬────────────────────────────────────┘
+                     │
+┌────────────────────▼────────────────────────────────────┐
+│       PostgreSQL Database - Port 58002                  │
+│  - Data Persistence                                     │
+│  - 45+ Tables                                          │
+│  - Audit Logs                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+## 💾 Database Management
+
+### Backup Database
+```bash
+./backup_database.sh
+```
+Backups are stored in `/var/napsa-erm/backups/` with timestamps.
+
+### Restore Database
+```bash
+./restore_database.sh
+```
+Follow the prompts to select a backup file to restore.
+
+## 📁 Project Structure
+
+```
+napsa-erp/
+├── backend/
+│   ├── app/
+│   │   ├── api/          # API endpoints
+│   │   ├── models/       # Database models
+│   │   ├── schemas/      # Pydantic schemas
+│   │   ├── services/     # Business logic
+│   │   └── core/         # Core utilities
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── app/
+│   │   ├── blueprints/   # Flask blueprints
+│   │   ├── templates/    # HTML templates
+│   │   ├── static/       # CSS, JS, images
+│   │   └── services/     # API services
+│   ├── requirements.txt
+│   └── run.py
+├── docker-compose.yml
+├── backup_database.sh
+├── restore_database.sh
+└── README.md
+```
+
+## 🔒 Security Features
+
+- JWT token-based authentication
+- Role-based access control (RBAC)
+- Password hashing with bcrypt
+- Session timeout management
+- Account lockout after failed attempts
+- Complete audit trail
+- SQL injection prevention
+- XSS protection
+- CSRF tokens
+
+## 📈 Monitoring & Logs
 
 ### View Logs
 ```bash
 # Backend logs
 docker logs napsa-backend
 
-# Frontend logs (if running outside Docker)
-tail -f /var/napsa-erm/frontend/app.log
+# Database logs
+docker logs napsa-postgres
+
+# Frontend logs (if containerized)
+docker logs napsa-frontend
 ```
 
-### Database Access
+### Health Check
 ```bash
-# Connect to PostgreSQL
-PGPASSWORD=napsa_secure_password psql -h localhost -p 58002 -U napsa_admin -d napsa_erm
-
-# Check risk count
-SELECT COUNT(*) FROM risks;
+curl http://localhost:58001/health
 ```
 
-## Troubleshooting
+## 🧪 Testing
 
-### If frontend shows wrong data:
-1. Clear browser cookies
-2. Login again with admin/admin@123
-3. Check backend is running: `docker ps`
-
-### If authentication fails:
-1. Token may be expired (30-minute lifetime)
-2. Clear cookies and login again
-3. Check backend logs: `docker logs napsa-backend`
-
-### If categories/departments not loading:
-- All fixed! Now loads from database
-- Check backend API: http://localhost:58001/docs
-
-## Development Notes
-
-### Frontend Environment
+### Run Backend Tests
 ```bash
-cd /var/napsa-erm/frontend
-source venv/bin/activate
-FLASK_RUN_PORT=58000 python3 run.py
+cd backend
+pytest tests/
 ```
 
-### Backend Environment
+### Test API Endpoints
 ```bash
-docker exec -it napsa-backend bash
-# or
-cd /var/napsa-erm/backend
-source venv/bin/activate
-uvicorn app.main_live:app --reload --port 58001
+# Test authentication
+curl -X POST http://localhost:58001/api/v1/auth/login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin&password=admin123"
+
+# Test risk endpoint (replace TOKEN)
+curl -H "Authorization: Bearer TOKEN" \
+  http://localhost:58001/api/v1/risks
 ```
 
-## Compliance Status
+## 🚦 Troubleshooting
 
-### NAPSA Requirements
-- **Mandatory Requirements**: 100% Complete ✅
-- **Overall Compliance**: 92%
-- **Production Ready**: Yes
+### Common Issues
 
-### ISO Standards
-- ISO 31000:2018 Risk Management: Partially Compliant
-- COSO ERM Framework 2017: Basic Implementation
+1. **Database Connection Error**
+   ```bash
+   # Check if PostgreSQL is running
+   docker ps | grep postgres
+   
+   # Restart database
+   docker restart napsa-postgres
+   ```
 
-## Support & Documentation
+2. **Frontend Not Loading**
+   ```bash
+   # Check if frontend is running
+   lsof -i :58000
+   
+   # Restart frontend
+   pkill -f "python.*58000"
+   cd frontend && FLASK_RUN_PORT=58000 python run.py
+   ```
 
-- **API Documentation**: http://localhost:58001/docs
-- **Requirements Matrix**: `/var/napsa-erm/docs/REQUIREMENTS_COMPLIANCE_MATRIX.md`
-- **Database Schema**: `/var/napsa-erm/database/final_risk_tables.sql`
+3. **User Account Locked**
+   ```bash
+   # Unlock user account
+   docker exec napsa-postgres psql -U napsa_admin -d napsa_erm \
+     -c "UPDATE users SET is_active=true, locked_until=NULL WHERE username='admin';"
+   ```
 
-## License
-Proprietary - National Pension Scheme Authority (NAPSA)
+## 📝 API Documentation
+
+Interactive API documentation is available at:
+- Swagger UI: http://localhost:58001/docs
+- ReDoc: http://localhost:58001/redoc
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is proprietary software developed for NAPSA. All rights reserved.
+
+## 👥 Team
+
+Developed for the National Pension Scheme Authority (NAPSA) of Zambia
+
+## 📧 Support
+
+For support and inquiries, please contact the NAPSA IT Department.
 
 ---
-*System maintained and operational as of August 29, 2025*
+
+**Version:** 1.0.0  
+**Last Updated:** August 2025  
+**Status:** Production Ready
+
+🔗 **Repository:** https://github.com/denniszitha/napsa-erp
