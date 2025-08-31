@@ -10,18 +10,32 @@
     
     <!-- Sidebar Navigation -->
     <nav class="sidebar-nav">
-        <!-- Main Navigation Section -->
+        <!-- Dashboard -->
         <div class="nav-section">
-            <div class="nav-section-header">
-                <span class="nav-section-title">Risk Management</span>
-            </div>
-            
             <div class="nav-section-content">
                 <div class="nav-item">
                     <a class="nav-link {% if request.endpoint and 'dashboard' in request.endpoint %}active{% endif %}" 
                        href="{{ url_for('dashboard.index') }}">
                         <i class="fas fa-th-large"></i>
                         <span>Dashboard</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- RISK MANAGEMENT Section -->
+        <div class="nav-section">
+            <div class="nav-section-header">
+                <span class="nav-section-title" style="color: #FFA500;">RISK MANAGEMENT</span>
+            </div>
+            
+            <div class="nav-section-content">
+                <!-- Core Risk Functions -->
+                <div class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'risks' in request.endpoint and 'risk_categories' not in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('risks.index') }}">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Risk Register</span>
                     </a>
                 </div>
                 
@@ -34,26 +48,27 @@
                 </div>
                 
                 <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'risks' in request.endpoint and 'risk_categories' not in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('risks.index') }}">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>Risk Register</span>
+                    <a class="nav-link {% if request.endpoint and 'matrix' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('matrix.index') }}">
+                        <i class="fas fa-th"></i>
+                        <span>Risk Matrix</span>
                     </a>
                 </div>
                 
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'assessment_periods' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('assessment_periods.index') }}">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Assessment Periods</span>
-                    </a>
-                </div>
-                
+                <!-- Risk Assessment & Controls -->
                 <div class="nav-item">
                     <a class="nav-link {% if request.endpoint and 'risk_assessments' in request.endpoint %}active{% endif %}" 
                        href="{{ url_for('risk_assessments.index') }}">
                         <i class="fas fa-clipboard-check"></i>
                         <span>Risk Assessments</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'rcsa' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('rcsa.index') }}">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>RCSA</span>
                     </a>
                 </div>
                 
@@ -73,11 +88,12 @@
                     </a>
                 </div>
                 
+                <!-- Risk Monitoring -->
                 <div class="nav-item">
                     <a class="nav-link {% if request.endpoint and 'incidents' in request.endpoint %}active{% endif %}" 
                        href="{{ url_for('incidents.index') }}">
                         <i class="fas fa-exclamation-circle"></i>
-                        <span>Loss Event Database</span>
+                        <span>Incidents/Loss Events</span>
                     </a>
                 </div>
                 
@@ -85,76 +101,29 @@
                     <a class="nav-link {% if request.endpoint and 'kri' in request.endpoint %}active{% endif %}" 
                        href="{{ url_for('kri.dashboard') }}">
                         <i class="fas fa-tachometer-alt"></i>
-                        <span>KRIs</span>
+                        <span>Key Risk Indicators</span>
                     </a>
                 </div>
                 
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'rcsa' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('rcsa.index') }}">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>RCSA</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'matrix' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('matrix.index') }}">
-                        <i class="fas fa-th"></i>
-                        <span>Risk Matrix</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Analytics & Reports Section -->
-        <div class="nav-section">
-            <div class="nav-section-header">
-                <span class="nav-section-title">Analytics & Reports</span>
-            </div>
-            
-            <div class="nav-section-content">
+                <!-- Risk Analytics -->
                 <div class="nav-item">
                     <a class="nav-link {% if request.endpoint and 'analytics' in request.endpoint %}active{% endif %}" 
                        href="{{ url_for('analytics.index') }}">
                         <i class="fas fa-chart-line"></i>
-                        <span>Analytics</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'reports' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('reports.index') }}">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'bi_tools' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('bi_tools.index') }}">
-                        <i class="fas fa-chart-pie"></i>
-                        <span>BI Tools</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'metrics' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('metrics.index') }}">
-                        <i class="fas fa-chart-area"></i>
-                        <span>Metrics</span>
+                        <span>Risk Analytics</span>
                     </a>
                 </div>
             </div>
         </div>
         
-        <!-- Compliance & Governance Section -->
+        <!-- COMPLIANCE & ASSURANCE Section -->
         <div class="nav-section">
             <div class="nav-section-header">
-                <span class="nav-section-title">Compliance & Governance</span>
+                <span class="nav-section-title" style="color: #90EE90;">COMPLIANCE & ASSURANCE</span>
             </div>
             
             <div class="nav-section-content">
+                <!-- Compliance Management -->
                 <div class="nav-item">
                     <a class="nav-link {% if request.endpoint and 'compliance' in request.endpoint %}active{% endif %}" 
                        href="{{ url_for('compliance.index') }}">
@@ -179,69 +148,38 @@
                     </a>
                 </div>
                 
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'aml' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('aml.index') }}">
-                        <i class="fas fa-user-shield"></i>
-                        <span>AML/KYC</span>
-                    </a>
-                </div>
-                
+                <!-- Audit & Assurance -->
                 <div class="nav-item">
                     <a class="nav-link {% if request.endpoint and 'audit' in request.endpoint %}active{% endif %}" 
                        href="{{ url_for('audit.index') }}">
                         <i class="fas fa-search"></i>
-                        <span>Audit</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        
-        <!-- Operations Section -->
-        <div class="nav-section">
-            <div class="nav-section-header">
-                <span class="nav-section-title">Operations</span>
-            </div>
-            
-            <div class="nav-section-content">
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'process-flow' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('risks.process_flow') }}">
-                        <i class="fas fa-project-diagram"></i>
-                        <span>Process Flow</span>
+                        <span>Audit Management</span>
                     </a>
                 </div>
                 
                 <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'assessment-templates' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('risks.assessment_templates') }}">
-                        <i class="fas fa-file-alt"></i>
-                        <span>Assessment Templates</span>
+                    <a class="nav-link {% if request.endpoint and 'assessment_periods' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('assessment_periods.index') }}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Assessment Periods</span>
                     </a>
                 </div>
                 
+                <!-- Reporting -->
                 <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'vendors' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('vendors.index') }}">
-                        <i class="fas fa-handshake"></i>
-                        <span>Vendor Management</span>
+                    <a class="nav-link {% if request.endpoint and 'reports' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('reports.index') }}">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
                     </a>
                 </div>
                 
+                <!-- Governance -->
                 <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'training' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('training.index') }}">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Training</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'file-management' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('risks.file_management') }}">
-                        <i class="fas fa-folder-open"></i>
-                        <span>File Management</span>
+                    <a class="nav-link {% if request.endpoint and 'users' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('users.index') }}">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
                     </a>
                 </div>
                 
@@ -252,14 +190,21 @@
                         <span>Departments</span>
                     </a>
                 </div>
+                
+                <div class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'vendors' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('vendors.index') }}">
+                        <i class="fas fa-handshake"></i>
+                        <span>Vendor Management</span>
+                    </a>
+                </div>
             </div>
         </div>
-        
         
         <!-- Executive Section -->
         <div class="nav-section">
             <div class="nav-section-header">
-                <span class="nav-section-title">Executive</span>
+                <span class="nav-section-title" style="color: #FFD700;">EXECUTIVE</span>
             </div>
             
             <div class="nav-section-content">
@@ -272,43 +217,36 @@
                 </div>
                 
                 <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'matrix' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('matrix.index') }}">
-                        <i class="fas fa-th"></i>
-                        <span>Risk Matrix</span>
+                    <a class="nav-link {% if request.endpoint and 'bi_tools' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('bi_tools.index') }}">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>BI Tools</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'metrics' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('metrics.index') }}">
+                        <i class="fas fa-chart-area"></i>
+                        <span>Metrics</span>
                     </a>
                 </div>
             </div>
         </div>
         
-        <!-- Administration Section -->
+        <!-- Administration Section (Simplified) -->
         <div class="nav-section">
             <div class="nav-section-header">
-                <span class="nav-section-title">Administration</span>
+                <span class="nav-section-title">SYSTEM</span>
             </div>
             
             <div class="nav-section-content">
+                {% if current_user and current_user.is_admin() %}
                 <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'users' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('users.index') }}">
-                        <i class="fas fa-users"></i>
-                        <span>User Management</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'notifications' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('notifications.index') }}">
-                        <i class="fas fa-bell"></i>
-                        <span>Notifications</span>
-                    </a>
-                </div>
-                
-                <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'integrations' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('integrations.index') }}">
-                        <i class="fas fa-plug"></i>
-                        <span>Integrations</span>
+                    <a class="nav-link {% if request.endpoint and 'settings' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('settings.index') }}">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
                     </a>
                 </div>
                 
@@ -319,16 +257,15 @@
                         <span>System Config</span>
                     </a>
                 </div>
+                {% endif %}
                 
-                {% if current_user and current_user.is_admin() %}
                 <div class="nav-item">
-                    <a class="nav-link {% if request.endpoint and 'settings' in request.endpoint %}active{% endif %}" 
-                       href="{{ url_for('settings.index') }}">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
+                    <a class="nav-link {% if request.endpoint and 'notifications' in request.endpoint %}active{% endif %}" 
+                       href="{{ url_for('notifications.index') }}">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
                     </a>
                 </div>
-                {% endif %}
                 
                 <div class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">
@@ -341,269 +278,47 @@
     </nav>
 </aside>
 
+<!-- Enhanced styling for Risk/Compliance distinction -->
 <style>
-/* Section Header Styles (Non-collapsible) */
-.nav-section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    user-select: none;
-    /* Plain background - no transparency effects */
-    background: transparent;
-    margin: 0.25rem 0.5rem;
-    border-radius: 0;
+/* Keep all your existing styles, add these enhancements */
+
+/* Color-coded section headers */
+.nav-section-header .nav-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 0;
+    border-bottom: 2px solid currentColor;
+    margin-bottom: 10px;
 }
 
-.nav-section-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 600;
+/* Risk section hover effect */
+.nav-section:nth-child(2) .nav-link:hover {
+    background: linear-gradient(90deg, rgba(255, 165, 0, 0.2), rgba(255, 165, 0, 0.1)) !important;
+    border-left: 3px solid #FFA500;
 }
 
-.nav-section-content {
-    overflow: visible;
+/* Compliance section hover effect */
+.nav-section:nth-child(3) .nav-link:hover {
+    background: linear-gradient(90deg, rgba(144, 238, 144, 0.2), rgba(144, 238, 144, 0.1)) !important;
+    border-left: 3px solid #90EE90;
 }
 
-/* Update nav-link styles for blue sidebar */
-.nav-link {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    color: white !important;
-    text-decoration: none !important;
-    /* Remove transition to prevent blinking */
-    transition: none;
-    position: relative;
+/* Executive section hover effect */
+.nav-section:nth-child(4) .nav-link:hover {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1)) !important;
+    border-left: 3px solid #FFD700;
 }
 
-.nav-link:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-    text-decoration: none !important;
+/* Active states with color coding */
+.nav-section:nth-child(2) .nav-link.active::before {
+    background: #FFA500;
 }
 
-.nav-link i {
-    color: white !important;
-    /* Remove transition */
-    transition: none;
+.nav-section:nth-child(3) .nav-link.active::before {
+    background: #90EE90;
 }
 
-.nav-link:hover i {
-    color: white !important;
-}
-
-.nav-link.active {
-    background: rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
-}
-
-.nav-link.active i {
-    color: white !important;
-}
-
-/* Additional specificity for active links */
-.sidebar .nav-link.active {
-    background: rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
-}
-
-.sidebar .nav-link.active span {
-    color: white !important;
-}
-
-/* Ensure non-active links stay white */
-.sidebar .nav-link:not(.active) {
-    color: white !important;
-}
-
-.sidebar .nav-link:not(.active) span {
-    color: white !important;
-}
-
-.sidebar .nav-link:not(.active) i {
-    color: white !important;
-}
-
-/* Override any Bootstrap or other framework styles */
-.sidebar .nav-link:not(.active):link {
-    color: white !important;
-}
-
-.sidebar .nav-link:not(.active):visited {
-    color: white !important;
-}
-
-/* Force all text elements in sidebar links to be white unless active */
-.sidebar .nav-link:not(.active) * {
-    color: white !important;
-}
-
-/* Force active link text elements to be white */
-.sidebar .nav-link.active * {
-    color: white !important;
-}
-
-.nav-link.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: white;
-}
-
-/* Removed collapsed sidebar section adjustments - sections are now always expanded */
-
-/* Sidebar anchor tag overrides */
-.sidebar a {
-    color: white !important;
-    text-decoration: none !important;
-}
-
-.sidebar a:hover {
-    color: var(--accent-color) !important;
-    text-decoration: none !important;
-}
-
-.sidebar a:visited {
-    color: white !important;
-}
-
-.sidebar a:focus {
-    color: white !important;
-}
-
-/* NAPSA Logo Styles - Fixed size, no borders */
-.sidebar-logo-img {
-    width: 50px !important;
-    height: 50px !important;
-    object-fit: contain;
-    /* Remove all borders and radius */
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    outline: none !important;
-    /* Ensure no transitions that cause size changes */
-    transition: none !important;
-    animation: none !important;
-    /* Prevent any resizing */
-    flex-shrink: 0;
-    min-width: 50px;
-    max-width: 50px;
-    /* Prevent transform changes */
-    transform: none !important;
-}
-
-/* Override any hover or active states that might affect the logo */
-.sidebar-header:hover .sidebar-logo-img,
-.sidebar-logo:hover .sidebar-logo-img,
-.nav-link:hover ~ .sidebar-header .sidebar-logo-img,
-.nav-link.active ~ .sidebar-header .sidebar-logo-img,
-*:hover .sidebar-logo-img {
-    width: 50px !important;
-    height: 50px !important;
-    transform: none !important;
-    border: none !important;
-}
-
-/* Logo size is fixed */
-
-
-/* Remove tooltip styles since sidebar is not collapsible */
-
-/* Sidebar sections are always visible */
-
-/* Section spacing improvements */
-.nav-section + .nav-section {
-    margin-top: 0.5rem;
-}
-
-/* Section header styling already defined above */
-
-/* Document management section special styling */
-.nav-section:has([data-toggle="documents"]) {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: 1rem;
-    padding-top: 0.5rem;
-}
-
-/* Simple hover effects */
-.nav-link {
-    margin: 0.125rem 0.5rem;
-    border-radius: 4px;
-    position: relative;
-    /* Remove overflow to prevent rendering issues */
-}
-
-/* Ensure clicking links doesn't affect logo */
-.nav-link:active,
-.nav-link:focus {
-    outline: none;
-}
-
-/* Disable ALL transitions in sidebar to prevent movement */
-.sidebar * {
-    transition: none !important;
-    animation: none !important;
-}
-
-/* Simplified hover effect without animation */
-
-/* Additional stability fixes */
-.sidebar {
-    transform: none !important;
-    will-change: auto !important;
-}
-
-.sidebar-header {
-    position: relative !important;
-    transform: none !important;
-}
-
-.sidebar-logo {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
-    /* Lock the logo container */
-    height: 50px !important;
-    overflow: hidden;
-}
-
-/* Ensure nav items don't cause layout shifts */
-.nav-item {
-    display: block;
-    width: 100%;
-    overflow: hidden;
-}
-
-/* Prevent font loading shifts */
-.sidebar {
-    font-display: swap;
-}
-
-/* Lock sidebar width */
-.sidebar {
-    width: 260px !important;
-    min-width: 260px !important;
-    max-width: 260px !important;
+.nav-section:nth-child(4) .nav-link.active::before {
+    background: #FFD700;
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Simple active link visibility check
-    const activeLink = document.querySelector('.nav-link.active');
-    if (activeLink) {
-        // Only scroll if not visible
-        const rect = activeLink.getBoundingClientRect();
-        if (rect.bottom > window.innerHeight || rect.top < 0) {
-            activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
-});
-</script>

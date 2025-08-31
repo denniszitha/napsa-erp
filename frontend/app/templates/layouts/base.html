@@ -34,37 +34,46 @@
     <!-- ApexCharts CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.css">
     
-    <!-- Shepherd.js for Guided Tours -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@11.0.1/dist/css/shepherd.css"/>
-    
-    <!-- SweetAlert2 for Better Modals -->
+    <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     
-    <!-- Color Coding System -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/color-coding.css') }}">
-    
-    <!-- Custom Professional Styles -->
+    <!-- Custom Styles -->
     <style>
         :root {
-            /* NAPSA Brand Colors - Navy Blue and Orange */
-            --primary-color: #1e3a8a;
-            --primary-light: #3b82f6;
-            --primary-dark: #1e40af;
-            --accent-color: #f59e0b;
-            --accent-light: #fbbf24;
-            --accent-dark: #d97706;
-            --secondary-color: #e0e7ff;
-            --sidebar-color: #1e3a8a;
-            --sidebar-hover: #1e40af;
+            /* NAPSA Brand Colors */
+            --napsa-blue: #002868;
+            --napsa-orange: #FFA500;
+            --napsa-green: #90EE90;
+            --napsa-gold: #FFD700;
+            
+            /* Theme Colors */
+            --primary-color: #002868;
+            --primary-light: #1e3a8a;
+            --primary-dark: #001a42;
+            --accent-color: #FFA500;
+            --accent-light: #ffb733;
+            --accent-dark: #cc8400;
+            --success-color: #90EE90;
+            --warning-color: #FFD700;
+            
+            /* UI Colors */
             --text-primary: #1f2937;
             --text-secondary: #6b7280;
+            --text-light: #9ca3af;
             --border-color: #e5e7eb;
-            --bg-light: #ffffff;
-            --bg-card: #ffffff;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --bg-light: #f9fafb;
+            --bg-white: #ffffff;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
             --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 15px rgba(0,0,0,0.15);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.2);
+            
+            /* Transitions */
+            --transition-fast: all 0.2s ease;
+            --transition-base: all 0.3s ease;
+            --transition-slow: all 0.5s ease;
         }
 
         * {
@@ -74,197 +83,134 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-light);
             color: var(--text-primary);
             font-size: 14px;
             line-height: 1.6;
         }
 
-        /* Professional Layout Structure */
+        /* Layout Structure */
         .app-container {
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Sidebar Styles */
+        /* Enhanced Sidebar */
         .sidebar {
-            width: 260px;
-            background: #1e3a8a;
+            width: 280px;
+            background: linear-gradient(180deg, var(--napsa-blue) 0%, var(--primary-dark) 100%);
             color: white;
-            /* Remove transition to prevent blinking */
-            transition: none;
             overflow-y: auto;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
             z-index: 1000;
-        }
-
-        /* Sidebar anchor tag overrides */
-        .sidebar a {
-            color: white !important;
-            text-decoration: none !important;
-        }
-
-        /* Removed hover effect from base - handled in sidebar.html */
-
-        .sidebar a:visited {
-            color: white !important;
-        }
-
-        .sidebar a:focus {
-            color: white !important;
+            transition: var(--transition-base);
         }
 
         .sidebar.collapsed {
             width: 70px;
         }
 
+        /* Sidebar Header */
         .sidebar-header {
             padding: 1.5rem;
-            /* Plain background - no transparency */
-            background: transparent;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            /* Fixed height to prevent shifting */
             min-height: 80px;
-            height: 80px;
         }
 
         .sidebar-logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            /* Prevent logo container from affecting logo size */
-            flex-shrink: 0;
         }
 
-        /* Remove icon styles as we're using image logo only */
         .sidebar-logo img {
-            width: 50px !important;
-            height: 50px !important;
+            width: 45px;
+            height: 45px;
             object-fit: contain;
-            border: none !important;
-            flex-shrink: 0;
+            filter: brightness(0) invert(1);
         }
 
         .sidebar-logo-text {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            transition: var(--transition);
             color: white;
         }
 
         .sidebar.collapsed .sidebar-logo-text {
             display: none;
         }
-        
-        /* Ensure logo doesn't change on hover or active states */
-        .nav-link:hover .sidebar-logo-img,
-        .nav-link.active .sidebar-logo-img,
-        .sidebar:hover .sidebar-logo-img {
-            width: 50px !important;
-            height: 50px !important;
-            transform: none !important;
-        }
 
+        /* Navigation Sections */
         .sidebar-nav {
             padding: 1rem 0;
         }
 
         .nav-section {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .nav-section-title {
-            padding: 0.5rem 1.5rem;
+            padding: 0.75rem 1.5rem;
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-            font-weight: 600;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .sidebar.collapsed .nav-section-title {
-            display: none;
+        /* Risk Management Section */
+        .nav-section.risk-section .nav-section-title {
+            color: var(--napsa-orange);
+            border-left: 3px solid var(--napsa-orange);
+            padding-left: calc(1.5rem - 3px);
         }
 
-        .nav-item {
-            position: relative;
+        /* Compliance Section */
+        .nav-section.compliance-section .nav-section-title {
+            color: var(--napsa-green);
+            border-left: 3px solid var(--napsa-green);
+            padding-left: calc(1.5rem - 3px);
         }
 
+        /* Executive Section */
+        .nav-section.executive-section .nav-section-title {
+            color: var(--napsa-gold);
+            border-left: 3px solid var(--napsa-gold);
+            padding-left: calc(1.5rem - 3px);
+        }
+
+        /* Navigation Links */
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: white !important;
-            text-decoration: none !important;
-            transition: var(--transition);
+            padding: 0.625rem 1.5rem;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: var(--transition-fast);
             position: relative;
+            font-size: 14px;
         }
 
         .nav-link:hover {
-            background: white !important;
-            color: var(--accent-color) !important;
-            text-decoration: none !important;
-        }
-        
-        .nav-link:hover i {
-            color: var(--accent-color) !important;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding-left: 1.75rem;
         }
 
         .nav-link.active {
-            background: white !important;
-            color: var(--accent-color) !important;
-        }
-
-        .nav-link.active i {
-            color: var(--accent-color) !important;
-        }
-
-        /* Additional specificity for active links */
-        .sidebar .nav-link.active {
-            background: white !important;
-            color: var(--accent-color) !important;
-        }
-
-        .sidebar .nav-link.active span {
-            color: var(--accent-color) !important;
-        }
-
-        /* Ensure non-active links stay white */
-        .sidebar .nav-link:not(.active) {
-            color: white !important;
-        }
-
-        .sidebar .nav-link:not(.active) span {
-            color: white !important;
-        }
-
-        .sidebar .nav-link:not(.active) i {
-            color: white !important;
-        }
-
-        /* Override any Bootstrap or other framework styles */
-        .sidebar .nav-link:not(.active):link {
-            color: white !important;
-        }
-
-        .sidebar .nav-link:not(.active):visited {
-            color: white !important;
-        }
-
-        /* Force all text elements in sidebar links to be white unless active */
-        .sidebar .nav-link:not(.active) * {
-            color: white !important;
-        }
-
-        /* Force active link text elements to be orange */
-        .sidebar .nav-link.active * {
-            color: var(--accent-color) !important;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-weight: 600;
         }
 
         .nav-link.active::before {
@@ -277,17 +223,28 @@
             background: var(--accent-color);
         }
 
+        /* Section-specific active states */
+        .risk-section .nav-link.active::before {
+            background: var(--napsa-orange);
+        }
+
+        .compliance-section .nav-link.active::before {
+            background: var(--napsa-green);
+        }
+
+        .executive-section .nav-link.active::before {
+            background: var(--napsa-gold);
+        }
+
         .nav-link i {
-            font-size: 18px;
-            width: 24px;
+            font-size: 16px;
+            width: 20px;
             margin-right: 12px;
-            color: white !important;
-            transition: color 0.3s ease;
         }
 
         .sidebar.collapsed .nav-link {
             justify-content: center;
-            padding: 0.75rem;
+            padding: 0.625rem;
         }
 
         .sidebar.collapsed .nav-link i {
@@ -298,30 +255,36 @@
             display: none;
         }
 
-        /* Main Content Area */
+        .sidebar.collapsed .nav-section-title {
+            display: none;
+        }
+
+        /* Main Wrapper */
         .main-wrapper {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: var(--bg-light);
         }
 
-        /* Top Navigation Bar */
+        /* Enhanced Topbar */
         .topbar {
             background: white;
-            height: 64px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 1.5rem;
+            padding: 0 2rem;
             box-shadow: var(--shadow-sm);
             z-index: 999;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .topbar-left {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .sidebar-toggle {
@@ -331,15 +294,33 @@
             color: var(--text-primary);
             cursor: pointer;
             padding: 0.5rem;
-            border-radius: 6px;
-            transition: var(--transition);
+            border-radius: 8px;
+            transition: var(--transition-fast);
         }
 
         .sidebar-toggle:hover {
             background: var(--bg-light);
+            color: var(--primary-color);
         }
 
+        /* Page Info */
+        .page-info {
+            display: flex;
+            flex-direction: column;
+        }
 
+        .page-title-small {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .breadcrumb-topbar {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Topbar Right */
         .topbar-right {
             display: flex;
             align-items: center;
@@ -351,23 +332,20 @@
             padding: 0.5rem;
             border-radius: 8px;
             cursor: pointer;
-            transition: var(--transition);
+            transition: var(--transition-fast);
+            color: var(--text-secondary);
         }
 
         .topbar-item:hover {
             background: var(--bg-light);
-        }
-
-        .topbar-item i {
-            font-size: 18px;
-            color: var(--text-primary);
+            color: var(--primary-color);
         }
 
         .notification-badge {
             position: absolute;
             top: 4px;
             right: 4px;
-            background: #ff4757;
+            background: #ef4444;
             color: white;
             font-size: 10px;
             padding: 2px 5px;
@@ -375,6 +353,7 @@
             font-weight: 600;
         }
 
+        /* User Menu */
         .user-menu {
             position: relative;
         }
@@ -386,52 +365,26 @@
             padding: 0.5rem 1rem;
             border-radius: 8px;
             cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .user-menu-trigger:hover {
+            transition: var(--transition-fast);
             background: var(--bg-light);
         }
 
-        .user-menu .dropdown-menu {
-            background: white;
-            border: 1px solid var(--gray-200);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-radius: 8px;
-            padding: 0.5rem 0;
-            margin-top: 0.5rem;
-            min-width: 180px;
-        }
-
-        .user-menu .dropdown-item {
-            padding: 0.75rem 1rem;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            transition: var(--transition);
-        }
-
-        .user-menu .dropdown-item:hover {
-            background: var(--gray-50);
-            color: var(--primary-color);
-        }
-
-        .user-menu .dropdown-divider {
-            margin: 0.5rem 0;
-            border-color: var(--gray-200);
+        .user-menu-trigger:hover {
+            background: var(--primary-color);
+            color: white;
         }
 
         .user-avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 600;
+            font-size: 14px;
         }
 
         .user-info {
@@ -446,25 +399,32 @@
         }
 
         .user-role {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
+        }
+
+        .user-menu-trigger:hover .user-name,
+        .user-menu-trigger:hover .user-role {
+            color: white;
         }
 
         /* Main Content */
         .main-content {
             flex: 1;
             overflow-y: auto;
-            padding: 1.5rem;
-            background: var(--bg-light);
+            padding: 2rem;
         }
 
         /* Page Header */
         .page-header {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .page-title {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 0.5rem;
@@ -474,9 +434,6 @@
             background: transparent;
             padding: 0;
             margin: 0;
-        }
-
-        .breadcrumb-item {
             font-size: 13px;
         }
 
@@ -485,14 +442,15 @@
             color: var(--text-secondary);
         }
 
-        /* Card Styles */
+        /* Enhanced Cards */
         .card {
             background: white;
             border: none;
             border-radius: 12px;
             box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-            margin-bottom: 1.5rem;
+            transition: var(--transition-base);
+            margin-bottom: 2rem;
+            overflow: hidden;
         }
 
         .card:hover {
@@ -500,7 +458,7 @@
         }
 
         .card-header {
-            background: transparent;
+            background: linear-gradient(135deg, var(--bg-light) 0%, white 100%);
             border-bottom: 1px solid var(--border-color);
             padding: 1.25rem 1.5rem;
             font-weight: 600;
@@ -512,235 +470,302 @@
             padding: 1.5rem;
         }
 
-        /* Utility Classes */
-        .text-primary-theme {
-            color: var(--primary-color) !important;
+        /* Risk Card Styling */
+        .card.risk-card .card-header {
+            background: linear-gradient(135deg, rgba(255,165,0,0.1) 0%, white 100%);
+            border-left: 4px solid var(--napsa-orange);
         }
 
-        .bg-primary-theme {
-            background: var(--primary-color) !important;
+        /* Compliance Card Styling */
+        .card.compliance-card .card-header {
+            background: linear-gradient(135deg, rgba(144,238,144,0.1) 0%, white 100%);
+            border-left: 4px solid var(--napsa-green);
         }
 
-        .btn-primary-theme {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            border: none;
-            color: white;
-            padding: 0.5rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: var(--transition);
+        /* Stats Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-accent-theme {
-            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-dark) 100%);
-            border: none;
-            color: white;
-            padding: 0.5rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        .btn-primary-theme:hover {
-            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-dark) 100%);
-            transform: translateY(-2px);
+        .stat-card:hover {
             box-shadow: var(--shadow-md);
-        }
-        
-        .btn-accent-theme:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
         }
-        
-        /* Standard Bootstrap Button Overrides for NAPSA Theme */
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card.risk-stat .stat-icon {
+            background: rgba(255,165,0,0.1);
+            color: var(--napsa-orange);
+        }
+
+        .stat-card.compliance-stat .stat-icon {
+            background: rgba(144,238,144,0.1);
+            color: var(--success-color);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .stat-change.positive {
+            background: rgba(34,197,94,0.1);
+            color: #22c55e;
+        }
+
+        .stat-change.negative {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+        }
+
+        /* Enhanced Buttons */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: var(--transition-base);
+            font-size: 14px;
+        }
+
         .btn-primary {
-            background: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
-            color: white !important;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            border: none;
+            color: white;
         }
-        
+
         .btn-primary:hover {
-            background: var(--accent-color) !important;
-            border-color: var(--accent-color) !important;
-            color: white !important;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
             transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
-        
-        .btn-outline-primary {
-            color: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
+
+        .btn-risk {
+            background: linear-gradient(135deg, var(--napsa-orange) 0%, #ff8c00 100%);
+            border: none;
+            color: white;
         }
-        
-        .btn-outline-primary:hover {
-            background: var(--accent-color) !important;
-            border-color: var(--accent-color) !important;
-            color: white !important;
+
+        .btn-risk:hover {
             transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-compliance {
+            background: linear-gradient(135deg, var(--napsa-green) 0%, #7dd87d 100%);
+            border: none;
+            color: var(--text-primary);
+        }
+
+        .btn-compliance:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Tables */
+        .table {
+            font-size: 14px;
+        }
+
+        .table thead th {
+            background: var(--bg-light);
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background: rgba(0,40,104,0.02);
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 0.375rem 0.75rem;
+            font-weight: 500;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .badge-high-risk {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+        }
+
+        .badge-medium-risk {
+            background: rgba(251,146,60,0.1);
+            color: #fb923c;
+        }
+
+        .badge-low-risk {
+            background: rgba(34,197,94,0.1);
+            color: #22c55e;
+        }
+
+        .badge-compliant {
+            background: rgba(144,238,144,0.1);
+            color: var(--success-color);
+        }
+
+        .badge-non-compliant {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+        }
+
+        /* Forms */
+        .form-control,
+        .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.625rem 0.875rem;
+            font-size: 14px;
+            transition: var(--transition-fast);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0,40,104,0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+        }
+
+        /* Alerts */
+        .alert {
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: rgba(59,130,246,0.1);
+            color: #3b82f6;
+        }
+
+        .alert-success {
+            background: rgba(34,197,94,0.1);
+            color: #22c55e;
+        }
+
+        .alert-warning {
+            background: rgba(251,146,60,0.1);
+            color: #fb923c;
+        }
+
+        .alert-danger {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Responsive Design */
         @media (max-width: 1200px) {
             .sidebar {
-                width: 220px;
-            }
-            
-            .main-wrapper {
-                margin-left: 220px;
-            }
-            
-            .content-wrapper {
-                padding: 1rem;
+                width: 250px;
             }
         }
 
         @media (max-width: 992px) {
             .sidebar {
-                width: 200px;
+                width: 220px;
             }
             
-            .main-wrapper {
-                margin-left: 200px;
-            }
-            
-            .page-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .card-title {
-                font-size: 1rem;
+            .main-content {
+                padding: 1.5rem;
             }
         }
 
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
-                left: -260px;
+                left: -280px;
                 height: 100vh;
-                z-index: 1000;
-                width: 260px;
+                z-index: 1001;
             }
 
             .sidebar.show {
                 left: 0;
-                box-shadow: var(--shadow-lg);
             }
 
-            .search-bar {
-                display: none;
-            }
-
-            .main-wrapper {
-                margin-left: 0;
-                width: 100%;
-            }
-            
-            .content-wrapper {
-                padding: 0.75rem;
-            }
-            
-            .page-header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .page-actions {
-                width: 100%;
-                justify-content: flex-start;
-            }
-            
-            .row > [class*="col-"] {
-                margin-bottom: 1rem;
-            }
-            
-            .table-responsive {
-                border: none;
-            }
-            
-            .btn-group {
-                flex-wrap: wrap;
-            }
-            
-            .modal-dialog {
-                margin: 1rem;
-                max-width: calc(100% - 2rem);
-            }
-        }
-
-        @media (max-width: 576px) {
-            .content-wrapper {
-                padding: 0.5rem;
-            }
-            
-            .page-header h1 {
-                font-size: 1.25rem;
-            }
-            
-            .card {
-                border-radius: 8px;
-            }
-            
-            .btn {
-                font-size: 0.875rem;
-                padding: 0.375rem 0.75rem;
-            }
-            
-            .btn-sm {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
-            }
-            
-            .form-control, .form-select {
-                font-size: 1rem; /* Prevent zoom on iOS */
-            }
-            
-            .table-responsive table {
-                font-size: 0.875rem;
-            }
-            
-            .stats-card h3 {
-                font-size: 1.5rem;
-            }
-            
-            .stats-card p {
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Mobile Navigation Toggle */
-        .mobile-nav-toggle {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1001;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.25rem;
-            cursor: pointer;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition);
-        }
-
-        .mobile-nav-toggle:hover {
-            background: var(--sidebar-hover);
-            transform: scale(1.05);
-        }
-
-        @media (max-width: 768px) {
-            .mobile-nav-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            body.sidebar-open {
-                overflow: hidden;
-            }
-            
             .sidebar-overlay {
                 display: none;
                 position: fixed;
@@ -748,68 +773,43 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
             }
-            
+
             .sidebar-overlay.show {
                 display: block;
             }
-        }
 
-        /* Content Area Responsive */
-        .content-wrapper {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: auto;
-        }
-
-        /* Tables Responsive */
-        .table-responsive {
-            border-radius: 8px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        @media (max-width: 768px) {
-            .table-responsive {
-                border-radius: 4px;
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
             }
-            
-            .table thead {
-                display: none;
+
+            .topbar {
+                padding: 0 1rem;
             }
-            
-            .table tbody tr {
-                display: block;
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                margin-bottom: 1rem;
+
+            .main-content {
                 padding: 1rem;
             }
-            
-            .table tbody td {
-                display: block;
-                text-align: left !important;
-                border: none;
-                padding: 0.25rem 0;
+
+            .page-title {
+                font-size: 24px;
             }
-            
-            .table tbody td::before {
-                content: attr(data-label) ": ";
-                font-weight: 600;
-                color: var(--text-secondary);
+
+            .stat-value {
+                font-size: 24px;
             }
         }
 
-        /* Cards Responsive */
-        @media (max-width: 576px) {
-            .row .col-md-6,
-            .row .col-md-4,
-            .row .col-md-3 {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-        }
+        /* Utility Classes */
+        .text-risk { color: var(--napsa-orange) !important; }
+        .text-compliance { color: var(--napsa-green) !important; }
+        .bg-risk-light { background: rgba(255,165,0,0.1) !important; }
+        .bg-compliance-light { background: rgba(144,238,144,0.1) !important; }
+        .border-risk { border-color: var(--napsa-orange) !important; }
+        .border-compliance { border-color: var(--napsa-green) !important; }
 
         /* Animations */
         @keyframes fadeIn {
@@ -844,71 +844,97 @@
     {% block styles %}{% endblock %}
 </head>
 <body>
-    <!-- Mobile Navigation Toggle -->
-    <button class="mobile-nav-toggle" id="mobileNavToggle">
-        <i class="fas fa-bars"></i>
-    </button>
-    
-    <!-- Sidebar Overlay for Mobile -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    
     <div class="app-container">
         {% if current_user and current_user.is_authenticated() %}
-        <!-- Include Sidebar -->
-        {% include 'includes/sidebar.html' %}
+        <!-- Sidebar -->
+        {% include 'includes/sidebar-new.html' %}
         {% endif %}
         
         <!-- Main Wrapper -->
         <div class="main-wrapper">
             {% if current_user and current_user.is_authenticated() %}
-            <!-- Top Navigation Bar -->
+            <!-- Topbar -->
             <nav class="topbar">
                 <div class="topbar-left">
                     <button class="sidebar-toggle" id="sidebarToggle">
                         <i class="fas fa-bars"></i>
                     </button>
+                    
+                    <div class="page-info">
+                        <div class="page-title-small">{% block page_title %}Dashboard{% endblock %}</div>
+                        <div class="breadcrumb-topbar">
+                            <span>NAPSA ERM</span> › <span>{% block breadcrumb %}Dashboard{% endblock %}</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="topbar-right">
                     <!-- Quick Actions -->
-                    <div class="topbar-item" title="Quick Add">
+                    <div class="topbar-item" title="Quick Add" data-bs-toggle="dropdown">
                         <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="{{ url_for('risks.create') }}">
+                            <i class="fas fa-exclamation-triangle me-2 text-risk"></i>New Risk
+                        </a>
+                        <a class="dropdown-item" href="{{ url_for('incidents.create') }}">
+                            <i class="fas fa-exclamation-circle me-2 text-warning"></i>New Incident
+                        </a>
+                        <a class="dropdown-item" href="{{ url_for('rcsa.create') }}">
+                            <i class="fas fa-clipboard-check me-2 text-info"></i>New Assessment
+                        </a>
                     </div>
                     
                     <!-- Notifications -->
-                    <div class="topbar-item" id="notificationDropdown">
+                    <div class="topbar-item" id="notificationDropdown" data-bs-toggle="dropdown">
                         <i class="fas fa-bell"></i>
                         <span class="notification-badge" id="notificationCount">3</span>
                     </div>
-                    
-                    <!-- Messages -->
-                    <div class="topbar-item">
-                        <i class="fas fa-envelope"></i>
+                    <div class="dropdown-menu dropdown-menu-end" style="width: 300px;">
+                        <div class="dropdown-header">Notifications</div>
+                        <a class="dropdown-item" href="#">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-risk"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small text-muted">5 min ago</div>
+                                    <div>High risk identified in IT Operations</div>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-center" href="{{ url_for('notifications.index') }}">
+                            View all notifications
+                        </a>
                     </div>
                     
                     <!-- User Menu -->
                     <div class="user-menu dropdown">
-                        <div class="user-menu-trigger" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-menu-trigger" data-bs-toggle="dropdown">
                             <div class="user-avatar">
-                                {{ ((current_user.full_name or current_user.username or 'U')[0].upper() if current_user else 'U') }}
+                                {{ (current_user.full_name or current_user.username or 'U')[0].upper() if current_user else 'U' }}
                             </div>
                             <div class="user-info">
-                                <span class="user-name">{{ (current_user.full_name or current_user.username or 'User') if current_user else 'User' }}</span>
-                                <span class="user-role">{{ (current_user.role|title if current_user.role else 'User') if current_user else 'User' }}</span>
+                                <span class="user-name">{{ current_user.full_name or current_user.username if current_user else 'User' }}</span>
+                                <span class="user-role">{{ current_user.role|title if current_user and current_user.role else 'User' }}</span>
                             </div>
                             <i class="fas fa-chevron-down ms-2"></i>
                         </div>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a></li>
                         </ul>
                     </div>
                 </div>
             </nav>
             {% endif %}
             
-            <!-- Main Content Area -->
+            <!-- Main Content -->
             <main class="main-content">
                 <!-- Flash Messages -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -926,6 +952,14 @@
                 {% block content %}{% endblock %}
             </main>
         </div>
+    </div>
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
     </div>
     
     <!-- jQuery -->
@@ -950,39 +984,29 @@
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     
-    <!-- Color Coding System JS -->
-    <script src="{{ url_for('static', filename='js/color-coding.js') }}"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- Custom JavaScript -->
     <script>
-        // Make auth token available globally
+        // Global configuration
         window.AUTH_TOKEN = $('meta[name="auth-token"]').attr('content') || '';
         window.TOKEN_TYPE = $('meta[name="token-type"]').attr('content') || 'Bearer';
         
-        // Initialize components
         $(document).ready(function() {
-            // Setup AJAX defaults for both CSRF and Authorization headers
+            // AJAX Setup
             $.ajaxSetup({
                 beforeSend: function(xhr, settings) {
-                    // Add CSRF token for state-changing requests
                     if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
                         xhr.setRequestHeader("X-CSRFToken", $('meta[name="csrf-token"]').attr('content'));
                     }
-                    
-                    // Add Authorization header if token exists
                     if (window.AUTH_TOKEN) {
                         xhr.setRequestHeader("Authorization", window.TOKEN_TYPE + " " + window.AUTH_TOKEN);
                     }
                 },
                 error: function(xhr, status, error) {
-                    // Handle 401 errors globally
                     if (xhr.status === 401) {
-                        console.error('Authentication required. Redirecting to login...');
-                        // Optional: Show a toast notification
-                        if (typeof toastr !== 'undefined') {
-                            toastr.error('Your session has expired. Please log in again.');
-                        }
-                        // Redirect to login page after a short delay
+                        toastr.error('Session expired. Please log in again.');
                         setTimeout(function() {
                             window.location.href = '/auth/login?next=' + encodeURIComponent(window.location.pathname);
                         }, 2000);
@@ -996,7 +1020,7 @@
                 pageLength: 10,
                 language: {
                     search: "_INPUT_",
-                    searchPlaceholder: "Search records...",
+                    searchPlaceholder: "Search...",
                 },
                 dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip'
             });
@@ -1007,7 +1031,7 @@
                 width: '100%'
             });
             
-            // Sidebar toggle
+            // Sidebar Toggle
             $('#sidebarToggle').click(function() {
                 $('.sidebar').toggleClass('collapsed');
                 localStorage.setItem('sidebarCollapsed', $('.sidebar').hasClass('collapsed'));
@@ -1018,233 +1042,92 @@
                 $('.sidebar').addClass('collapsed');
             }
             
-            // Toastr configuration
+            // Mobile sidebar toggle
+            $('#sidebarToggle').on('click', function() {
+                if ($(window).width() <= 768) {
+                    $('.sidebar').toggleClass('show');
+                    $('#sidebarOverlay').toggleClass('show');
+                }
+            });
+            
+            $('#sidebarOverlay').on('click', function() {
+                $('.sidebar').removeClass('show');
+                $(this).removeClass('show');
+            });
+            
+            // Toastr Configuration
             toastr.options = {
                 closeButton: true,
                 progressBar: true,
                 positionClass: "toast-top-right",
                 timeOut: 4000,
-                extendedTimeOut: 1000,
                 showEasing: "swing",
                 hideEasing: "linear",
                 showMethod: "fadeIn",
                 hideMethod: "fadeOut"
             };
             
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+            
             // Update notification count
             updateNotificationCount();
-            setInterval(updateNotificationCount, 30000);
+            setInterval(updateNotificationCount, 60000); // Update every minute
         });
         
         // Update notification count
         function updateNotificationCount() {
-            $.get('/api/notifications/count', function(data) {
-                const count = data.count || 0;
-                $('#notificationCount').text(count).toggle(count > 0);
-            }).fail(function() {
-                $('#notificationCount').hide();
-            });
+            $.get('/api/notifications/count')
+                .done(function(data) {
+                    const count = data.count || 0;
+                    $('#notificationCount').text(count).toggle(count > 0);
+                })
+                .fail(function() {
+                    $('#notificationCount').hide();
+                });
         }
         
-        // Global loading indicator
+        // Show loading overlay
+        function showLoading() {
+            $('#loadingOverlay').addClass('active');
+        }
+        
+        // Hide loading overlay
+        function hideLoading() {
+            $('#loadingOverlay').removeClass('active');
+        }
+        
+        // Global AJAX loading
         $(document).ajaxStart(function() {
-            $('body').addClass('loading');
+            showLoading();
         }).ajaxStop(function() {
-            $('body').removeClass('loading');
+            hideLoading();
         });
-
-        // Mobile navigation toggle
-        const mobileNavToggle = document.getElementById('mobileNavToggle');
-        const sidebar = document.querySelector('.sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const body = document.body;
-
-        if (mobileNavToggle) {
-            mobileNavToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-                body.classList.toggle('sidebar-open');
+        
+        // Confirm delete actions
+        $(document).on('click', '.delete-confirm', function(e) {
+            e.preventDefault();
+            const url = $(this).attr('href');
+            const title = $(this).data('title') || 'Are you sure?';
+            const text = $(this).data('text') || 'This action cannot be undone!';
+            
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
             });
-        }
-
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', function() {
-                sidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-                body.classList.remove('sidebar-open');
-            });
-        }
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-                body.classList.remove('sidebar-open');
-            }
         });
-
-        // Auto-close sidebar when clicking main content on mobile
-        const mainWrapper = document.querySelector('.main-wrapper');
-        if (mainWrapper && window.innerWidth <= 768) {
-            mainWrapper.addEventListener('click', function() {
-                if (sidebar.classList.contains('show')) {
-                    sidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                    body.classList.remove('sidebar-open');
-                }
-            });
-        }
-    </script>
-    
-    <!-- Session Timeout Warning -->
-    <script>
-        {% if current_user and current_user.is_authenticated() %}
-        (function() {
-            let warningShown = false;
-            let sessionTimeout = 30 * 60 * 1000; // 30 minutes in milliseconds
-            let warningTime = 5 * 60 * 1000; // Show warning 5 minutes before timeout
-            let lastActivity = Date.now();
-            let warningTimer;
-            let timeoutTimer;
-            
-            // Track user activity
-            function resetTimers() {
-                lastActivity = Date.now();
-                warningShown = false;
-                
-                // Clear existing timers
-                if (warningTimer) clearTimeout(warningTimer);
-                if (timeoutTimer) clearTimeout(timeoutTimer);
-                
-                // Set warning timer (25 minutes)
-                warningTimer = setTimeout(function() {
-                    if (!warningShown) {
-                        warningShown = true;
-                        showSessionWarning();
-                    }
-                }, sessionTimeout - warningTime);
-                
-                // Set timeout timer (30 minutes)
-                timeoutTimer = setTimeout(function() {
-                    // Auto logout
-                    window.location.href = '/auth/logout';
-                }, sessionTimeout);
-            }
-            
-            // Show session warning modal
-            function showSessionWarning() {
-                // Create modal if it doesn't exist
-                if ($('#sessionWarningModal').length === 0) {
-                    const modalHtml = `
-                        <div class="modal fade" id="sessionWarningModal" tabindex="-1" data-bs-backdrop="static">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-warning text-dark">
-                                        <h5 class="modal-title">
-                                            <i class="fas fa-exclamation-triangle me-2"></i>
-                                            Session Timeout Warning
-                                        </h5>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Your session will expire in <strong id="timeRemaining">5 minutes</strong> due to inactivity.</p>
-                                        <p>Click "Continue Session" to remain logged in.</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/auth/logout'">
-                                            <i class="fas fa-sign-out-alt me-1"></i> Logout Now
-                                        </button>
-                                        <button type="button" class="btn btn-primary" id="continueSessionBtn">
-                                            <i class="fas fa-clock me-1"></i> Continue Session
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    $('body').append(modalHtml);
-                    
-                    // Handle continue session button
-                    $('#continueSessionBtn').on('click', function() {
-                        $('#sessionWarningModal').modal('hide');
-                        resetTimers();
-                        
-                        // Make a request to refresh the session
-                        $.ajax({
-                            url: '/api/session/refresh',
-                            method: 'POST',
-                            success: function() {
-                                toastr.success('Session extended for another 30 minutes', 'Session Refreshed');
-                            },
-                            error: function() {
-                                // Even if the endpoint doesn't exist, the request itself refreshes the session
-                                toastr.info('Session activity recorded', 'Session Active');
-                            }
-                        });
-                    });
-                }
-                
-                // Show the modal
-                $('#sessionWarningModal').modal('show');
-                
-                // Update countdown
-                let remainingSeconds = 300; // 5 minutes
-                const countdownInterval = setInterval(function() {
-                    remainingSeconds--;
-                    
-                    if (remainingSeconds <= 0) {
-                        clearInterval(countdownInterval);
-                        $('#sessionWarningModal').modal('hide');
-                        window.location.href = '/auth/logout';
-                        return;
-                    }
-                    
-                    const minutes = Math.floor(remainingSeconds / 60);
-                    const seconds = remainingSeconds % 60;
-                    const timeText = minutes > 0 ? 
-                        `${minutes} minute${minutes !== 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}` :
-                        `${seconds} second${seconds !== 1 ? 's' : ''}`;
-                    
-                    $('#timeRemaining').text(timeText);
-                    
-                    // Check if modal was closed
-                    if (!$('#sessionWarningModal').hasClass('show')) {
-                        clearInterval(countdownInterval);
-                    }
-                }, 1000);
-            }
-            
-            // Track user activity events
-            const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
-            
-            activityEvents.forEach(function(event) {
-                document.addEventListener(event, function() {
-                    const timeSinceLastActivity = Date.now() - lastActivity;
-                    
-                    // Only reset if more than 1 minute since last activity
-                    if (timeSinceLastActivity > 60000) {
-                        resetTimers();
-                    }
-                }, true);
-            });
-            
-            // Initialize timers
-            resetTimers();
-            
-            // Check session on focus (when user returns to tab)
-            window.addEventListener('focus', function() {
-                const timeSinceLastActivity = Date.now() - lastActivity;
-                
-                if (timeSinceLastActivity > sessionTimeout) {
-                    // Session expired while away
-                    window.location.href = '/auth/logout';
-                } else if (timeSinceLastActivity > (sessionTimeout - warningTime) && !warningShown) {
-                    // Should show warning
-                    showSessionWarning();
-                }
-            });
-        })();
-        {% endif %}
     </script>
     
     {% block scripts %}{% endblock %}

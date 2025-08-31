@@ -21,12 +21,14 @@ def index():
     
     # Try to fetch dashboard stats from backend
     try:
-        token = session.get('access_token')
+        # Get token from cookies instead of session
+        from app.utils.auth import get_auth_token
+        token = get_auth_token()
         headers = {'Authorization': f'Bearer {token}'} if token else {}
         backend_url = current_app.config.get('API_BASE_URL', 'http://localhost:58001/api/v1')
         
         response = requests.get(
-            f'{backend_url}/dashboards/stats',
+            f'{backend_url}/dashboard/stats',
             headers=headers,
             timeout=5
         )
@@ -105,7 +107,7 @@ def get_stats():
         backend_url = current_app.config.get('API_BASE_URL', 'http://localhost:58001/api/v1')
         
         response = requests.get(
-            f'{backend_url}/dashboards/stats',
+            f'{backend_url}/dashboard/stats',
             headers=headers,
             timeout=5
         )
